@@ -14,22 +14,11 @@
 ## ----------------------------------------------------------
 
 # Generic imports/IO
-import re
-from html import escape
-import numpy as np
-from pathlib import Path
 import os
-
-# NLP Models for Tokenization, Embeddings, Etc.
-import torch
-import spacy
-from sentence_transformers import SentenceTransformer, CrossEncoder
-from rank_bm25 import BM25Okapi
-
-# Out of an abundance of caution, define a lock 
-# for use when loading the aforementioned (big) NLP models
+import re
 import threading
-_model_lock = threading.Lock()
+from html import escape
+from pathlib import Path
 
 from config import HF_CACHE_DIR, SPACY_CACHE_DIR
 
@@ -43,6 +32,18 @@ SPACY_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("HF_HOME", str(HF_CACHE_DIR))
 os.environ.setdefault("TRANSFORMERS_CACHE", str(HF_CACHE_DIR))
 os.environ.setdefault("HF_HUB_CACHE", str(HF_CACHE_DIR))
+
+# NLP Models for Tokenization, Embeddings, Etc. These imports must happen after
+# configuring the Hugging Face cache because the libraries read it at import time.
+import numpy as np  # noqa: E402
+import spacy  # noqa: E402
+import torch  # noqa: E402
+from rank_bm25 import BM25Okapi  # noqa: E402
+from sentence_transformers import CrossEncoder, SentenceTransformer  # noqa: E402
+
+# Out of an abundance of caution, define a lock
+# for use when loading the aforementioned (big) NLP models
+_model_lock = threading.Lock()
 
 ## ----------------------------------------------------------
 ## TEXT SPLITTING FUNCTIONALITY
@@ -119,6 +120,14 @@ reranker = None
 # Define our embedder (BGE-M3) and BGE-based re-ranker.  Both are provided by BAAI and
 # are, generally, some of the best-in-class for LOCAL performance of such tasks, at least
 # in this domain and when constrained to English.
+def default_device():
+    if torch.cuda.is_available():
+        return "cuda"
+    if torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
+
+
 def init_models(
     *,
     spacy_model = "en_core_web_sm",
@@ -127,9 +136,9 @@ def init_models(
     device_override = None,
 ):
 
-    # Use NVIDIA CUDA cores if available, much of this process is painfully slow even
-    # when they are used.
-    device = device_override or ("cuda" if torch.cuda.is_available() else "cpu")
+    # Use an available GPU backend when possible; model initialization and inference
+    # are otherwise CPU-bound and can be painfully slow.
+    device = device_override or default_device()
 
     global _nlp, embedder, reranker
 
@@ -147,7 +156,7 @@ def init_models(
         if reranker is None:
             reranker = CrossEncoder(reranker_name, device=device)
 
-# Embedding functionality, uses the embedder (here, BGE-M3) to encode 
+# Embedding functionality, uses the embedder (here, BGE-M3) to encode
 # while standardizing conversion parameters.
 def dense_embed_texts(texts: list[str], batch_size: int = 32, normalize: bool = True) -> np.ndarray:
 
@@ -266,7 +275,7 @@ def build_support_index(patent_full_text: str, *, dense_batch_size: int = 256):
 def bm25_tokenize(text):
     return TOKEN_RE.findall((text or "").lower())
 
-# Function to return top-k scores WITHOUT sorting the array. Marginally faster.  
+# Function to return top-k scores WITHOUT sorting the array. Marginally faster.
 def topk_indices(scores: np.ndarray, k: int):
     if k <= 0:
         return np.array([], dtype=int)
@@ -373,7 +382,7 @@ def bold_lemmas_in_sentence_html(sentence, query_lemmas, *, nlp, stopwords):
 
     # For each token...
     for tok in tokenized_sentence:
-        
+
         # Include any text (e.g., spaces, punctuation) after previous token
         if tok.idx > last:
             out.append(escape(sentence[last:tok.idx]))
@@ -447,7 +456,7 @@ def render_sentence_support_html(
         target_gi = h["sentence_global_idx"]
 
         # Once we've identified it, safely clean up the relevant text, determine
-        # whether the sentence contains any of the terms (lemmatized), and highlight 
+        # whether the sentence contains any of the terms (lemmatized), and highlight
         # high-scoring sentences
         rendered = []
         for gi in para_to_sentence_idxs[pi]:

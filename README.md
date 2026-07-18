@@ -14,3 +14,41 @@ Future functionality(?):
 * **Embedding-based Comparisons** - Use of embedding techniques to programmatically compare claims (both within and without a single patent).  Currently, I'm still slightly biased towards using [BGE](https://bge-model.com/).  This will likely be done in various dimensions:
   * Identifying unique steps within lengthy claims - that is, highlighting limitations or clauses that stick out (for better or worse).
   * Identifying family and/or portfolio-level standouts/trends.  For example, a quick diagnostic tool for major continuation-level shifts.
+
+## Local setup
+
+Create an isolated Python environment and install the runtime dependencies:
+
+```bash
+uv venv --python 3.12
+uv pip install -r requirements.txt
+```
+
+For development and tests, install the development dependencies and run the
+suite:
+
+```bash
+uv pip install -r requirements-dev.txt
+uv run pytest
+```
+
+The claim analyzers use spaCy language pipelines. Install the transformer model
+for production-equivalent behavior:
+
+```bash
+uv run python -m spacy download en_core_web_trf
+```
+
+For a smaller local smoke test, install `en_core_web_sm` and select it with an
+environment variable:
+
+```bash
+uv run python -m spacy download en_core_web_sm
+PATENTAGILITY_SPACY_MODEL=en_core_web_sm uv run python -c \
+  "from core.antecedent_basis import analyze_intro_ref; print(analyze_intro_ref('A system comprising a processor and the memory coupled to the processor.'))"
+```
+
+Model caches default to `~/.cache/patentagility`. Override the root with
+`PATENTAGILITY_CACHE_DIR` or set the Hugging Face and spaCy cache paths
+individually with `PATENTAGILITY_HF_CACHE_DIR` and
+`PATENTAGILITY_SPACY_CACHE_DIR`.

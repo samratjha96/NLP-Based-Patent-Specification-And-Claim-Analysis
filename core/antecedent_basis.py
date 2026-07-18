@@ -8,6 +8,15 @@
 ## Author: Kirk A. Sigmon
 ## Last Updated: Feb. 7, 2026
 
+import os
+import threading
+from dataclasses import dataclass
+from typing import Dict, List, Tuple
+
+import spacy
+
+from config import SPACY_CACHE_DIR
+
 # PRELIMINARY DEFINITIONAL MATERIAL --------------------------------------------
 
 INTRO_DETS = {"a", "an"}                                          # Intro determiners
@@ -15,7 +24,23 @@ INTRO_PHRASES = ["at least one", "one or more", "a plurality of"] # Plurlity def
 DEF_DETS = {"the", "said"}                                        # Definite determiners
 
 # LOAD CONTENT -----------------------------------------------------------------
-nlp = spacy.load("en_core_web_trf")                               # Load SpaCy
+_nlp = None
+_nlp_lock = threading.Lock()
+
+
+def get_nlp():
+    global _nlp
+
+    if _nlp is None:
+        with _nlp_lock:
+            if _nlp is None:
+                model = os.environ.get(
+                    "PATENTAGILITY_SPACY_MODEL",
+                    "en_core_web_trf",
+                )
+                cached = SPACY_CACHE_DIR / model
+                _nlp = spacy.load(cached if cached.exists() else model)
+    return _nlp
 
 @dataclass
 class Mention:
@@ -60,7 +85,7 @@ def _starts_with_intro_phrase(span_text):
 def extract_np_mentions(claim_text):
 
     # Run SpaCy on the claim text provided
-    doc = nlp(claim_text)
+    doc = get_nlp()(claim_text)
 
     # Define an empty list of mentions of NPs
     mentions: List[Mention] = []

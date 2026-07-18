@@ -1,6 +1,8 @@
 flask
+graphviz
 requests
 pdf2image
+pypdf
 pytesseract
 spacy
 torch

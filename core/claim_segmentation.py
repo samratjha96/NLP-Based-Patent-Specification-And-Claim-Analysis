@@ -22,6 +22,7 @@ from config import SPACY_CACHE_DIR
 # Lock for safely loading NLP stuff
 import threading
 _nlp_lock = threading.Lock()
+_nlp_by_model = {}
 
 # PRELIMINARY DEFINITIONAL MATERIAL --------------------------------------------
 
@@ -36,7 +37,7 @@ def get_nlp(model: str = "en_core_web_trf"):
     return _nlp_by_model[model]
 
 # Helps normalize whitespace
-WS = re.compile(r"\s+")                            
+WS = re.compile(r"\s+")
 
 # Enumerations - detect "at least one of ..." list-intro pattern
 ENUM_INTRO_RE = re.compile(r"\bat\s+least\s+one\s+of\b", re.IGNORECASE)
@@ -402,7 +403,7 @@ def semicolon_first_segments(claim_text):
 def extract_marker_leaves(seg_text, covered_spans=None, nlp=None):
 
     # Grab our NLPs
-    nlp = nlp or get_nlp()    
+    nlp = nlp or get_nlp()
 
     # Use SpaCy to process the text, grab the segment text
     doc = nlp(seg_text)
