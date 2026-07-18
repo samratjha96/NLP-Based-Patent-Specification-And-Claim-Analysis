@@ -74,12 +74,18 @@ def split_sentences(paragraph):
     if _nlp is None:
         init_models()
 
+    return split_sentences_with_nlp(paragraph, _nlp)
+
+
+def split_sentences_with_nlp(paragraph, nlp):
+    """Split patent prose with an already-loaded spaCy pipeline."""
+
     # Grab the paragraphs, and generally try to normalize whitespace, tabs, etc.
     paragraph = re.sub(r"[ \t\r\f\v]+", " ", (paragraph or "").strip())
     paragraph = re.sub(r"\s*\n\s*", " ", paragraph)
 
     # Perform sentence-level splitting with SpaCy
-    doc = _nlp(paragraph)
+    doc = nlp(paragraph)
     sents = [s.text.strip() for s in doc.sents if s.text.strip()]
 
     # Merge false sentence breaks after abbreviations like "FIGS." using

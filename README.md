@@ -52,3 +52,78 @@ Model caches default to `~/.cache/patentagility`. Override the root with
 `PATENTAGILITY_CACHE_DIR` or set the Hugging Face and spaCy cache paths
 individually with `PATENTAGILITY_HF_CACHE_DIR` and
 `PATENTAGILITY_SPACY_CACHE_DIR`.
+
+## Batched inference service
+
+`service.py` keeps the local models resident in one process and places support
+searches behind a bounded queue. The worker combines requests arriving within
+a short window into one embedding/reranking batch, deduplicates repeated patent
+texts and queries, and keeps a bounded LRU cache of recently built patent
+indexes.
+
+For local development:
+
+```bash
+PATENTAGILITY_MODEL_PROFILE=balanced uv run python service.py
+```
+
+For a Linux deployment, use one Gunicorn process so model weights are not
+duplicated, and enough HTTP threads to let overload requests receive an
+immediate response:
+
+```bash
+PATENTAGILITY_MODEL_PROFILE=balanced \
+  uv run gunicorn --workers 1 --threads 64 --timeout 150 \
+  'service:create_app()'
+```
+
+Scale with additional service instances only when the host has enough memory
+for another complete model copy. The queue is intentionally in-process and
+non-durable: retryable overload returns `429` with `Retry-After`, while work
+that misses its deadline returns `504`. Clients should honor `Retry-After` and
+cap retries rather than retrying indefinitely.
+
+Submit all claim limitations for one patent together so its specification is
+embedded once:
+
+```bash
+curl http://127.0.0.1:8000/v1/support/search \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "patent_text": "The complete patent specification...",
+    "queries": ["a processor coupled to memory", "a rechargeable power source"],
+    "top_n": 10
+  }'
+```
+
+Operational endpoints are `/health/live`, `/health/ready`, and `/metrics`.
+Queue depth, rejection counts, timeouts, average batch size, queue wait time,
+and index-cache hits are exposed as JSON.
+
+### Model profiles
+
+| Profile | Embedder | Reranker | Intended use |
+|---|---|---|---|
+| `balanced` | `Alibaba-NLP/gte-modernbert-base` | None | Default service profile; strongest PatentMatch result |
+| `throughput` | `mixedbread-ai/mxbai-embed-xsmall-v1` | None | Maximum local throughput under heavy load |
+| `baseline` | `BAAI/bge-m3` | `BAAI/bge-reranker-large` | Original repository behavior for comparison |
+
+The PatentMatch measurements and reproduction commands are in
+[`benchmarks/`](benchmarks/README.md). That benchmark is a prior-art retrieval
+proxy, so production model selection should also use manually labeled examples
+from the live claim-to-specification workflow.
+
+### Capacity settings
+
+| Environment variable | Default | Meaning |
+|---|---:|---|
+| `PATENTAGILITY_QUEUE_CAPACITY` | `32` | Maximum requests waiting for admission |
+| `PATENTAGILITY_MAX_BATCH_SIZE` | `8` | Requests processed in one model batch |
+| `PATENTAGILITY_MAX_BATCH_CHARACTERS` | `4000000` | Total input characters allowed in one batch |
+| `PATENTAGILITY_BATCH_WINDOW_MS` | `20` | Maximum delay used to collect a batch |
+| `PATENTAGILITY_REQUEST_TIMEOUT_SECONDS` | `120` | Caller deadline; pending work is cancelled |
+| `PATENTAGILITY_INDEX_CACHE_SIZE` | `4` | Recently embedded patent specifications retained |
+| `PATENTAGILITY_EMBEDDING_BATCH_SIZE` | `256` | SentenceTransformer device batch size |
+| `PATENTAGILITY_RERANKER_BATCH_SIZE` | `32` | Cross-encoder device batch size |
+| `PATENTAGILITY_MAX_PATENT_CHARACTERS` | `2000000` | Per-request patent-text limit |
+| `PATENTAGILITY_MAX_QUERIES` | `64` | Query limit per request |

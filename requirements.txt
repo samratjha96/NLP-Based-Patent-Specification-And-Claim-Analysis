@@ -1,4 +1,5 @@
 flask
+gunicorn
 graphviz
 requests
 pdf2image
