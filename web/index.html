@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A local-first patent analysis workspace for claim drafting, specification support, family review, and examiner research.">
+  <meta name="description" content="A patent analysis workspace for claim drafting, specification support, family review, and examiner research.">
   <title>PatentAgility | Matter Workspace</title>
   <link rel="stylesheet" href="/app/app.css">
   <script src="/app/app.js" defer></script>
@@ -25,7 +25,7 @@
       </button>
     </div>
     <div class="topbar-actions">
-      <div class="privacy-status"><span aria-hidden="true"></span> Local processing</div>
+      <div class="privacy-status"><span aria-hidden="true"></span> Private workspace</div>
       <button class="quiet-button" id="new-review" type="button">New review</button>
       <button class="avatar" type="button" aria-label="Account menu">SJ</button>
     </div>
@@ -48,7 +48,7 @@
 
         <div class="nav-group">
           <div class="nav-heading">Drafting review</div>
-          <button type="button" data-tool="support"><span class="nav-glyph">04</span><span>Specification support<small>Semantic evidence search</small></span></button>
+          <button type="button" data-tool="support"><span class="nav-glyph">04</span><span>Specification support<small>Evidence passage search</small></span></button>
           <button type="button" data-tool="antecedent"><span class="nav-glyph">05</span><span>Antecedent basis<small>Referential consistency</small></span></button>
           <button type="button" data-tool="linguistic"><span class="nav-glyph">06</span><span>Claim structure<small>Linguistic diagram</small></span></button>
           <button type="button" data-tool="art-unit"><span class="nav-glyph">07</span><span>Art unit predictor<small>Likely routing</small></span></button>
@@ -61,11 +61,11 @@
       </nav>
 
       <div class="sidebar-foot">
-        <div class="model-readiness">
+        <div class="workspace-readiness">
           <span class="readiness-dot" aria-hidden="true"></span>
-          <div><strong>Inference lane ready</strong><small id="queue-status">0 queued · balanced profile</small></div>
+          <div><strong>Workspace ready</strong><small>Start a focused review</small></div>
         </div>
-        <button type="button" id="system-details">System details</button>
+        <button type="button" id="data-handling">Data handling</button>
       </div>
     </aside>
 
@@ -87,7 +87,7 @@
         </div>
 
         <div class="assurance-strip" aria-label="Data handling assurances">
-          <div><span class="assurance-icon">L</span><p><strong>Local models</strong><small>Substantive text stays on this system.</small></p></div>
+          <div><span class="assurance-icon">C</span><p><strong>Confidential review</strong><small>Submitted text is used only for this analysis.</small></p></div>
           <div><span class="assurance-icon">0</span><p><strong>No text retention</strong><small>Inputs are not saved with the matter.</small></p></div>
           <div><span class="assurance-icon">E</span><p><strong>Evidence first</strong><small>Every result preserves its source passage.</small></p></div>
           <div><span class="assurance-icon">H</span><p><strong>Human decision</strong><small>Flags are review prompts, not legal conclusions.</small></p></div>
@@ -116,7 +116,7 @@
 
         <footer class="workspace-disclaimer">
           <strong>Experimental review aid.</strong>
-          <span>PatentAgility output may be incomplete or wrong because source data, OCR, retrieval, and local models are imperfect. It is not legal advice and should not be the sole source of authoritative fact.</span>
+          <span>PatentAgility output may be incomplete or wrong because source records, document text, and automated analysis can be imperfect. It is not legal advice and should not be the sole source of authoritative fact.</span>
         </footer>
       </section>
 
@@ -125,7 +125,7 @@
         <div class="tool-header">
           <div class="tool-index" id="tool-index">04</div>
           <div>
-            <div class="tool-meta"><span class="mode-badge" id="mode-badge">Live analysis</span><span id="tool-runtime">Local GTE retrieval</span></div>
+            <div class="tool-meta"><span class="mode-badge" id="mode-badge">Available</span><span id="tool-runtime">Specification evidence search</span></div>
             <h1 id="tool-title">Specification support</h1>
             <p id="tool-description"></p>
           </div>
@@ -141,7 +141,7 @@
                 <button class="sample-button" id="load-sample" type="button">Load sample</button>
                 <button class="primary-button" id="run-analysis" type="submit"><span>Run analysis</span><span aria-hidden="true">→</span></button>
               </div>
-              <div class="input-assurance"><span aria-hidden="true">◇</span><span><strong>Substantive input is not retained.</strong> Public USPTO source documents may be cached locally to avoid repeated downloads or OCR.</span></div>
+              <div class="input-assurance"><span aria-hidden="true">◇</span><span><strong>Substantive input is not added to matter history.</strong> Public USPTO documents may be retained temporarily to avoid repeated retrieval and text extraction.</span></div>
             </form>
 
             <section class="progress-panel hidden" id="progress-panel" aria-live="polite">
@@ -174,10 +174,14 @@
                 <div><dt>Last sync</dt><dd>Jul 18, 2026</dd></div>
               </dl>
             </section>
-            <section class="context-card queue-card">
-              <div class="context-label">Inference lane</div>
-              <div class="queue-visual" aria-label="No jobs waiting"><span class="active"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-              <p><strong>Ready now.</strong> Up to eight compatible requests share one model batch; excess load receives an explicit retry response.</p>
+            <section class="context-card safeguards-card">
+              <div class="context-label">Review safeguards</div>
+              <h2>Built for verified work</h2>
+              <ul class="safeguard-list">
+                <li>Source passages remain visible</li>
+                <li>Representative data is identified</li>
+                <li>Attorney verification is required</li>
+              </ul>
             </section>
           </aside>
         </div>
@@ -195,7 +199,7 @@
       <div class="eyebrow">Method note</div>
       <h2 id="dialog-title">How this analysis works</h2>
       <div id="dialog-content"></div>
-      <div class="dialog-foot"><span>Local processing</span><span>Review required</span><span>Source-linked output</span></div>
+      <div class="dialog-foot"><span>Focused review</span><span>Attorney judgment</span><span>Source-linked output</span></div>
     </form>
   </dialog>
 

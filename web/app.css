@@ -119,11 +119,11 @@ a { color: inherit; }
 .nav-group button small { display: block; margin-top: 2px; color: #7f8a83; font-size: 9px; font-weight: 400; }
 .nav-group button:hover small, .nav-group button.is-active small { color: #aeb8b1; }
 .sidebar-foot { margin-top: auto; padding: 16px; background: #181e1b; border-top: 1px solid #39413d; }
-.model-readiness { display: flex; gap: 10px; align-items: center; }
+.workspace-readiness { display: flex; gap: 10px; align-items: center; }
 .readiness-dot { width: 9px; height: 9px; border-radius: 50%; background: #4ec39b; box-shadow: 0 0 0 5px rgba(78,195,155,.10); }
-.model-readiness strong, .model-readiness small { display: block; }
-.model-readiness strong { font-size: 11px; }
-.model-readiness small { margin-top: 2px; color: #808b84; font-size: 9px; }
+.workspace-readiness strong, .workspace-readiness small { display: block; }
+.workspace-readiness strong { font-size: 11px; }
+.workspace-readiness small { margin-top: 2px; color: #808b84; font-size: 9px; }
 .sidebar-foot button { margin-top: 13px; padding: 8px 0 0; color: #9da8a1; background: transparent; border-top: 1px solid #303934; font-family: var(--mono); font-size: 9px; text-align: left; cursor: pointer; }
 
 main { min-height: calc(100vh - var(--topbar-height)); margin-left: var(--sidebar-width); }
@@ -242,12 +242,12 @@ button.recent-row:hover { background: var(--paper-bright); }
 .evidence-card dl div { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid var(--rule); }
 .evidence-card dt { color: var(--ink-soft); font-size: 10px; }
 .evidence-card dd { margin: 0; font-family: var(--mono); font-size: 9px; }
-.queue-card { color: var(--paper-bright); background: var(--ink); border-color: var(--ink); }
-.queue-card .context-label { color: #e7bb75; }
-.queue-card p { color: #b3bcb6; }
-.queue-visual { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin: 17px 0; }
-.queue-visual span { height: 24px; border: 1px solid #506058; }
-.queue-visual span.active { background: #2f8f70; }
+.safeguards-card { color: var(--paper-bright); background: var(--ink); border-color: var(--ink); }
+.safeguards-card .context-label { color: #e7bb75; }
+.safeguards-card h2 { color: var(--paper-bright); }
+.safeguard-list { display: grid; gap: 0; margin: 16px 0 0; padding: 0; list-style: none; }
+.safeguard-list li { position: relative; padding: 10px 0 10px 20px; color: #b3bcb6; border-top: 1px solid #435048; font-size: 10px; }
+.safeguard-list li::before { content: "\2713"; position: absolute; left: 0; color: #e7bb75; }
 
 .progress-panel { margin-top: 24px; padding: 25px 30px; color: var(--paper-bright); background: var(--ink); }
 .progress-heading { display: flex; justify-content: space-between; align-items: center; }
@@ -418,7 +418,7 @@ button.recent-row:hover { background: var(--paper-bright); }
   .assurance-strip > div:nth-child(2) { border-right: 0; }
   .assurance-strip > div:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
   .context-column { grid-template-columns: 1fr 1fr; }
-  .queue-card { grid-column: 1 / -1; }
+  .safeguards-card { grid-column: 1 / -1; }
   .chart-grid, .issue-layout { grid-template-columns: 1fr; }
 }
 

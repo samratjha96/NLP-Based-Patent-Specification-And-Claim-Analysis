@@ -5,13 +5,13 @@ const tools = {
     shortTitle: "Amendment history",
     category: "Patent review",
     mode: "prototype",
-    runtime: "Private family + prosecution data required",
+    runtime: "Prosecution timeline preview",
     description: "Resolve a U.S. patent family and review how independent claim language changed from filing through allowance.",
-    guidance: "Enter a U.S. patent or application number. The production workflow retrieves public prosecution records for every related U.S. family member.",
+    guidance: "Enter a U.S. patent or application number to review prosecution events across the related U.S. family.",
     contextTitle: "Read scope movement in sequence",
     contextCopy: "An amendment is evidence of prosecution history, not a standalone claim-construction conclusion. Review the cited office action and applicant response together.",
     steps: ["Resolve family", "Retrieve histories", "Compare claim text", "Render timeline"],
-    explanation: "The live PatentAgility workflow resolves the related U.S. family, retrieves prosecution claim histories, and compares independent claim language over time. The public repository does not include the private family database or prosecution corpus, so this reconstruction uses a representative result view.",
+    explanation: "Starting from one U.S. patent or application, this review follows related family members, places prosecution events in sequence, and compares how independent claim language changed over time.",
     fields: "identifier",
     sample: { idType: "application", identifier: "18456219" }
   },
@@ -21,13 +21,13 @@ const tools = {
     shortTitle: "Compare family claims",
     category: "Patent review",
     mode: "prototype",
-    runtime: "Private family + grant corpus required",
+    runtime: "Family scope preview",
     description: "Line up granted independent claims across a U.S. family and isolate the limitations that changed portfolio scope.",
-    guidance: "Start with one U.S. application or patent number. The production workflow discovers granted family members and aligns their independent claims.",
+    guidance: "Start with one U.S. application or patent number to align independent claims from granted family members.",
     contextTitle: "Compare language before summaries",
     contextCopy: "The aligned claim text is the primary evidence. The generated difference summary is a navigation aid and should be checked against each patent.",
     steps: ["Resolve grants", "Collect claims", "Align language", "Summarize differences"],
-    explanation: "This workflow identifies granted U.S. family members, collects their latest granted independent claims, aligns the text, and summarizes major scope differences with a local model. The view below reproduces the workflow with representative family data.",
+    explanation: "This review identifies granted U.S. family members, aligns their latest independent claims, highlights added or changed limitations, and summarizes the principal differences in scope.",
     fields: "identifier",
     sample: { idType: "patent", identifier: "11874219" }
   },
@@ -37,13 +37,13 @@ const tools = {
     shortTitle: "Unclaimed subject matter",
     category: "Patent review",
     mode: "prototype",
-    runtime: "Private family corpus required",
+    runtime: "Coverage review preview",
     description: "Surface specification concepts that appear weakly covered or absent across related U.S. claims.",
-    guidance: "Provide a family seed. The production workflow compares concepts extracted from the seed specification against claims across the U.S. family.",
+    guidance: "Provide a family seed to compare disclosed concepts with claims across the related U.S. family.",
     contextTitle: "A coverage lead, not a legal opinion",
-    contextCopy: "Low semantic similarity can identify review candidates, but claim coverage depends on construction, equivalents, and the complete record.",
+    contextCopy: "A weak textual match can identify review candidates, but claim coverage depends on construction, equivalents, and the complete record.",
     steps: ["Load specification", "Extract concepts", "Collect family claims", "Score coverage"],
-    explanation: "The private workflow extracts concepts from the specification and U.S. family claims, then scores whether each specification concept appears covered. The prototype retains the evidence-first output structure while using representative results.",
+    explanation: "This review identifies disclosed concepts, compares them with claim language across the U.S. family, and surfaces areas that may warrant a closer coverage review.",
     fields: "identifier",
     sample: { idType: "application", identifier: "18456219" }
   },
@@ -53,13 +53,13 @@ const tools = {
     shortTitle: "Specification support",
     category: "Drafting review",
     mode: "live",
-    runtime: "Local GTE retrieval · batched",
-    description: "Find the passages most likely to support a limitation using semantic retrieval over the complete specification.",
-    guidance: "Paste specification text once, then add every limitation you want to investigate. Grouped queries share the same document index.",
+    runtime: "Specification evidence search",
+    description: "Find the passages most likely to support a limitation across the complete specification.",
+    guidance: "Paste the specification, then add every limitation you want to investigate in the same review.",
     contextTitle: "Ranked passages are starting points",
-    contextCopy: "A high score means semantic similarity, not necessarily written-description or enablement support. Read the full paragraph and surrounding disclosure.",
+    contextCopy: "A high score means the passage is textually relevant, not necessarily that it satisfies written-description or enablement requirements. Read the full paragraph and surrounding disclosure.",
     steps: ["Validate input", "Build document index", "Search limitations", "Rank evidence"],
-    explanation: "The local service splits the specification into sentences, embeds the document once, batches all limitation queries, and ranks the closest passages. Repeated specifications reuse a bounded local index cache. The output preserves each source sentence and paragraph position.",
+    explanation: "This review breaks the specification into passages, ranks the passages most relevant to each limitation, and preserves paragraph and sentence locations so the cited disclosure can be checked in context.",
     fields: "support",
     sample: {
       patentText: "[0001] A sensing platform includes a distributed array of optical sensors positioned within an industrial enclosure. Each sensor generates a measurement signal representing local temperature and vibration.\n\n[0002] A controller receives the measurement signals through a low-power mesh network. The controller includes a processor and a memory storing calibration coefficients for each optical sensor.\n\n[0003] The processor applies a temperature compensation value to each measurement signal before calculating a vibration estimate. The compensation value may be selected from a calibration table according to the measured ambient temperature.\n\n[0004] When network connectivity is unavailable, each sensor stores timestamped measurements in a local buffer. Buffered measurements are transmitted after the mesh network reconnects.\n\n[0005] An alert engine compares the compensated vibration estimate with a machine-specific threshold and transmits a maintenance notification when the threshold is exceeded.",
@@ -73,13 +73,13 @@ const tools = {
     shortTitle: "Antecedent basis",
     category: "Drafting review",
     mode: "live",
-    runtime: "Local rule-based NLP",
+    runtime: "Claim-language review",
     description: "Track introduced claim terms and later references to flag likely missing antecedent basis and unused introductions.",
     guidance: "Paste one or more claims. The review highlights likely issues in context so the attorney can confirm whether the reference is actually ambiguous.",
     contextTitle: "Drafting heuristic, not claim construction",
     contextCopy: "The checker follows noun-phrase introductions and references. It can miss implicit antecedents and may flag deliberate drafting choices.",
     steps: ["Parse claim text", "Track introductions", "Match references", "Rank issues"],
-    explanation: "The public repository uses spaCy noun-phrase parsing plus patent-specific introduction and reference rules. It flags definite references without a matching earlier introduction and separately notes introduced terms that are never reused.",
+    explanation: "This review tracks when claim terms are introduced and how later references use them. It flags definite references without a likely earlier introduction and separately notes introduced terms that are never reused.",
     fields: "claim",
     sample: { claimText: "1. A sensing system comprising: a processor; a memory coupled to the processor; and the controller configured to store a calibration coefficient in the memory, wherein the processor applies the calibration coefficient to a measurement signal." }
   },
@@ -89,13 +89,13 @@ const tools = {
     shortTitle: "Claim structure",
     category: "Drafting review",
     mode: "live",
-    runtime: "Local syntactic analysis · structured map",
+    runtime: "Claim structure map",
     description: "Turn dense claim language into an inspectable map of actions, objects, details, alternatives, and dependencies.",
     guidance: "Paste a claim with its normal punctuation. Semicolons and transitional phrases help the analyzer preserve the intended limitation structure.",
     contextTitle: "Structure is easier to review when visible",
     contextCopy: "The diagram exposes linguistic relationships. It does not decide whether a limitation is definite, enabled, or patentable.",
     steps: ["Parse syntax", "Segment limitations", "Classify relationships", "Render diagram"],
-    explanation: "The public code combines syntactic parsing with claim-aware segmentation rules. It recognizes action frames, details, alternatives, enumerations, and dependencies, then renders the structure as SVG diagrams.",
+    explanation: "This review separates the claim into limitations, then maps the actions, objects, details, alternatives, and dependencies so dense language can be inspected more easily.",
     fields: "claim",
     sample: { claimText: "1. A sensing system comprising: a sensor configured to generate a measurement signal; a processor configured to receive the measurement signal and determine a compensated value based on at least one of an ambient temperature, a calibration coefficient, or a sensor age; and a transmitter configured to send an alert when the compensated value exceeds a threshold." }
   },
@@ -105,13 +105,13 @@ const tools = {
     shortTitle: "Art unit predictor",
     category: "Drafting review",
     mode: "prototype",
-    runtime: "Private patent-BERT classifier required",
+    runtime: "Routing preview",
     description: "Rank the five most likely USPTO art units from invention text, then connect the estimate to examiner analytics.",
     guidance: "Paste an abstract, summary, or representative claims. More concrete technical language usually produces a more useful routing estimate.",
     contextTitle: "Routing estimates are directional",
-    contextCopy: "Art unit assignment depends on classification practice and incoming workload. Treat model probabilities as a planning signal, not a filing outcome.",
-    steps: ["Normalize text", "Load classifier", "Score art units", "Link analytics"],
-    explanation: "The live product uses a locally deployed patent-BERT model trained on art-unit labels and returns the five most likely units. The private classifier is absent from the public repository, so this view uses representative predictions.",
+    contextCopy: "Art unit assignment depends on classification practice and incoming workload. Treat ranked estimates as a planning signal, not a filing outcome.",
+    steps: ["Review invention text", "Identify technical focus", "Rank art units", "Connect relevant trends"],
+    explanation: "This review uses the invention description to rank likely USPTO art units and connect the leading candidates with the prosecution trends most useful for planning.",
     fields: "invention",
     sample: { inventionText: "A distributed optical sensing platform compensates vibration measurements according to ambient temperature and sensor-specific calibration coefficients. A mesh-connected controller detects machine anomalies and schedules predictive maintenance." }
   },
@@ -121,13 +121,13 @@ const tools = {
     shortTitle: "Examiner analytics",
     category: "Examiner research",
     mode: "prototype",
-    runtime: "Private USPTO analytics database required",
+    runtime: "Examiner trends preview",
     description: "Move from raw prosecution records to an examiner, art unit, work group, or technology-center strategy view.",
-    guidance: "Search by examiner name, art unit, work group, or technology center. This prototype shows the result structure using representative data.",
+    guidance: "Search by examiner name, art unit, work group, or technology center. Preview results use representative prosecution data.",
     contextTitle: "Descriptive data needs context",
     contextCopy: "Observed grant ratios and rejection patterns describe past records. They do not predict a specific application or account for case mix by themselves.",
     steps: ["Resolve entity", "Aggregate records", "Calculate trends", "Render analytics"],
-    explanation: "The live product aggregates millions of public prosecution records into descriptive grant, office-action, and rejection metrics. The underlying analytics database is private and was unavailable when reconstructing this frontend.",
+    explanation: "This review summarizes historical prosecution records into grant, office-action, rejection, and pendency trends for an examiner or organizational unit.",
     fields: "examiner",
     sample: { examinerQuery: "Art Unit 2123" }
   }
@@ -158,7 +158,7 @@ function escapeHtml(value) {
 }
 
 function toolModeLabel(tool) {
-  return tool.mode === "live" ? "Live with public repo" : "Prototype view";
+  return tool.mode === "live" ? "Available" : "Preview";
 }
 
 function renderToolGrid() {
@@ -237,7 +237,7 @@ function claimField() {
   return field(
     `<span>Claim text</span><small id="claim-count">0 / 100,000</small>`,
     `<textarea class="large" id="claim-text" name="claimText" maxlength="100000" aria-label="Claim text" placeholder="Paste claim text here…" required></textarea>`,
-    "Use the claim as filed or currently proposed. Substantive text is sent only to the local analysis endpoint."
+    "Use the claim as filed or currently proposed. Substantive text is used only for this review."
   );
 }
 
@@ -261,7 +261,7 @@ function renderFields(tool) {
     dynamicFields.innerHTML = field(`<span>Invention text</span><small id="invention-count">0 characters</small>`, `<textarea class="large" id="invention-text" name="inventionText" aria-label="Invention text" placeholder="Paste an abstract, summary, or representative claims…" required></textarea>`, "Include the technical function, inputs, outputs, and field of use when possible.");
   }
   if (tool.fields === "examiner") {
-    dynamicFields.innerHTML = field("Examiner, art unit, work group, or tech center", `<input id="examiner-query" name="examinerQuery" type="search" aria-label="Examiner, art unit, work group, or tech center" placeholder="Try: Art Unit 2123" required>`, "The live product provides autocomplete over its examiner analytics index.");
+    dynamicFields.innerHTML = field("Examiner, art unit, work group, or tech center", `<input id="examiner-query" name="examinerQuery" type="search" aria-label="Examiner, art unit, work group, or tech center" placeholder="Try: Art Unit 2123" required>`, "Search results can be narrowed by name or USPTO organizational unit.");
   }
   attachFieldBehavior(tool);
 }
@@ -471,7 +471,7 @@ function renderSupport(result) {
         return `<article class="evidence-hit"><div class="hit-rank">${String(index + 1).padStart(2, "0")}</div><div><h3>Paragraph ${Number(hit.paragraph_id) + 1}, sentence ${Number(hit.sentence_id) + 1}</h3><p>${escapeHtml(hit.sentence)}</p></div><footer>Similarity ${score.toFixed(3)}<div class="score-bar"><span style="width:${displayScore}%"></span></div></footer></article>`;
       }).join("")}</div>
     </section>`).join("");
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Model profile", result.profile || "balanced")}${stat("Limitations", resultGroups.length)}${stat("Passages", hitCount)}${stat("Decision", "Attorney review")}</div>${groups || '<div class="error-box"><strong>No passages returned</strong><p>Confirm that the specification contains extractable sentences.</p></div>'}`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Review method", "Ranked evidence")}${stat("Limitations", resultGroups.length)}${stat("Passages", hitCount)}${stat("Decision", "Attorney review")}</div>${groups || '<div class="error-box"><strong>No passages returned</strong><p>Confirm that the specification contains readable sentences.</p></div>'}`;
 }
 
 function highlightedClaim(text, issues) {
@@ -515,12 +515,12 @@ function renderDiagrams(result) {
       </div>
     </article>`;
   }).join("");
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Segments", segments.length)}${stat("Processing", "Local")}${stat("Output", "Structured map")}${stat("Decision", "Attorney review")}</div><div class="structure-map">${rows || '<div class="error-box"><strong>No structure generated</strong><p>Try preserving claim punctuation and transitional phrases.</p></div>'}</div>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Segments", segments.length)}${stat("Review scope", "Claim text")}${stat("Output", "Structure map")}${stat("Decision", "Attorney review")}</div><div class="structure-map">${rows || '<div class="error-box"><strong>No structure generated</strong><p>Try preserving claim punctuation and transitional phrases.</p></div>'}</div>`;
 }
 
 function renderExaminer(payload) {
-  setResultHeading("Art Unit 2123 analytics", `Representative analytics view for “${payload.examinerQuery}.” Production values require the private USPTO analytics database.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Observed grants", "71.4%")} ${stat("Avg. office actions", "2.6")} ${stat("Applications", "18,420")} ${stat("Data mode", "Prototype")}</div><div class="chart-grid"><article class="chart-card"><h3>Observed grant timeline</h3><p>Share of disposed applications with an observed patent grant, by disposal year.</p><svg class="line-chart" viewBox="0 0 640 230" role="img" aria-label="Representative grant ratio trend"><line class="grid" x1="40" y1="40" x2="620" y2="40"/><line class="grid" x1="40" y1="110" x2="620" y2="110"/><line class="grid" x1="40" y1="180" x2="620" y2="180"/><path class="area" d="M40,157 L112,135 L184,143 L256,111 L328,101 L400,87 L472,94 L544,76 L616,68 L616,180 L40,180 Z"/><path class="line" d="M40,157 L112,135 L184,143 L256,111 L328,101 L400,87 L472,94 L544,76 L616,68"/>${[40,112,184,256,328,400,472,544,616].map((x,i)=>`<circle cx="${x}" cy="${[157,135,143,111,101,87,94,76,68][i]}" r="5"/>`).join("")}</svg></article><div class="metric-stack"><div><small>First-action §101</small><strong>18.2%</strong><p>Observed share of first office actions containing a §101 rejection.</p></div><div><small>First-action §103</small><strong>63.7%</strong><p>Observed share containing an obviousness rejection.</p></div><div><small>Median pendency</small><strong>31 mo.</strong><p>From filing to abandonment or observed grant.</p></div></div></div>`;
+  setResultHeading("Art Unit 2123 analytics", `Representative prosecution trends for “${payload.examinerQuery}.” Confirm current records before relying on these values.`);
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Observed grants", "71.4%")} ${stat("Avg. office actions", "2.6")} ${stat("Applications", "18,420")} ${stat("Status", "Preview")}</div><div class="chart-grid"><article class="chart-card"><h3>Observed grant timeline</h3><p>Share of disposed applications with an observed patent grant, by disposal year.</p><svg class="line-chart" viewBox="0 0 640 230" role="img" aria-label="Representative grant ratio trend"><line class="grid" x1="40" y1="40" x2="620" y2="40"/><line class="grid" x1="40" y1="110" x2="620" y2="110"/><line class="grid" x1="40" y1="180" x2="620" y2="180"/><path class="area" d="M40,157 L112,135 L184,143 L256,111 L328,101 L400,87 L472,94 L544,76 L616,68 L616,180 L40,180 Z"/><path class="line" d="M40,157 L112,135 L184,143 L256,111 L328,101 L400,87 L472,94 L544,76 L616,68"/>${[40,112,184,256,328,400,472,544,616].map((x,i)=>`<circle cx="${x}" cy="${[157,135,143,111,101,87,94,76,68][i]}" r="5"/>`).join("")}</svg></article><div class="metric-stack"><div><small>First-action §101</small><strong>18.2%</strong><p>Observed share of first office actions containing a §101 rejection.</p></div><div><small>First-action §103</small><strong>63.7%</strong><p>Observed share containing an obviousness rejection.</p></div><div><small>Median pendency</small><strong>31 mo.</strong><p>From filing to abandonment or observed grant.</p></div></div></div>`;
 }
 
 function renderFamilyHistory(payload) {
@@ -532,12 +532,12 @@ function renderFamilyHistory(payload) {
     ["Sep 2024", "Final rejection", "Examiner maintained the combination and raised §112 clarity concerns."],
     ["Jan 2025", "Notice of allowance", "Clarified sensor-specific coefficient and offline measurement buffer."],
   ];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members", "7")} ${stat("Prosecution events", "26")} ${stat("Independent claims", "11")} ${stat("Data mode", "Prototype")}</div><article class="timeline-card"><h3>Claim 1 · Scope movement</h3><div class="timeline"><div class="timeline-events">${events.map((event, index) => `<div class="timeline-event ${index === events.length - 1 ? "allowance" : ""}"><small>${event[0]}</small><div class="timeline-dot"></div><strong>${event[1]}</strong><p>${event[2]}</p></div>`).join("")}</div></div></article>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members", "7")} ${stat("Prosecution events", "26")} ${stat("Independent claims", "11")} ${stat("Status", "Preview")}</div><article class="timeline-card"><h3>Claim 1 · Scope movement</h3><div class="timeline"><div class="timeline-events">${events.map((event, index) => `<div class="timeline-event ${index === events.length - 1 ? "allowance" : ""}"><small>${event[0]}</small><div class="timeline-dot"></div><strong>${event[1]}</strong><p>${event[2]}</p></div>`).join("")}</div></div></article>`;
 }
 
 function renderFamilyClaims(payload) {
   setResultHeading("Granted family claim comparison", `Three representative granted independent claims aligned from the family seeded by ${payload.idType} ${payload.identifier}. Highlighting distinguishes added and materially changed language.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Granted members", "3")} ${stat("Independent claims", "6")} ${stat("Shared core", "Sensor + controller")} ${stat("Data mode", "Prototype")}</div><div class="claim-comparison"><div class="claim-columns"><article class="claim-column"><header><strong>US 11,874,219</strong><small>Parent · Claim 1</small></header><p>A sensing system comprising a sensor configured to generate a measurement signal and a controller configured to determine a compensated value <span class="diff-add">using a calibration coefficient stored for the sensor</span>.</p></article><article class="claim-column"><header><strong>US 12,041,882</strong><small>Continuation · Claim 1</small></header><p>A distributed sensing system comprising <span class="diff-change">a plurality of mesh-connected optical sensors</span> and a controller configured to determine compensated vibration values according to ambient temperature.</p></article><article class="claim-column"><header><strong>US 12,188,407</strong><small>Continuation · Claim 8</small></header><p>A method comprising receiving a sensor signal, applying a compensation value, and <span class="diff-add">storing timestamped measurements locally while network connectivity is unavailable</span>.</p></article></div></div><article class="comparison-summary"><h3>Difference summary</h3><p>The parent emphasizes sensor-specific calibration. The first continuation shifts toward distributed mesh topology and ambient-temperature compensation. The second continuation claims offline buffering as a method, creating a distinct operational fallback focus.</p></article>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Granted members", "3")} ${stat("Independent claims", "6")} ${stat("Shared core", "Sensor + controller")} ${stat("Status", "Preview")}</div><div class="claim-comparison"><div class="claim-columns"><article class="claim-column"><header><strong>US 11,874,219</strong><small>Parent · Claim 1</small></header><p>A sensing system comprising a sensor configured to generate a measurement signal and a controller configured to determine a compensated value <span class="diff-add">using a calibration coefficient stored for the sensor</span>.</p></article><article class="claim-column"><header><strong>US 12,041,882</strong><small>Continuation · Claim 1</small></header><p>A distributed sensing system comprising <span class="diff-change">a plurality of mesh-connected optical sensors</span> and a controller configured to determine compensated vibration values according to ambient temperature.</p></article><article class="claim-column"><header><strong>US 12,188,407</strong><small>Continuation · Claim 8</small></header><p>A method comprising receiving a sensor signal, applying a compensation value, and <span class="diff-add">storing timestamped measurements locally while network connectivity is unavailable</span>.</p></article></div></div><article class="comparison-summary"><h3>Difference summary</h3><p>The parent emphasizes sensor-specific calibration. The first continuation shifts toward distributed mesh topology and ambient-temperature compensation. The second continuation claims offline buffering as a method, creating a distinct operational fallback focus.</p></article>`;
 }
 
 function renderUnclaimed(payload) {
@@ -548,21 +548,21 @@ function renderUnclaimed(payload) {
     ["weak", "Gateway handoff protocol", "Family claims address mesh reconnection generally, with limited detail on gateway handoff.", "51%"],
     ["covered", "Offline measurement buffer", "Expressly recited in US 12,188,407 claim 8.", "93%"]
   ];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Concepts reviewed", "34")} ${stat("Potentially unclaimed", "1")} ${stat("Weakly claimed", "2")} ${stat("Data mode", "Prototype")}</div><div class="coverage-list">${items.map((item) => `<article class="coverage-item"><span class="coverage-state ${item[0]}">${item[0]}</span><div><h3>${item[1]}</h3><p>${item[2]}</p></div><div class="coverage-score">${item[3]}</div></article>`).join("")}</div>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Concepts reviewed", "34")} ${stat("Potentially unclaimed", "1")} ${stat("Weakly claimed", "2")} ${stat("Status", "Preview")}</div><div class="coverage-list">${items.map((item) => `<article class="coverage-item"><span class="coverage-state ${item[0]}">${item[0]}</span><div><h3>${item[1]}</h3><p>${item[2]}</p></div><div class="coverage-score">${item[3]}</div></article>`).join("")}</div>`;
 }
 
 function renderArtUnit() {
-  setResultHeading("Likely USPTO routing", "Representative top-five predictions from the private classifier’s intended result shape. Confirm current classifications and routing practices independently.");
+  setResultHeading("Likely USPTO routing", "Representative top-five routing estimates. Confirm current classifications and routing practices independently.");
   const predictions = [["2123", "AI & simulation", 44], ["2124", "Computer systems", 24], ["2858", "Optical measurements", 15], ["3682", "Condition monitoring", 10], ["2195", "Distributed processing", 7]];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Top prediction", "AU 2123")} ${stat("Confidence", "44%")} ${stat("Alternatives", "4")} ${stat("Data mode", "Prototype")}</div><div class="prediction-list">${predictions.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>Art Unit ${item[0]}</h3><p>${item[1]}</p></div><div class="prediction-bar"><span style="width:${item[2]}%"></span></div><div class="prediction-value">${item[2]}%</div></article>`).join("")}</div>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Top prediction", "AU 2123")} ${stat("Confidence", "44%")} ${stat("Alternatives", "4")} ${stat("Status", "Preview")}</div><div class="prediction-list">${predictions.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>Art Unit ${item[0]}</h3><p>${item[1]}</p></div><div class="prediction-bar"><span style="width:${item[2]}%"></span></div><div class="prediction-value">${item[2]}%</div></article>`).join("")}</div>`;
 }
 
 function renderError(error) {
   progressPanel.classList.add("hidden");
   resultsPanel.classList.remove("hidden");
   const overloaded = error.status === 429;
-  setResultHeading(overloaded ? "Inference lane is full" : "Analysis could not complete", overloaded ? `The bounded queue refused this request safely. Retry after ${error.retryAfter || "a few"} seconds.` : "The request failed before producing reviewable work product.");
-  resultsContent.innerHTML = `<div class="error-box"><strong>${escapeHtml(error.message || "Unexpected analysis error")}</strong><p>${overloaded ? "No work was silently dropped and no input was retained. Wait for the active batch to finish, then run the analysis again." : "Check the local service logs and model readiness, then retry the same input."}</p></div>`;
+  setResultHeading(overloaded ? "Review capacity reached" : "Analysis could not complete", overloaded ? `This review could not start. Try again in ${error.retryAfter || "a few"} seconds.` : "No reviewable result was produced.");
+  resultsContent.innerHTML = `<div class="error-box"><strong>${overloaded ? "Please retry shortly" : "Please try the review again"}</strong><p>${overloaded ? "Your input was not retained. The review can be resubmitted when capacity is available." : "If the problem continues, preserve your input and contact the workspace administrator."}</p></div>`;
   resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -570,13 +570,13 @@ function showExplanation() {
   const tool = tools[activeToolKey];
   if (!tool) return;
   document.getElementById("dialog-title").textContent = `How ${tool.shortTitle.toLowerCase()} works`;
-  document.getElementById("dialog-content").innerHTML = `<p>${escapeHtml(tool.explanation)}</p><ol>${tool.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>${tool.mode === "prototype" ? '<p><strong>Prototype boundary:</strong> the result view is functional and representative, but the private data/model backend is not present in the public repository.</p>' : '<p><strong>Live boundary:</strong> this workflow calls the local Python service included in the reconstructed stack.</p>'}`;
+  document.getElementById("dialog-content").innerHTML = `<p>${escapeHtml(tool.explanation)}</p><ol>${tool.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>${tool.mode === "prototype" ? '<p><strong>Preview:</strong> results use representative matter data and should not be treated as current prosecution evidence.</p>' : ""}`;
   document.getElementById("explain-dialog").showModal();
 }
 
-function showSystemDetails() {
-  document.getElementById("dialog-title").textContent = "Local inference architecture";
-  document.getElementById("dialog-content").innerHTML = `<p>One Python service owns the resident NLP models. HTTP requests enter a bounded queue, compatible support searches form micro-batches, and repeated specification indexes are reused from a bounded cache.</p><ol><li>Validate request size and shape.</li><li>Admit work or return 429 with Retry-After.</li><li>Batch by request count and total character budget.</li><li>Return source-linked results to this workspace.</li></ol>`;
+function showDataHandling() {
+  document.getElementById("dialog-title").textContent = "How review information is handled";
+  document.getElementById("dialog-content").innerHTML = `<p>Claim and specification text is used to produce the current analysis and is not added to matter history.</p><ol><li>Submitted text is checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>Public USPTO documents may be retained temporarily to avoid repeated retrieval and text extraction.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
   document.getElementById("explain-dialog").showModal();
 }
 
@@ -586,20 +586,6 @@ function showToast(message) {
   toast.classList.remove("hidden");
   window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => toast.classList.add("hidden"), 3600);
-}
-
-async function refreshMetrics() {
-  try {
-    const response = await fetch("/metrics", { cache: "no-store" });
-    if (!response.ok) return;
-    const metrics = await response.json();
-    const depth = Number(metrics.queue_depth || 0);
-    const capacity = Number(metrics.queue_capacity || 0);
-    document.getElementById("queue-status").textContent = `${depth} queued of ${capacity} · ${metrics.model_profile || "balanced"} profile`;
-    document.querySelector(".queue-visual").setAttribute("aria-label", `${depth} requests waiting in a queue with capacity ${capacity}`);
-  } catch {
-    document.getElementById("queue-status").textContent = "Status unavailable";
-  }
 }
 
 renderToolGrid();
@@ -613,10 +599,10 @@ document.getElementById("back-overview").addEventListener("click", showOverview)
 document.querySelector(".brand").addEventListener("click", (event) => { event.preventDefault(); showOverview(); });
 document.getElementById("load-sample").addEventListener("click", loadSample);
 document.getElementById("how-button").addEventListener("click", showExplanation);
-document.getElementById("system-details").addEventListener("click", showSystemDetails);
+document.getElementById("data-handling").addEventListener("click", showDataHandling);
 document.getElementById("new-review").addEventListener("click", () => { showOverview(); showToast("Choose a focused workflow to begin a new review."); });
-document.getElementById("matter-button").addEventListener("click", () => showToast("One sample matter is loaded in this reconstruction."));
-document.querySelector(".avatar").addEventListener("click", () => showToast("Account management belongs to the private application layer."));
+document.getElementById("matter-button").addEventListener("click", () => showToast("Helios sensor platform is the current sample matter."));
+document.querySelector(".avatar").addEventListener("click", () => showToast("Account settings are not available in this workspace preview."));
 document.querySelector(".text-button").addEventListener("click", () => showToast("Matter history is represented by the recent analyses below."));
 document.getElementById("mobile-menu").addEventListener("click", () => {
   const expanded = sidebar.classList.toggle("is-open");
@@ -631,4 +617,3 @@ toolForm.addEventListener("submit", runAnalysis);
 
 const initialHash = location.hash.slice(1);
 if (tools[initialHash]) openTool(initialHash); else showOverview();
-refreshMetrics();
