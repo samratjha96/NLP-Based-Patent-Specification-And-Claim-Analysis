@@ -53,6 +53,46 @@ Model caches default to `~/.cache/patentagility`. Override the root with
 individually with `PATENTAGILITY_HF_CACHE_DIR` and
 `PATENTAGILITY_SPACY_CACHE_DIR`.
 
+## Lawyer-facing web workspace
+
+The inference service now serves a complete local frontend at `/`. It is built
+as a matter-oriented review workspace rather than a collection of generic AI
+forms: every result keeps the submitted question, source passage, confidence
+context, and attorney-review boundary visible together.
+
+Start the smaller throughput profile for a local product demo:
+
+```bash
+PATENTAGILITY_SPACY_MODEL=en_core_web_sm \
+PATENTAGILITY_MODEL_PROFILE=throughput \
+uv run python service.py
+```
+
+Then open `http://127.0.0.1:8000/`. The web workspace does not retain
+substantive claim or specification text in browser storage.
+
+The reconstruction covers the eight workflows shown by the deployed product.
+The public repository can execute three of them end to end; five require the
+author's private data or models and are deliberately labeled as prototype
+views rather than presented as live analysis:
+
+| Workflow | Local status | Backing implementation |
+|---|---|---|
+| Specification support | Live | Bounded batched retrieval service |
+| Antecedent basis | Live | `core/antecedent_basis.py` |
+| Linguistic claim analysis | Live | Structured output from `core/claim_segmentation.py`; no system Graphviz binary required |
+| Examiner analytics | Prototype view | Private USPTO analytics database required |
+| Claim amendment history | Prototype view | Private family and prosecution data required |
+| Compare U.S. family claims | Prototype view | Private family and grant corpus required |
+| Unclaimed subject matter | Prototype view | Private specification/family corpus required |
+| Art unit predictor | Prototype view | Private patent-BERT classifier required |
+
+The deployed PHP site submits normalized form data to `POST /start/`, polls
+`GET /results/<job-id>/` as JSON, and then opens the completed server-rendered
+result. This local reconstruction keeps the same task and progress model but
+calls the same-origin Flask analysis endpoints directly because Flask owns both
+the browser application and bounded inference lifecycle.
+
 ## Batched inference service
 
 `service.py` keeps the local models resident in one process and places support

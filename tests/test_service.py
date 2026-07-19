@@ -106,7 +106,9 @@ def test_health_and_metrics_expose_admission_state(settings):
 
     assert client.get("/health/live").status_code == 200
     assert client.get("/health/ready").status_code == 200
-    assert client.get("/metrics").get_json()["queue_capacity"] == 2
+    metrics = client.get("/metrics").get_json()
+    assert metrics["queue_capacity"] == 2
+    assert metrics["model_profile"] == "balanced"
 
 
 def test_http_body_limit_rejects_oversized_payload_before_admission(settings):
@@ -121,3 +123,76 @@ def test_http_body_limit_rejects_oversized_payload_before_admission(settings):
     assert response.status_code == 413
     assert response.get_json()["error"] == "request_too_large"
     assert processor.submitted == []
+
+
+def test_frontend_is_served_from_the_inference_service(settings):
+    app = create_app(settings=settings, processor=StubProcessor(result={}))
+    client = app.test_client()
+
+    response = client.get("/")
+    script = client.get("/app/app.js")
+
+    assert response.status_code == 200
+    assert b"PatentAgility" in response.data
+    assert b"Matter workspace" in response.data
+    assert script.status_code == 200
+    assert script.mimetype == "text/javascript"
+
+
+def test_antecedent_endpoint_returns_structured_claim_issues(settings, monkeypatch):
+    from core.antecedent_basis import Mention
+
+    missing = Mention("ref", "the controller", "controller", 41, 55)
+    unused = Mention("intro", "a processor", "processor", 24, 35)
+    monkeypatch.setattr(
+        "service.analyze_intro_ref",
+        lambda _text: {
+            "mentions": [unused, missing],
+            "introduced": {"processor": [unused]},
+            "refs": [missing],
+            "used_without_intro": [missing],
+            "introduced_never_referenced": [unused],
+        },
+    )
+    app = create_app(settings=settings, processor=StubProcessor(result={}))
+
+    response = app.test_client().post(
+        "/v1/claims/antecedent",
+        json={"claim_text": "A system comprising a processor and the controller."},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["summary"] == {"high": 1, "info": 1, "total": 2}
+    assert response.get_json()["issues"][0]["text"] == "the controller"
+    assert response.get_json()["issues"][0]["severity"] == "high"
+
+
+def test_claim_analysis_endpoint_returns_structured_claim_map(settings, monkeypatch):
+    monkeypatch.setattr(
+        "service.segment_claim",
+        lambda _text, nlp: {
+            "segments": [{"idx": 1, "text": "a processor configured to store data"}],
+            "frames": [{"anchor_verb": "store", "object_np": "data"}],
+        },
+    )
+    monkeypatch.setattr("service.get_claim_nlp", lambda _model: object())
+    app = create_app(settings=settings, processor=StubProcessor(result={}))
+
+    response = app.test_client().post(
+        "/v1/claims/diagram",
+        json={"claim_text": "A system comprising a processor configured to store data."},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["segment_count"] == 1
+    assert response.get_json()["frames"][0]["anchor_verb"] == "store"
+
+
+@pytest.mark.parametrize("endpoint", ["/v1/claims/antecedent", "/v1/claims/diagram"])
+def test_claim_endpoints_reject_empty_input(settings, endpoint):
+    app = create_app(settings=settings, processor=StubProcessor(result={}))
+
+    response = app.test_client().post(endpoint, json={"claim_text": "  "})
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "invalid_request"

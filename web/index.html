@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A local-first patent analysis workspace for claim drafting, specification support, family review, and examiner research.">
+  <title>PatentAgility | Matter Workspace</title>
+  <link rel="stylesheet" href="/app/app.css">
+  <script src="/app/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to workspace</a>
+
+  <header class="topbar">
+    <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Open tool navigation" aria-expanded="false">Menu</button>
+    <a class="brand" href="#overview" aria-label="PatentAgility home">
+      <span class="brand-mark" aria-hidden="true">PA</span>
+      <span><strong>PatentAgility</strong><small>Patent analysis workspace</small></span>
+    </a>
+    <div class="matter-switcher" aria-label="Current matter">
+      <span class="matter-label">Matter</span>
+      <button type="button" id="matter-button" aria-haspopup="listbox" aria-expanded="false">
+        <span><strong>Helios sensor platform</strong><small>US 18/456,219 · Draft review</small></span>
+        <span aria-hidden="true">⌄</span>
+      </button>
+    </div>
+    <div class="topbar-actions">
+      <div class="privacy-status"><span aria-hidden="true"></span> Local processing</div>
+      <button class="quiet-button" id="new-review" type="button">New review</button>
+      <button class="avatar" type="button" aria-label="Account menu">SJ</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Patent analysis tools">
+      <nav>
+        <button class="nav-home is-active" type="button" data-view="overview">
+          <span class="nav-glyph" aria-hidden="true">⌂</span>
+          Matter overview
+        </button>
+
+        <div class="nav-group">
+          <div class="nav-heading">Patent review</div>
+          <button type="button" data-tool="family-history"><span class="nav-glyph">01</span><span>Amendment history<small>U.S. family timeline</small></span></button>
+          <button type="button" data-tool="family-claims"><span class="nav-glyph">02</span><span>Compare claims<small>Granted family scope</small></span></button>
+          <button type="button" data-tool="unclaimed"><span class="nav-glyph">03</span><span>Unclaimed subject matter<small>Coverage gaps</small></span></button>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-heading">Drafting review</div>
+          <button type="button" data-tool="support"><span class="nav-glyph">04</span><span>Specification support<small>Semantic evidence search</small></span></button>
+          <button type="button" data-tool="antecedent"><span class="nav-glyph">05</span><span>Antecedent basis<small>Referential consistency</small></span></button>
+          <button type="button" data-tool="linguistic"><span class="nav-glyph">06</span><span>Claim structure<small>Linguistic diagram</small></span></button>
+          <button type="button" data-tool="art-unit"><span class="nav-glyph">07</span><span>Art unit predictor<small>Likely routing</small></span></button>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-heading">Examiner research</div>
+          <button type="button" data-tool="examiner"><span class="nav-glyph">08</span><span>Examiner analytics<small>Prosecution patterns</small></span></button>
+        </div>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="model-readiness">
+          <span class="readiness-dot" aria-hidden="true"></span>
+          <div><strong>Inference lane ready</strong><small id="queue-status">0 queued · balanced profile</small></div>
+        </div>
+        <button type="button" id="system-details">System details</button>
+      </div>
+    </aside>
+
+    <main id="main-content" tabindex="-1">
+      <section class="overview-view" id="overview-view" aria-labelledby="overview-title">
+        <div class="overview-hero">
+          <div>
+            <div class="eyebrow">Matter workspace / Draft review</div>
+            <h1 id="overview-title">What needs a closer look?</h1>
+            <p>Run a focused review, inspect the cited evidence, and leave the final legal judgment with the attorney.</p>
+          </div>
+          <div class="matter-card">
+            <div class="matter-card-top"><span>Current matter</span><span class="status-pill">In review</span></div>
+            <strong>Helios sensor platform</strong>
+            <p>US 18/456,219 · 22 claims · Last reviewed today</p>
+            <div class="matter-progress"><span style="width: 62%"></span></div>
+            <small>5 of 8 review passes complete</small>
+          </div>
+        </div>
+
+        <div class="assurance-strip" aria-label="Data handling assurances">
+          <div><span class="assurance-icon">L</span><p><strong>Local models</strong><small>Substantive text stays on this system.</small></p></div>
+          <div><span class="assurance-icon">0</span><p><strong>No text retention</strong><small>Inputs are not saved with the matter.</small></p></div>
+          <div><span class="assurance-icon">E</span><p><strong>Evidence first</strong><small>Every result preserves its source passage.</small></p></div>
+          <div><span class="assurance-icon">H</span><p><strong>Human decision</strong><small>Flags are review prompts, not legal conclusions.</small></p></div>
+        </div>
+
+        <section class="tool-section" aria-labelledby="tool-heading">
+          <div class="section-heading">
+            <div><div class="eyebrow">Eight focused workflows</div><h2 id="tool-heading">Choose the review task</h2></div>
+            <p>Each workflow asks only for the information needed to answer one patent-practice question.</p>
+          </div>
+          <div class="tool-grid" id="tool-grid"></div>
+        </section>
+
+        <section class="recent-section" aria-labelledby="recent-heading">
+          <div class="section-heading compact">
+            <div><div class="eyebrow">Work product</div><h2 id="recent-heading">Recent analyses</h2></div>
+            <button class="text-button" type="button">View matter history →</button>
+          </div>
+          <div class="recent-table" role="table" aria-label="Recent analyses">
+            <div class="recent-row recent-head" role="row"><span>Analysis</span><span>Input</span><span>Reviewed</span><span>Status</span></div>
+            <button class="recent-row" type="button" data-tool="antecedent" role="row"><span><b>Antecedent basis</b><small>Independent claim 1</small></span><span>1 claim</span><span>Today, 10:42</span><span class="result-status attention">1 issue</span></button>
+            <button class="recent-row" type="button" data-tool="support" role="row"><span><b>Specification support</b><small>Thermal compensation</small></span><span>3 limitations</span><span>Today, 09:18</span><span class="result-status complete">Complete</span></button>
+            <button class="recent-row" type="button" data-tool="family-claims" role="row"><span><b>Family claim comparison</b><small>Helios U.S. family</small></span><span>4 patents</span><span>Yesterday</span><span class="result-status complete">Complete</span></button>
+          </div>
+        </section>
+
+        <footer class="workspace-disclaimer">
+          <strong>Experimental review aid.</strong>
+          <span>PatentAgility output may be incomplete or wrong because source data, OCR, retrieval, and local models are imperfect. It is not legal advice and should not be the sole source of authoritative fact.</span>
+        </footer>
+      </section>
+
+      <section class="tool-view hidden" id="tool-view" aria-labelledby="tool-title">
+        <div class="tool-breadcrumb"><button type="button" id="back-overview">Matter overview</button><span aria-hidden="true">/</span><span id="breadcrumb-name">Tool</span></div>
+        <div class="tool-header">
+          <div class="tool-index" id="tool-index">04</div>
+          <div>
+            <div class="tool-meta"><span class="mode-badge" id="mode-badge">Live analysis</span><span id="tool-runtime">Local GTE retrieval</span></div>
+            <h1 id="tool-title">Specification support</h1>
+            <p id="tool-description"></p>
+          </div>
+          <button class="how-button" id="how-button" type="button">How this works</button>
+        </div>
+
+        <div class="tool-layout">
+          <div class="analysis-column">
+            <form class="analysis-form" id="tool-form" novalidate>
+              <div class="form-heading"><span>01</span><div><h2>Review input</h2><p id="form-guidance"></p></div></div>
+              <div id="dynamic-fields"></div>
+              <div class="form-actions">
+                <button class="sample-button" id="load-sample" type="button">Load sample</button>
+                <button class="primary-button" id="run-analysis" type="submit"><span>Run analysis</span><span aria-hidden="true">→</span></button>
+              </div>
+              <div class="input-assurance"><span aria-hidden="true">◇</span><span><strong>Substantive input is not retained.</strong> Public USPTO source documents may be cached locally to avoid repeated downloads or OCR.</span></div>
+            </form>
+
+            <section class="progress-panel hidden" id="progress-panel" aria-live="polite">
+              <div class="progress-heading"><div><span class="working-dot"></span><strong id="progress-title">Preparing analysis</strong></div><span id="progress-percent">0%</span></div>
+              <div class="progress-track"><span id="progress-fill"></span></div>
+              <ol id="progress-steps"></ol>
+            </section>
+
+            <section class="results-panel hidden" id="results-panel" aria-live="polite">
+              <div class="results-heading">
+                <div><div class="eyebrow">Review output</div><h2 id="results-title">Analysis results</h2><p id="results-summary"></p></div>
+                <div class="result-actions"><button type="button" id="copy-results">Copy summary</button><button type="button" id="print-results">Print</button></div>
+              </div>
+              <div id="results-content"></div>
+            </section>
+          </div>
+
+          <aside class="context-column" aria-label="Analysis context">
+            <section class="context-card">
+              <div class="context-label">Review standard</div>
+              <h2 id="context-title">Evidence, not conclusions</h2>
+              <p id="context-copy">Treat ranked passages as a research aid. Confirm the cited specification language and prosecution record before relying on a result.</p>
+            </section>
+            <section class="context-card evidence-card">
+              <div class="context-label">Current matter</div>
+              <dl>
+                <div><dt>Application</dt><dd>18/456,219</dd></div>
+                <div><dt>Family</dt><dd>7 U.S. members</dd></div>
+                <div><dt>Claims</dt><dd>22 total / 3 independent</dd></div>
+                <div><dt>Last sync</dt><dd>Jul 18, 2026</dd></div>
+              </dl>
+            </section>
+            <section class="context-card queue-card">
+              <div class="context-label">Inference lane</div>
+              <div class="queue-visual" aria-label="No jobs waiting"><span class="active"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              <p><strong>Ready now.</strong> Up to eight compatible requests share one model batch; excess load receives an explicit retry response.</p>
+            </section>
+          </aside>
+        </div>
+        <footer class="workspace-disclaimer compact-disclaimer">
+          <strong>Attorney verification required.</strong>
+          <span>Confirm every cited passage, prosecution event, and generated summary against the authoritative record before relying on it.</span>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="explain-dialog" id="explain-dialog">
+    <form method="dialog">
+      <button class="dialog-close" aria-label="Close explanation">×</button>
+      <div class="eyebrow">Method note</div>
+      <h2 id="dialog-title">How this analysis works</h2>
+      <div id="dialog-content"></div>
+      <div class="dialog-foot"><span>Local processing</span><span>Review required</span><span>Source-linked output</span></div>
+    </form>
+  </dialog>
+
+  <div class="toast hidden" id="toast" role="status"></div>
+</body>
+</html>

@@ -9,20 +9,25 @@ import os
 import time
 import uuid
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 
+from core.antecedent_basis import analyze_intro_ref
 from core.batch_queue import (
     BatchProcessor,
     ProcessorClosed,
     QueueAtCapacity,
     WorkTimeout,
 )
+from core.claim_segmentation import get_nlp as get_claim_nlp
+from core.claim_segmentation import segment_claim
 from core.support_runtime import MODEL_PROFILES, SupportAnalyzer, SupportRequest
 
 
 LOGGER = logging.getLogger("patentagility.service")
+WEB_DIR = Path(__file__).resolve().parent / "web"
 
 
 @dataclass(frozen=True)
@@ -148,9 +153,18 @@ def create_app(
     @app.get("/metrics")
     def metrics():
         snapshot = processor.snapshot()
+        snapshot["model_profile"] = settings.model_profile
         if analyzer is not None:
             snapshot.update(analyzer.cache_snapshot())
         return jsonify(snapshot)
+
+    @app.get("/")
+    def frontend():
+        return send_from_directory(WEB_DIR, "index.html")
+
+    @app.get("/app/<path:filename>")
+    def frontend_asset(filename: str):
+        return send_from_directory(WEB_DIR, filename)
 
     @app.post("/v1/support/search")
     def support_search():
@@ -214,6 +228,82 @@ def create_app(
         )
         return _response(result, status=200, request_id=request_id)
 
+    @app.post("/v1/claims/antecedent")
+    def antecedent_basis():
+        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        try:
+            claim_text = _parse_claim_text(request.get_json(silent=True))
+        except ValueError as exc:
+            return _response(
+                {"error": "invalid_request", "message": str(exc)},
+                status=400,
+                request_id=request_id,
+            )
+
+        analysis = analyze_intro_ref(claim_text)
+        issues = [
+            {
+                "code": "missing_antecedent",
+                "severity": "high",
+                "title": "Missing antecedent basis",
+                **_mention_payload(mention),
+            }
+            for mention in analysis["used_without_intro"]
+        ]
+        issues.extend(
+            {
+                "code": "introduced_not_reused",
+                "severity": "info",
+                "title": "Introduced but not later referenced",
+                **_mention_payload(mention),
+            }
+            for mention in analysis["introduced_never_referenced"]
+        )
+        summary = {
+            "high": sum(issue["severity"] == "high" for issue in issues),
+            "info": sum(issue["severity"] == "info" for issue in issues),
+            "total": len(issues),
+        }
+        return _response(
+            {
+                "claim_text": claim_text,
+                "mentions": [
+                    _mention_payload(mention) for mention in analysis["mentions"]
+                ],
+                "issues": issues,
+                "summary": summary,
+            },
+            status=200,
+            request_id=request_id,
+        )
+
+    @app.post("/v1/claims/diagram")
+    def claim_diagram():
+        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        try:
+            claim_text = _parse_claim_text(request.get_json(silent=True))
+        except ValueError as exc:
+            return _response(
+                {"error": "invalid_request", "message": str(exc)},
+                status=400,
+                request_id=request_id,
+            )
+
+        analysis = segment_claim(
+            claim_text,
+            nlp=get_claim_nlp(settings.spacy_model),
+        )
+        return _response(
+            {
+                "claim_text": claim_text,
+                "segment_count": len(analysis["segments"]),
+                "segments": analysis["segments"],
+                "frames": analysis["frames"],
+            },
+            status=200,
+            request_id=request_id,
+        )
+
     return app
 
 
@@ -265,6 +355,28 @@ def _response(payload: Any, *, status: int, request_id: str):
     response.status_code = status
     response.headers["X-Request-ID"] = request_id
     return response
+
+
+def _parse_claim_text(payload: Any) -> str:
+    if not isinstance(payload, dict):
+        raise ValueError("request body must be a JSON object")
+    claim_text = payload.get("claim_text")
+    if not isinstance(claim_text, str) or not claim_text.strip():
+        raise ValueError("claim_text must be a non-empty string")
+    claim_text = claim_text.strip()
+    if len(claim_text) > 100_000:
+        raise ValueError("claim_text exceeds the 100,000 character limit")
+    return claim_text
+
+
+def _mention_payload(mention: Any) -> dict[str, Any]:
+    return {
+        "kind": mention.kind,
+        "text": mention.text,
+        "key": mention.key,
+        "start": mention.start,
+        "end": mention.end,
+    }
 
 
 def _request_cost(work: SupportRequest) -> int:
