@@ -23,6 +23,7 @@ import requests
 # Base USPTO API URL
 BASE_URL = "https://api.uspto.gov/api/v1"
 
+
 # Session instantiation
 def _session(API_KEY: str | None):
     s = requests.Session()
@@ -31,9 +32,11 @@ def _session(API_KEY: str | None):
         s.headers.update({"x-api-key": API_KEY})
     return s
 
+
 # Clean up digits, just in case
 def _clean_digits(s):
     return re.sub(r"\D+", "", s or "")
+
 
 # Find the first key in the JSON
 def _find_first_key(obj, keys):
@@ -52,6 +55,39 @@ def _find_first_key(obj, keys):
                 return hit
     return None
 
+
+def search_application_record(*, patent_number=None, application_number=None, API_KEY):
+    if not patent_number and not application_number:
+        raise ValueError("ERROR: Need patent or application number.")
+
+    params = {"limit": 1, "offset": 0}
+    if application_number:
+        params["applicationNumberQ"] = _clean_digits(application_number)
+    else:
+        params["patentNumberQ"] = _clean_digits(patent_number)
+
+    response = _session(API_KEY).get(
+        f"{BASE_URL}/patent/applications/search",
+        params=params,
+        timeout=60,
+    )
+    response.raise_for_status()
+    data = response.json()
+    records = _find_first_key(
+        data,
+        ["patentFileWrapperDataBag", "results", "items", "applications"],
+    )
+    if isinstance(records, list):
+        if not records:
+            raise RuntimeError("No matching USPTO application was found.")
+        return records[0]
+    if isinstance(data, dict) and _find_first_key(
+        data, ["applicationNumberText", "applicationNumber", "application_number"]
+    ):
+        return data
+    raise RuntimeError("No matching USPTO application was found.")
+
+
 # Resolve application number using USPTO API.  Supports both application_number_q and patent_number_q
 def resolve_application_number(*, patent_number, application_number, API_KEY):
 
@@ -65,28 +101,20 @@ def resolve_application_number(*, patent_number, application_number, API_KEY):
     if not patent_number:
         raise ValueError("ERROR: Need patent or application number.")
 
-    # Instantiate a session with the session key
-    s = _session(API_KEY)
-
-    # Set up our parameters
-    params = {"limit": 1, "offset": 0}
-
-    # Set up our query based on the app/patent number
-    if application_number:
-        params["applicationNumberQ"] = _clean_digits(application_number)
-    else:
-        params["patentNumberQ"] = _clean_digits(patent_number)
-
-    # Define the search endpoint
-    url = f"{BASE_URL}/patent/applications/search"
-    r = s.get(url, params=params, timeout=60)
-    r.raise_for_status()
-    data = r.json()
+    data = search_application_record(
+        patent_number=patent_number,
+        application_number=application_number,
+        API_KEY=API_KEY,
+    )
 
     # Try common field spellings first; fall back to best-effort scan.
-    app_no = _find_first_key(data, ["applicationNumberText", "applicationNumber", "application_number"])
+    app_no = _find_first_key(
+        data, ["applicationNumberText", "applicationNumber", "application_number"]
+    )
     if not app_no:
-        raise RuntimeError("ERROR: Couldn't locate application number in search response.")
+        raise RuntimeError(
+            "ERROR: Couldn't locate application number in search response."
+        )
 
     # Otherwise, try to clean up, but complain if there's an issue.
     app_no = _clean_digits(str(app_no))
@@ -94,6 +122,7 @@ def resolve_application_number(*, patent_number, application_number, API_KEY):
         raise RuntimeError(f"Resolved application number looks wrong: {app_no!r}")
 
     return app_no
+
 
 # List documents for a particular application number
 def list_documents(application_number, *, API_KEY):
@@ -118,6 +147,7 @@ def list_documents(application_number, *, API_KEY):
         docs = docs if isinstance(docs, list) else []
     return docs
 
+
 # Function to pick specification document amongst various documents
 def pick_spec_doc(docs, which="earliest"):
     spec_docs = [d for d in docs if str(d.get("documentCode", "")).upper() == "SPEC"]
@@ -135,16 +165,20 @@ def pick_spec_doc(docs, which="earliest"):
     else:
         raise ValueError("which must be 'earliest' or 'latest'")
 
+
 # Function to identify PDF to download from USPTO records
 def get_pdf_download_url(doc):
     bag = doc.get("downloadOptionBag") or []
     for opt in bag:
-        if str(opt.get("mimeTypeIdentifier", "")).upper() == "PDF" and opt.get("downloadUrl"):
+        if str(opt.get("mimeTypeIdentifier", "")).upper() == "PDF" and opt.get(
+            "downloadUrl"
+        ):
             return opt["downloadUrl"]
     for opt in bag:
         if opt.get("downloadUrl"):
             return opt["downloadUrl"]
     raise RuntimeError("No downloadUrl found for this document.")
+
 
 # Function to download USPTO file
 def download_file(url, out_path, *, api_key=None):
@@ -161,10 +195,17 @@ def download_file(url, out_path, *, api_key=None):
                     f.write(chunk)
     return out_path
 
+
 # Function to download the SPECIFICATION itself - grabs pat/app number, resolves app
 # if patent number provided, figures out docs in file wrapper, guesses spec, then downloads it.
-def download_specification(*, patent_number = None, application_number = None, API_KEY, out_dir = "temp/uspto_pfw_downloads"):
-    
+def download_specification(
+    *,
+    patent_number=None,
+    application_number=None,
+    API_KEY,
+    out_dir="temp/uspto_pfw_downloads",
+):
+
     # Resolve the application number
     app_no = resolve_application_number(
         patent_number=patent_number,
@@ -179,7 +220,7 @@ def download_specification(*, patent_number = None, application_number = None, A
     # Get the URL of the best-guess specification docuemnt
     url = get_pdf_download_url(spec_doc)
 
-    # Go ahead and download the file    
+    # Go ahead and download the file
     out_dir = Path(out_dir)
     out_path = out_dir / f"{app_no}_SPEC_{spec_doc['documentIdentifier']}.pdf"
     out = download_file(url, out_path, api_key=API_KEY)

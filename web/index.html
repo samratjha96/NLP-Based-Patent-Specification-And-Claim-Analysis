@@ -20,7 +20,7 @@
     <div class="matter-switcher" aria-label="Current matter">
       <span class="matter-label">Matter</span>
       <button type="button" id="matter-button" aria-haspopup="listbox" aria-expanded="false">
-        <span><strong>Helios sensor platform</strong><small>US 18/456,219 · Draft review</small></span>
+        <span><strong id="matter-name">No record loaded</strong><small id="matter-meta">Open a U.S. patent record</small></span>
         <span aria-hidden="true">⌄</span>
       </button>
     </div>
@@ -73,22 +73,38 @@
       <section class="overview-view" id="overview-view" aria-labelledby="overview-title">
         <div class="overview-hero">
           <div>
-            <div class="eyebrow">Matter workspace / Draft review</div>
-            <h1 id="overview-title">What needs a closer look?</h1>
-            <p>Run a focused review, inspect the cited evidence, and leave the final legal judgment with the attorney.</p>
+            <div class="eyebrow">Matter workspace</div>
+            <h1 id="overview-title">Start with the record.</h1>
+            <p>Enter a U.S. patent or application number once. PatentAgility retrieves the public file, prepares the specification and claims, and makes them available across the review tools.</p>
           </div>
-          <div class="matter-card">
-            <div class="matter-card-top"><span>Current matter</span><span class="status-pill">In review</span></div>
-            <strong>Helios sensor platform</strong>
-            <p>US 18/456,219 · 22 claims · Last reviewed today</p>
-            <div class="matter-progress"><span style="width: 62%"></span></div>
-            <small>5 of 8 review passes complete</small>
+          <div class="matter-card record-loader">
+            <div class="matter-card-top"><span>Open public record</span><span class="status-pill" id="record-status">Not loaded</span></div>
+            <form id="patent-lookup-form">
+              <label for="lookup-identifier">U.S. patent or application number</label>
+              <div class="record-lookup-row">
+                <select id="lookup-identifier-type" aria-label="Identifier type">
+                  <option value="patent">Patent</option>
+                  <option value="application">Application</option>
+                </select>
+                <input id="lookup-identifier" inputmode="numeric" autocomplete="off" placeholder="12,345,678" required>
+                <button type="submit" id="lookup-submit">Open</button>
+              </div>
+              <p id="lookup-message">Numbers are resolved against the USPTO Open Data Portal.</p>
+            </form>
+            <div class="record-summary hidden" id="record-summary" aria-live="polite">
+              <strong id="record-title"></strong>
+              <dl>
+                <div><dt>Application</dt><dd id="record-application">—</dd></div>
+                <div><dt>Patent</dt><dd id="record-patent">—</dd></div>
+                <div><dt>Status</dt><dd id="record-case-status">—</dd></div>
+              </dl>
+            </div>
           </div>
         </div>
 
         <div class="assurance-strip" aria-label="Data handling assurances">
-          <div><span class="assurance-icon">C</span><p><strong>Confidential review</strong><small>Submitted text is used only for this analysis.</small></p></div>
-          <div><span class="assurance-icon">0</span><p><strong>No text retention</strong><small>Inputs are not saved with the matter.</small></p></div>
+          <div><span class="assurance-icon">U</span><p><strong>Official source</strong><small>Records are retrieved from the USPTO Open Data Portal.</small></p></div>
+          <div><span class="assurance-icon">1</span><p><strong>Load once</strong><small>The same matter record is reused across review tools.</small></p></div>
           <div><span class="assurance-icon">E</span><p><strong>Evidence first</strong><small>Every result preserves its source passage.</small></p></div>
           <div><span class="assurance-icon">H</span><p><strong>Human decision</strong><small>Flags are review prompts, not legal conclusions.</small></p></div>
         </div>
@@ -106,11 +122,8 @@
             <div><div class="eyebrow">Work product</div><h2 id="recent-heading">Recent analyses</h2></div>
             <button class="text-button" type="button">View matter history →</button>
           </div>
-          <div class="recent-table" role="table" aria-label="Recent analyses">
-            <div class="recent-row recent-head" role="row"><span>Analysis</span><span>Input</span><span>Reviewed</span><span>Status</span></div>
-            <button class="recent-row" type="button" data-tool="antecedent" role="row"><span><b>Antecedent basis</b><small>Independent claim 1</small></span><span>1 claim</span><span>Today, 10:42</span><span class="result-status attention">1 issue</span></button>
-            <button class="recent-row" type="button" data-tool="support" role="row"><span><b>Specification support</b><small>Thermal compensation</small></span><span>3 limitations</span><span>Today, 09:18</span><span class="result-status complete">Complete</span></button>
-            <button class="recent-row" type="button" data-tool="family-claims" role="row"><span><b>Family claim comparison</b><small>Helios U.S. family</small></span><span>4 patents</span><span>Yesterday</span><span class="result-status complete">Complete</span></button>
+          <div class="recent-table" role="status" aria-label="Recent analyses">
+            <div class="empty-history"><strong>No analyses yet</strong><span>Open a patent record and choose a review task.</span></div>
           </div>
         </section>
 
@@ -138,10 +151,10 @@
               <div class="form-heading"><span>01</span><div><h2>Review input</h2><p id="form-guidance"></p></div></div>
               <div id="dynamic-fields"></div>
               <div class="form-actions">
-                <button class="sample-button" id="load-sample" type="button">Load sample</button>
+                <button class="sample-button" id="load-sample" type="button">Use current matter</button>
                 <button class="primary-button" id="run-analysis" type="submit"><span>Run analysis</span><span aria-hidden="true">→</span></button>
               </div>
-              <div class="input-assurance"><span aria-hidden="true">◇</span><span><strong>Substantive input is not added to matter history.</strong> Public USPTO documents may be retained temporarily to avoid repeated retrieval and text extraction.</span></div>
+              <div class="input-assurance"><span aria-hidden="true">◇</span><span><strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.</span></div>
             </form>
 
             <section class="progress-panel hidden" id="progress-panel" aria-live="polite">
@@ -168,10 +181,10 @@
             <section class="context-card evidence-card">
               <div class="context-label">Current matter</div>
               <dl>
-                <div><dt>Application</dt><dd>18/456,219</dd></div>
-                <div><dt>Family</dt><dd>7 U.S. members</dd></div>
-                <div><dt>Claims</dt><dd>22 total / 3 independent</dd></div>
-                <div><dt>Last sync</dt><dd>Jul 18, 2026</dd></div>
+                <div><dt>Application</dt><dd id="context-application">Not loaded</dd></div>
+                <div><dt>Patent</dt><dd id="context-patent">Not loaded</dd></div>
+                <div><dt>Status</dt><dd id="context-status">Not loaded</dd></div>
+                <div><dt>Source</dt><dd id="context-source">USPTO</dd></div>
               </dl>
             </section>
             <section class="context-card safeguards-card">

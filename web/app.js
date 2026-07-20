@@ -55,7 +55,7 @@ const tools = {
     mode: "live",
     runtime: "Specification evidence search",
     description: "Find the passages most likely to support a limitation across the complete specification.",
-    guidance: "Paste the specification, then add every limitation you want to investigate in the same review.",
+    guidance: "The loaded USPTO specification is searched directly. Add every limitation you want to investigate in the same review.",
     contextTitle: "Ranked passages are starting points",
     contextCopy: "A high score means the passage is textually relevant, not necessarily that it satisfies written-description or enablement requirements. Read the full paragraph and surrounding disclosure.",
     steps: ["Validate input", "Build document index", "Search limitations", "Rank evidence"],
@@ -75,7 +75,7 @@ const tools = {
     mode: "live",
     runtime: "Claim-language review",
     description: "Track introduced claim terms and later references to flag likely missing antecedent basis and unused introductions.",
-    guidance: "Paste one or more claims. The review highlights likely issues in context so the attorney can confirm whether the reference is actually ambiguous.",
+    guidance: "The claims from the loaded USPTO record are reviewed directly so the attorney can confirm likely issues in context.",
     contextTitle: "Drafting heuristic, not claim construction",
     contextCopy: "The checker follows noun-phrase introductions and references. It can miss implicit antecedents and may flag deliberate drafting choices.",
     steps: ["Parse claim text", "Track introductions", "Match references", "Rank issues"],
@@ -91,7 +91,7 @@ const tools = {
     mode: "live",
     runtime: "Claim structure map",
     description: "Turn dense claim language into an inspectable map of actions, objects, details, alternatives, and dependencies.",
-    guidance: "Paste a claim with its normal punctuation. Semicolons and transitional phrases help the analyzer preserve the intended limitation structure.",
+    guidance: "The claims from the loaded USPTO record are mapped with their original punctuation and transitional phrases.",
     contextTitle: "Structure is easier to review when visible",
     contextCopy: "The diagram exposes linguistic relationships. It does not decide whether a limitation is definite, enabled, or patentable.",
     steps: ["Parse syntax", "Segment limitations", "Classify relationships", "Render diagram"],
@@ -107,7 +107,7 @@ const tools = {
     mode: "prototype",
     runtime: "Routing preview",
     description: "Rank the five most likely USPTO art units from invention text, then connect the estimate to examiner analytics.",
-    guidance: "Paste an abstract, summary, or representative claims. More concrete technical language usually produces a more useful routing estimate.",
+    guidance: "The loaded specification and claims provide the technical language used for the routing estimate.",
     contextTitle: "Routing estimates are directional",
     contextCopy: "Art unit assignment depends on classification practice and incoming workload. Treat ranked estimates as a planning signal, not a filing outcome.",
     steps: ["Review invention text", "Identify technical focus", "Rank art units", "Connect relevant trends"],
@@ -137,6 +137,7 @@ const demoToolOrder = ["family-history", "family-claims", "unclaimed", "support"
 let activeToolKey = null;
 let lastResultSummary = "";
 let toastTimer = null;
+let loadedMatter = null;
 
 const overviewView = document.getElementById("overview-view");
 const toolView = document.getElementById("tool-view");
@@ -227,23 +228,30 @@ function field(label, control, hint = "") {
 }
 
 function identifierFields() {
+  const identifier = loadedMatter ? (loadedMatter.application_number || loadedMatter.patent_number) : "";
+  const identifierType = loadedMatter && loadedMatter.application_number ? "application" : "patent";
   return `<div class="field-grid">
-    ${field("Identifier type", `<select id="id-type" name="idType" aria-label="Identifier type"><option value="application">Application number</option><option value="patent">Patent number</option></select>`)}
-    ${field("U.S. identifier", `<input id="identifier" name="identifier" inputmode="numeric" autocomplete="off" aria-label="U.S. identifier" placeholder="18/456,219" required>`, "Punctuation is optional; the workflow normalizes the number before retrieval.")}
+    ${field("Identifier type", `<select id="id-type" name="idType" aria-label="Identifier type"><option value="application" ${identifierType === "application" ? "selected" : ""}>Application number</option><option value="patent" ${identifierType === "patent" ? "selected" : ""}>Patent number</option></select>`)}
+    ${field("U.S. identifier", `<input id="identifier" name="identifier" inputmode="numeric" autocomplete="off" aria-label="U.S. identifier" placeholder="18/456,219" value="${escapeHtml(identifier)}" required>`, "The current matter is filled automatically. Punctuation is optional.")}
   </div>`;
 }
 
+function matterSourceField(section) {
+  if (!loadedMatter) {
+    return `<div class="matter-source empty"><span>No patent record loaded</span><strong>Open a U.S. patent or application from Matter overview.</strong></div>`;
+  }
+  const count = section === "Specification" ? loadedMatter.specification_character_count : loadedMatter.claims_character_count;
+  const detail = count ? `${count.toLocaleString()} characters ready` : `${section} text was not found in the retrieved document`;
+  return `<div class="matter-source"><span>${escapeHtml(section)} from current matter</span><strong>${escapeHtml(loadedMatter.title || `Application ${loadedMatter.application_number}`)}</strong><small>${escapeHtml(detail)} · ${escapeHtml(loadedMatter.source)}</small></div>`;
+}
+
 function claimField() {
-  return field(
-    `<span>Claim text</span><small id="claim-count">0 / 100,000</small>`,
-    `<textarea class="large" id="claim-text" name="claimText" maxlength="100000" aria-label="Claim text" placeholder="Paste claim text here…" required></textarea>`,
-    "Use the claim as filed or currently proposed. Substantive text is used only for this review."
-  );
+  return matterSourceField("Claims");
 }
 
 function supportFields() {
   return `
-    ${field(`<span>Specification text</span><small id="patent-count">0 characters</small>`, `<textarea class="large" id="patent-text" name="patentText" aria-label="Specification text" placeholder="Paste the detailed description or specification text…" required></textarea>`, "For the best evidence trail, retain paragraph numbers in the pasted text.")}
+    ${matterSourceField("Specification")}
     <div class="field">
       <label><span>Limitations or concepts</span><small>Up to 64 per request</small></label>
       <div class="query-list" id="query-list"></div>
@@ -258,7 +266,7 @@ function renderFields(tool) {
   if (tool.fields === "claim") dynamicFields.innerHTML = claimField();
   if (tool.fields === "support") dynamicFields.innerHTML = supportFields();
   if (tool.fields === "invention") {
-    dynamicFields.innerHTML = field(`<span>Invention text</span><small id="invention-count">0 characters</small>`, `<textarea class="large" id="invention-text" name="inventionText" aria-label="Invention text" placeholder="Paste an abstract, summary, or representative claims…" required></textarea>`, "Include the technical function, inputs, outputs, and field of use when possible.");
+    dynamicFields.innerHTML = matterSourceField("Specification");
   }
   if (tool.fields === "examiner") {
     dynamicFields.innerHTML = field("Examiner, art unit, work group, or tech center", `<input id="examiner-query" name="examinerQuery" type="search" aria-label="Examiner, art unit, work group, or tech center" placeholder="Try: Art Unit 2123" required>`, "Search results can be narrowed by name or USPTO organizational unit.");
@@ -267,12 +275,6 @@ function renderFields(tool) {
 }
 
 function attachFieldBehavior(tool) {
-  const claimText = document.getElementById("claim-text");
-  if (claimText) claimText.addEventListener("input", () => document.getElementById("claim-count").textContent = `${claimText.value.length.toLocaleString()} / 100,000`);
-  const patentText = document.getElementById("patent-text");
-  if (patentText) patentText.addEventListener("input", () => document.getElementById("patent-count").textContent = `${patentText.value.length.toLocaleString()} characters`);
-  const inventionText = document.getElementById("invention-text");
-  if (inventionText) inventionText.addEventListener("input", () => document.getElementById("invention-count").textContent = `${inventionText.value.length.toLocaleString()} characters`);
   if (tool.fields === "support") {
     addQueryRow("");
     document.getElementById("add-query").addEventListener("click", () => addQueryRow(""));
@@ -299,32 +301,24 @@ function addQueryRow(value) {
 function loadSample() {
   const tool = tools[activeToolKey];
   if (!tool) return;
+  if (loadedMatter) {
+    renderFields(tool);
+    showToast("Current USPTO record selected.");
+    return;
+  }
+  if (["claim", "support", "invention"].includes(tool.fields)) {
+    showOverview();
+    document.getElementById("lookup-identifier").focus();
+    showToast("Open a patent record before starting this review.");
+    return;
+  }
   const sample = tool.sample;
   if (tool.fields === "identifier") {
     document.getElementById("id-type").value = sample.idType;
     document.getElementById("identifier").value = sample.identifier;
   }
-  if (tool.fields === "claim") {
-    const input = document.getElementById("claim-text");
-    input.value = sample.claimText;
-    input.dispatchEvent(new Event("input"));
-  }
-  if (tool.fields === "support") {
-    const patentText = document.getElementById("patent-text");
-    patentText.value = sample.patentText;
-    patentText.dispatchEvent(new Event("input"));
-    const queryList = document.getElementById("query-list");
-    queryList.innerHTML = "";
-    sample.queries.forEach(addQueryRow);
-    document.getElementById("top-n").value = sample.topN;
-  }
-  if (tool.fields === "invention") {
-    const input = document.getElementById("invention-text");
-    input.value = sample.inventionText;
-    input.dispatchEvent(new Event("input"));
-  }
   if (tool.fields === "examiner") document.getElementById("examiner-query").value = sample.examinerQuery;
-  showToast("Sample loaded. Replace it with matter-specific text when ready.");
+  showToast("Example identifier loaded.");
 }
 
 function collectPayload(tool) {
@@ -334,21 +328,20 @@ function collectPayload(tool) {
     return { idType: document.getElementById("id-type").value, identifier };
   }
   if (tool.fields === "claim") {
-    const claimText = document.getElementById("claim-text").value.trim();
-    if (!claimText) throw new Error("Paste claim text before running the analysis.");
-    return { claim_text: claimText };
+    if (!loadedMatter) throw new Error("Open a patent record before running this analysis.");
+    if (!loadedMatter.claims_character_count) throw new Error("No claims text was found in the retrieved specification.");
+    return { record_id: loadedMatter.record_id };
   }
   if (tool.fields === "support") {
-    const patentText = document.getElementById("patent-text").value.trim();
     const queries = [...document.querySelectorAll(".query-input")].map((input) => input.value.trim()).filter(Boolean);
-    if (!patentText) throw new Error("Paste specification text before running the search.");
+    if (!loadedMatter) throw new Error("Open a patent record before running this search.");
+    if (!loadedMatter.specification_character_count) throw new Error("No specification text was found in the retrieved record.");
     if (!queries.length) throw new Error("Add at least one limitation or concept.");
-    return { patent_text: patentText, queries, top_n: Number(document.getElementById("top-n").value) };
+    return { record_id: loadedMatter.record_id, queries, top_n: Number(document.getElementById("top-n").value) };
   }
   if (tool.fields === "invention") {
-    const inventionText = document.getElementById("invention-text").value.trim();
-    if (!inventionText) throw new Error("Paste invention text before predicting an art unit.");
-    return { inventionText };
+    if (!loadedMatter) throw new Error("Open a patent record before predicting an art unit.");
+    return { recordId: loadedMatter.record_id };
   }
   const examinerQuery = document.getElementById("examiner-query").value.trim();
   if (!examinerQuery) throw new Error("Enter an examiner, art unit, work group, or technology center.");
@@ -425,6 +418,61 @@ async function requestJson(url, payload) {
     throw error;
   }
   return data;
+}
+
+function formatApplicationNumber(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  return digits.length === 8 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : (digits || "—");
+}
+
+function formatPatentNumber(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  return digits ? Number(digits).toLocaleString("en-US") : "—";
+}
+
+function renderLoadedMatter() {
+  if (!loadedMatter) return;
+  const title = loadedMatter.title || `Application ${formatApplicationNumber(loadedMatter.application_number)}`;
+  const application = formatApplicationNumber(loadedMatter.application_number);
+  const patent = formatPatentNumber(loadedMatter.patent_number);
+  document.getElementById("matter-name").textContent = title;
+  document.getElementById("matter-meta").textContent = `US ${application} · ${loadedMatter.status || "Public record"}`;
+  document.getElementById("record-status").textContent = "Loaded";
+  document.getElementById("record-title").textContent = title;
+  document.getElementById("record-application").textContent = application;
+  document.getElementById("record-patent").textContent = patent;
+  document.getElementById("record-case-status").textContent = loadedMatter.status || "—";
+  document.getElementById("record-summary").classList.remove("hidden");
+  document.getElementById("context-application").textContent = application;
+  document.getElementById("context-patent").textContent = patent;
+  document.getElementById("context-status").textContent = loadedMatter.status || "—";
+  document.getElementById("context-source").textContent = "USPTO ODP";
+}
+
+async function lookupPatent(event) {
+  event.preventDefault();
+  const identifierType = document.getElementById("lookup-identifier-type").value;
+  const identifier = document.getElementById("lookup-identifier").value.trim();
+  const submit = document.getElementById("lookup-submit");
+  const message = document.getElementById("lookup-message");
+  submit.disabled = true;
+  submit.textContent = "Opening…";
+  message.textContent = "Retrieving the official file and preparing its specification and claims.";
+  try {
+    loadedMatter = await requestJson("/v1/patents/lookup", {
+      identifier_type: identifierType,
+      identifier
+    });
+    renderLoadedMatter();
+    message.textContent = "Official record loaded. Choose a review task below.";
+    showToast("USPTO record loaded.");
+  } catch (error) {
+    message.textContent = error.message;
+    showToast(error.message);
+  } finally {
+    submit.disabled = false;
+    submit.textContent = "Open";
+  }
 }
 
 function executeTool(toolKey, payload) {
@@ -598,12 +646,13 @@ document.addEventListener("click", (event) => {
 document.getElementById("back-overview").addEventListener("click", showOverview);
 document.querySelector(".brand").addEventListener("click", (event) => { event.preventDefault(); showOverview(); });
 document.getElementById("load-sample").addEventListener("click", loadSample);
+document.getElementById("patent-lookup-form").addEventListener("submit", lookupPatent);
 document.getElementById("how-button").addEventListener("click", showExplanation);
 document.getElementById("data-handling").addEventListener("click", showDataHandling);
-document.getElementById("new-review").addEventListener("click", () => { showOverview(); showToast("Choose a focused workflow to begin a new review."); });
-document.getElementById("matter-button").addEventListener("click", () => showToast("Helios sensor platform is the current sample matter."));
+document.getElementById("new-review").addEventListener("click", () => { showOverview(); document.getElementById("lookup-identifier").focus(); });
+document.getElementById("matter-button").addEventListener("click", () => { showOverview(); document.getElementById("lookup-identifier").focus(); });
 document.querySelector(".avatar").addEventListener("click", () => showToast("Account settings are not available in this workspace preview."));
-document.querySelector(".text-button").addEventListener("click", () => showToast("Matter history is represented by the recent analyses below."));
+document.querySelector(".text-button").addEventListener("click", () => showToast("Completed analyses will appear here during this workspace session."));
 document.getElementById("mobile-menu").addEventListener("click", () => {
   const expanded = sidebar.classList.toggle("is-open");
   document.getElementById("mobile-menu").setAttribute("aria-expanded", String(expanded));

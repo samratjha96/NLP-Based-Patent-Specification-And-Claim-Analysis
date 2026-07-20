@@ -23,6 +23,26 @@ class StubProcessor:
         return {"queue_depth": 0, "queue_capacity": 2, "completed": 1}
 
 
+class StubPatentLoader:
+    def __init__(self, *, record=None, error=None, texts=None):
+        self.record = record
+        self.error = error
+        self.texts = texts or {}
+        self.loaded = []
+
+    def load(self, *, identifier, identifier_type):
+        self.loaded.append((identifier, identifier_type))
+        if self.error:
+            raise self.error
+        return self.record
+
+    def get_text(self, record_id, section):
+        try:
+            return self.texts[(record_id, section)]
+        except KeyError as exc:
+            raise ValueError("loaded patent record is unavailable") from exc
+
+
 @pytest.fixture
 def settings():
     return ServiceSettings(
@@ -135,8 +155,143 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert response.status_code == 200
     assert b"PatentAgility" in response.data
     assert b"Matter workspace" in response.data
+    assert b"patent-lookup-form" in response.data
     assert script.status_code == 200
     assert script.mimetype == "text/javascript"
+    assert b"/v1/patents/lookup" in script.data
+    assert b"Paste specification text" not in script.data
+
+
+def test_patent_lookup_returns_an_official_record(settings):
+    loader = StubPatentLoader(
+        record={
+            "source": "USPTO Open Data Portal",
+            "record_id": "application:18456219",
+            "application_number": "18456219",
+            "patent_number": "12345678",
+            "title": "Example invention",
+            "status": "Patented Case",
+            "filing_date": "2024-01-02",
+            "specification_text": "A processor is coupled to a memory.",
+            "claims_text": "1. A system comprising a processor.",
+        }
+    )
+    app = create_app(
+        settings=settings,
+        processor=StubProcessor(result={}),
+        patent_loader=loader,
+    )
+
+    response = app.test_client().post(
+        "/v1/patents/lookup",
+        json={"identifier_type": "application", "identifier": "18/456,219"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["application_number"] == "18456219"
+    assert response.get_json()["record_id"] == "application:18456219"
+    assert response.get_json()["claims_character_count"] == 35
+    assert "claims_text" not in response.get_json()
+    assert "specification_text" not in response.get_json()
+    assert loader.loaded == [("18456219", "application")]
+
+
+def test_support_search_uses_the_loaded_record_without_resending_the_specification(
+    settings,
+):
+    processor = StubProcessor(result={"results": []})
+    loader = StubPatentLoader(
+        texts={
+            (
+                "application:18456219",
+                "specification",
+            ): "A processor is coupled to a memory."
+        }
+    )
+    app = create_app(settings=settings, processor=processor, patent_loader=loader)
+
+    response = app.test_client().post(
+        "/v1/support/search",
+        json={
+            "record_id": "application:18456219",
+            "query": "processor memory",
+        },
+    )
+
+    assert response.status_code == 200
+    submitted, _timeout = processor.submitted[0]
+    assert submitted.patent_text == "A processor is coupled to a memory."
+
+
+@pytest.mark.parametrize(
+    ("payload", "message"),
+    [
+        (
+            {"identifier_type": "publication", "identifier": "12345678"},
+            "identifier_type",
+        ),
+        ({"identifier_type": "patent", "identifier": "US 12"}, "identifier"),
+    ],
+)
+def test_patent_lookup_rejects_invalid_identifiers(settings, payload, message):
+    loader = StubPatentLoader(record={})
+    app = create_app(
+        settings=settings,
+        processor=StubProcessor(result={}),
+        patent_loader=loader,
+    )
+
+    response = app.test_client().post("/v1/patents/lookup", json=payload)
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "invalid_request"
+    assert message in response.get_json()["message"]
+    assert loader.loaded == []
+
+
+def test_patent_lookup_reports_missing_uspto_configuration(settings):
+    from core.patent_records import PatentDataNotConfigured
+
+    loader = StubPatentLoader(
+        error=PatentDataNotConfigured("USPTO access is not configured")
+    )
+    app = create_app(
+        settings=settings,
+        processor=StubProcessor(result={}),
+        patent_loader=loader,
+    )
+
+    response = app.test_client().post(
+        "/v1/patents/lookup",
+        json={"identifier_type": "patent", "identifier": "12,345,678"},
+    )
+
+    assert response.status_code == 503
+    assert response.get_json() == {
+        "error": "patent_data_unconfigured",
+        "message": "USPTO access is not configured",
+    }
+
+
+def test_patent_lookup_maps_upstream_failures_without_fabricating_data(settings):
+    from core.patent_records import PatentDataUnavailable
+
+    loader = StubPatentLoader(
+        error=PatentDataUnavailable("USPTO record could not be loaded")
+    )
+    app = create_app(
+        settings=settings,
+        processor=StubProcessor(result={}),
+        patent_loader=loader,
+    )
+
+    response = app.test_client().post(
+        "/v1/patents/lookup",
+        json={"identifier_type": "application", "identifier": "18456219"},
+    )
+
+    assert response.status_code == 502
+    assert response.get_json()["error"] == "patent_data_unavailable"
 
 
 def test_antecedent_endpoint_returns_structured_claim_issues(settings, monkeypatch):
@@ -167,6 +322,41 @@ def test_antecedent_endpoint_returns_structured_claim_issues(settings, monkeypat
     assert response.get_json()["issues"][0]["severity"] == "high"
 
 
+def test_claim_analysis_uses_claims_from_the_loaded_record(settings, monkeypatch):
+    observed = []
+    monkeypatch.setattr(
+        "service.analyze_intro_ref",
+        lambda text: (
+            observed.append(text)
+            or {
+                "mentions": [],
+                "introduced": {},
+                "refs": [],
+                "used_without_intro": [],
+                "introduced_never_referenced": [],
+            }
+        ),
+    )
+    loader = StubPatentLoader(
+        texts={
+            ("application:18456219", "claims"): "1. A system comprising a processor."
+        }
+    )
+    app = create_app(
+        settings=settings,
+        processor=StubProcessor(result={}),
+        patent_loader=loader,
+    )
+
+    response = app.test_client().post(
+        "/v1/claims/antecedent",
+        json={"record_id": "application:18456219"},
+    )
+
+    assert response.status_code == 200
+    assert observed == ["1. A system comprising a processor."]
+
+
 def test_claim_analysis_endpoint_returns_structured_claim_map(settings, monkeypatch):
     monkeypatch.setattr(
         "service.segment_claim",
@@ -180,7 +370,9 @@ def test_claim_analysis_endpoint_returns_structured_claim_map(settings, monkeypa
 
     response = app.test_client().post(
         "/v1/claims/diagram",
-        json={"claim_text": "A system comprising a processor configured to store data."},
+        json={
+            "claim_text": "A system comprising a processor configured to store data."
+        },
     )
 
     assert response.status_code == 200

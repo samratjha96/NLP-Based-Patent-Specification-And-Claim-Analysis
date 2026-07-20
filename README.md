@@ -63,13 +63,23 @@ context, and attorney-review boundary visible together.
 Start the smaller throughput profile for a local product demo:
 
 ```bash
+export USPTO_API_KEY="your-open-data-portal-key"
 PATENTAGILITY_SPACY_MODEL=en_core_web_sm \
 PATENTAGILITY_MODEL_PROFILE=throughput \
 uv run python service.py
 ```
 
 Then open `http://127.0.0.1:8000/`. The web workspace does not retain
-substantive claim or specification text in browser storage.
+substantive claim or specification text in browser storage. Enter a U.S.
+patent or application number on the matter overview to retrieve its public
+file-wrapper record, download the earliest specification, extract its text,
+and make the specification and claims available to the live review tools.
+
+The USPTO Open Data Portal requires an account and API key. Without
+`USPTO_API_KEY`, the workspace remains available but patent lookup returns a
+clear configuration error rather than sample or fabricated record data. The
+retrieval layer keeps a small in-memory record cache so repeated analyses of
+one matter do not download or extract the same specification again.
 
 The reconstruction covers the eight workflows shown by the deployed product.
 The public repository can execute three of them end to end; five require the
@@ -167,3 +177,4 @@ from the live claim-to-specification workflow.
 | `PATENTAGILITY_RERANKER_BATCH_SIZE` | `32` | Cross-encoder device batch size |
 | `PATENTAGILITY_MAX_PATENT_CHARACTERS` | `2000000` | Per-request patent-text limit |
 | `PATENTAGILITY_MAX_QUERIES` | `64` | Query limit per request |
+| `USPTO_API_KEY` | None | Required credential for official patent and application lookup |

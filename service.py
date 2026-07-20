@@ -6,6 +6,7 @@ import atexit
 import json
 import logging
 import os
+import re
 import time
 import uuid
 from dataclasses import dataclass
@@ -23,6 +24,11 @@ from core.batch_queue import (
 )
 from core.claim_segmentation import get_nlp as get_claim_nlp
 from core.claim_segmentation import segment_claim
+from core.patent_records import (
+    PatentDataNotConfigured,
+    PatentDataUnavailable,
+    UsptoPatentLoader,
+)
 from core.support_runtime import MODEL_PROFILES, SupportAnalyzer, SupportRequest
 
 
@@ -47,6 +53,7 @@ class ServiceSettings:
     embedding_batch_size: int = 256
     reranker_batch_size: int = 32
     index_cache_size: int = 4
+    uspto_api_key: str | None = None
 
     @classmethod
     def from_env(cls) -> "ServiceSettings":
@@ -83,6 +90,7 @@ class ServiceSettings:
                 os.environ.get("PATENTAGILITY_RERANKER_BATCH_SIZE", "32")
             ),
             index_cache_size=int(os.environ.get("PATENTAGILITY_INDEX_CACHE_SIZE", "4")),
+            uspto_api_key=os.environ.get("USPTO_API_KEY"),
         )
 
 
@@ -90,8 +98,10 @@ def create_app(
     *,
     settings: ServiceSettings | None = None,
     processor: Any | None = None,
+    patent_loader: Any | None = None,
 ) -> Flask:
     settings = settings or ServiceSettings.from_env()
+    patent_loader = patent_loader or UsptoPatentLoader(api_key=settings.uspto_api_key)
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = (
         settings.max_patent_characters
@@ -166,12 +176,58 @@ def create_app(
     def frontend_asset(filename: str):
         return send_from_directory(WEB_DIR, filename)
 
+    @app.post("/v1/patents/lookup")
+    def patent_lookup():
+        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        try:
+            identifier, identifier_type = _parse_patent_identifier(
+                request.get_json(silent=True)
+            )
+            record = patent_loader.load(
+                identifier=identifier,
+                identifier_type=identifier_type,
+            )
+        except ValueError as exc:
+            return _response(
+                {"error": "invalid_request", "message": str(exc)},
+                status=400,
+                request_id=request_id,
+            )
+        except PatentDataNotConfigured as exc:
+            return _response(
+                {"error": "patent_data_unconfigured", "message": str(exc)},
+                status=503,
+                request_id=request_id,
+            )
+        except PatentDataUnavailable as exc:
+            return _response(
+                {"error": "patent_data_unavailable", "message": str(exc)},
+                status=502,
+                request_id=request_id,
+            )
+
+        public_record = {
+            key: value
+            for key, value in record.items()
+            if key not in {"specification_text", "claims_text"}
+        }
+        public_record["specification_character_count"] = len(
+            record.get("specification_text", "")
+        )
+        public_record["claims_character_count"] = len(record.get("claims_text", ""))
+        return _response(public_record, status=200, request_id=request_id)
+
     @app.post("/v1/support/search")
     def support_search():
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         started = time.perf_counter()
         try:
-            work = _parse_request(request.get_json(silent=True), request_id, settings)
+            work = _parse_request(
+                request.get_json(silent=True),
+                request_id,
+                settings,
+                patent_loader,
+            )
         except ValueError as exc:
             return _response(
                 {"error": "invalid_request", "message": str(exc)},
@@ -232,7 +288,10 @@ def create_app(
     def antecedent_basis():
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         try:
-            claim_text = _parse_claim_text(request.get_json(silent=True))
+            claim_text = _parse_claim_text(
+                request.get_json(silent=True),
+                patent_loader,
+            )
         except ValueError as exc:
             return _response(
                 {"error": "invalid_request", "message": str(exc)},
@@ -281,7 +340,10 @@ def create_app(
     def claim_diagram():
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         try:
-            claim_text = _parse_claim_text(request.get_json(silent=True))
+            claim_text = _parse_claim_text(
+                request.get_json(silent=True),
+                patent_loader,
+            )
         except ValueError as exc:
             return _response(
                 {"error": "invalid_request", "message": str(exc)},
@@ -311,11 +373,14 @@ def _parse_request(
     payload: Any,
     request_id: str,
     settings: ServiceSettings,
+    patent_loader: Any,
 ) -> SupportRequest:
     if not isinstance(payload, dict):
         raise ValueError("request body must be a JSON object")
 
     patent_text = payload.get("patent_text")
+    if patent_text is None and payload.get("record_id"):
+        patent_text = patent_loader.get_text(payload["record_id"], "specification")
     if not isinstance(patent_text, str) or not patent_text.strip():
         raise ValueError("patent_text must be a non-empty string")
     if len(patent_text) > settings.max_patent_characters:
@@ -357,10 +422,32 @@ def _response(payload: Any, *, status: int, request_id: str):
     return response
 
 
-def _parse_claim_text(payload: Any) -> str:
+def _parse_patent_identifier(payload: Any) -> tuple[str, str]:
+    if not isinstance(payload, dict):
+        raise ValueError("request body must be a JSON object")
+    identifier_type = payload.get("identifier_type")
+    if identifier_type not in {"application", "patent"}:
+        raise ValueError("identifier_type must be application or patent")
+    raw_identifier = payload.get("identifier")
+    if not isinstance(raw_identifier, str):
+        raise ValueError("identifier must be a string")
+    identifier = re.sub(r"\D+", "", raw_identifier)
+    valid_length = (
+        len(identifier) == 8
+        if identifier_type == "application"
+        else 6 <= len(identifier) <= 8
+    )
+    if not valid_length:
+        raise ValueError(f"identifier is not a valid U.S. {identifier_type} number")
+    return identifier, identifier_type
+
+
+def _parse_claim_text(payload: Any, patent_loader: Any) -> str:
     if not isinstance(payload, dict):
         raise ValueError("request body must be a JSON object")
     claim_text = payload.get("claim_text")
+    if claim_text is None and payload.get("record_id"):
+        claim_text = patent_loader.get_text(payload["record_id"], "claims")
     if not isinstance(claim_text, str) or not claim_text.strip():
         raise ValueError("claim_text must be a non-empty string")
     claim_text = claim_text.strip()
