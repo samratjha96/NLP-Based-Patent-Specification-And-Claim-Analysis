@@ -6,6 +6,7 @@
   <meta name="description" content="A patent analysis workspace for claim drafting, specification support, family review, and examiner research.">
   <title>PatentAgility | Patent Review</title>
   <link rel="stylesheet" href="/app/app.css">
+  <script src="/app/demo_record.js" defer></script>
   <script src="/app/request_errors.js" defer></script>
   <script src="/app/app.js" defer></script>
 </head>
@@ -88,6 +89,10 @@
               </div>
               <p class="lookup-message" id="lookup-message" aria-live="polite">Numbers are resolved against the USPTO Open Data Portal.</p>
             </form>
+            <div class="demo-record-action">
+              <div><strong>Try example patent</strong><small>Explore every workflow without a USPTO key.</small></div>
+              <button type="button" id="load-demo-record">Open example</button>
+            </div>
             <div class="record-summary hidden" id="record-summary" aria-live="polite">
               <strong id="record-title"></strong>
               <dl>
@@ -100,7 +105,7 @@
         </div>
 
         <div class="assurance-strip" aria-label="Data handling assurances">
-          <div><span class="assurance-icon">U</span><p><strong>Official source</strong><small>Records are retrieved from the USPTO Open Data Portal.</small></p></div>
+          <div><span class="assurance-icon">U</span><p><strong id="source-assurance-title">Official source</strong><small id="source-assurance-copy">Records are retrieved from the USPTO Open Data Portal.</small></p></div>
           <div><span class="assurance-icon">1</span><p><strong>Load once</strong><small>The loaded patent is used automatically across review tools.</small></p></div>
           <div><span class="assurance-icon">E</span><p><strong>Evidence first</strong><small>Every result preserves its source passage.</small></p></div>
           <div><span class="assurance-icon">H</span><p><strong>Human decision</strong><small>Flags are review prompts, not legal conclusions.</small></p></div>
@@ -151,7 +156,7 @@
                 <button class="sample-button" id="load-sample" type="button">Use example</button>
                 <button class="primary-button" id="run-analysis" type="submit"><span>Run analysis</span><span aria-hidden="true">→</span></button>
               </div>
-              <div class="input-assurance"><span aria-hidden="true">◇</span><span><strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.</span></div>
+              <div class="input-assurance"><span aria-hidden="true">◇</span><span id="input-assurance-copy"><strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.</span></div>
             </form>
 
             <section class="progress-panel hidden" id="progress-panel" aria-live="polite">

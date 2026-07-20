@@ -151,6 +151,7 @@ def test_frontend_is_served_from_the_inference_service(settings):
 
     response = client.get("/")
     script = client.get("/app/app.js")
+    demo_record = client.get("/app/demo_record.js")
     error_helpers = client.get("/app/request_errors.js")
 
     assert response.status_code == 200
@@ -163,13 +164,19 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert b"Use current matter" not in response.data
     assert b"workspace-readiness" not in response.data
     assert b"Ready for review" not in response.data
+    assert b'id="load-demo-record"' in response.data
+    assert b"Try example patent" in response.data
     assert script.status_code == 200
     assert script.mimetype == "text/javascript"
+    assert demo_record.status_code == 200
+    assert demo_record.mimetype == "text/javascript"
     assert error_helpers.status_code == 200
     assert error_helpers.mimetype == "text/javascript"
     assert b"/v1/patents/lookup" in script.data
     assert b"Paste specification text" not in script.data
     assert b"current matter" not in script.data.lower()
+    assert b">2016<" in script.data
+    assert b">2024<" in script.data
 
 
 def test_patent_lookup_returns_an_official_record(settings):
@@ -311,7 +318,7 @@ def test_antecedent_endpoint_returns_structured_claim_issues(settings, monkeypat
     unused = Mention("intro", "a processor", "processor", 24, 35)
     monkeypatch.setattr(
         "service.analyze_intro_ref",
-        lambda _text: {
+        lambda _text, **_kwargs: {
             "mentions": [unused, missing],
             "introduced": {"processor": [unused]},
             "refs": [missing],
@@ -332,11 +339,47 @@ def test_antecedent_endpoint_returns_structured_claim_issues(settings, monkeypat
     assert response.get_json()["issues"][0]["severity"] == "high"
 
 
+def test_antecedent_endpoint_uses_the_configured_spacy_model(settings, monkeypatch):
+    configured_nlp = object()
+    observed = {}
+
+    def fake_get_nlp(model_name):
+        observed["model_name"] = model_name
+        return configured_nlp
+
+    def fake_analysis(claim_text, *, nlp):
+        observed["claim_text"] = claim_text
+        observed["nlp"] = nlp
+        return {
+            "mentions": [],
+            "introduced": {},
+            "refs": [],
+            "used_without_intro": [],
+            "introduced_never_referenced": [],
+        }
+
+    monkeypatch.setattr("service.get_claim_nlp", fake_get_nlp)
+    monkeypatch.setattr("service.analyze_intro_ref", fake_analysis)
+    app = create_app(settings=settings, processor=StubProcessor(result={}))
+
+    response = app.test_client().post(
+        "/v1/claims/antecedent",
+        json={"claim_text": "A sensing system comprising a processor."},
+    )
+
+    assert response.status_code == 200
+    assert observed == {
+        "model_name": settings.spacy_model,
+        "claim_text": "A sensing system comprising a processor.",
+        "nlp": configured_nlp,
+    }
+
+
 def test_claim_analysis_uses_claims_from_the_loaded_record(settings, monkeypatch):
     observed = []
     monkeypatch.setattr(
         "service.analyze_intro_ref",
-        lambda text: (
+        lambda text, **_kwargs: (
             observed.append(text)
             or {
                 "mentions": [],

@@ -5,15 +5,14 @@ const tools = {
     shortTitle: "Amendment history",
     category: "Patent review",
     mode: "prototype",
-    runtime: "Prosecution timeline preview",
+    runtime: "Prosecution timeline",
     description: "Resolve a U.S. patent family and review how independent claim language changed from filing through allowance.",
     guidance: "Enter a U.S. patent or application number to review prosecution events across the related U.S. family.",
     contextTitle: "Read scope movement in sequence",
     contextCopy: "An amendment is evidence of prosecution history, not a standalone claim-construction conclusion. Review the cited office action and applicant response together.",
     steps: ["Resolve family", "Retrieve histories", "Compare claim text", "Render timeline"],
     explanation: "Starting from one U.S. patent or application, this review follows related family members, places prosecution events in sequence, and compares how independent claim language changed over time.",
-    fields: "identifier",
-    sample: { idType: "application", identifier: "18456219" }
+    fields: "identifier"
   },
   "family-claims": {
     index: "02",
@@ -21,15 +20,14 @@ const tools = {
     shortTitle: "Compare family claims",
     category: "Patent review",
     mode: "prototype",
-    runtime: "Family scope preview",
+    runtime: "Family scope comparison",
     description: "Line up granted independent claims across a U.S. family and isolate the limitations that changed portfolio scope.",
     guidance: "Start with one U.S. application or patent number to align independent claims from granted family members.",
     contextTitle: "Compare language before summaries",
     contextCopy: "The aligned claim text is the primary evidence. The generated difference summary is a navigation aid and should be checked against each patent.",
     steps: ["Resolve grants", "Collect claims", "Align language", "Summarize differences"],
     explanation: "This review identifies granted U.S. family members, aligns their latest independent claims, highlights added or changed limitations, and summarizes the principal differences in scope.",
-    fields: "identifier",
-    sample: { idType: "patent", identifier: "11874219" }
+    fields: "identifier"
   },
   unclaimed: {
     index: "03",
@@ -37,15 +35,14 @@ const tools = {
     shortTitle: "Unclaimed subject matter",
     category: "Patent review",
     mode: "prototype",
-    runtime: "Coverage review preview",
+    runtime: "Coverage review",
     description: "Surface specification concepts that appear weakly covered or absent across related U.S. claims.",
     guidance: "Provide a family seed to compare disclosed concepts with claims across the related U.S. family.",
     contextTitle: "A coverage lead, not a legal opinion",
     contextCopy: "A weak textual match can identify review candidates, but claim coverage depends on construction, equivalents, and the complete record.",
     steps: ["Load specification", "Extract concepts", "Collect family claims", "Score coverage"],
     explanation: "This review identifies disclosed concepts, compares them with claim language across the U.S. family, and surfaces areas that may warrant a closer coverage review.",
-    fields: "identifier",
-    sample: { idType: "application", identifier: "18456219" }
+    fields: "identifier"
   },
   support: {
     index: "04",
@@ -60,12 +57,7 @@ const tools = {
     contextCopy: "A high score means the passage is textually relevant, not necessarily that it satisfies written-description or enablement requirements. Read the full paragraph and surrounding disclosure.",
     steps: ["Validate input", "Build document index", "Search limitations", "Rank evidence"],
     explanation: "This review breaks the specification into passages, ranks the passages most relevant to each limitation, and preserves paragraph and sentence locations so the cited disclosure can be checked in context.",
-    fields: "support",
-    sample: {
-      patentText: "[0001] A sensing platform includes a distributed array of optical sensors positioned within an industrial enclosure. Each sensor generates a measurement signal representing local temperature and vibration.\n\n[0002] A controller receives the measurement signals through a low-power mesh network. The controller includes a processor and a memory storing calibration coefficients for each optical sensor.\n\n[0003] The processor applies a temperature compensation value to each measurement signal before calculating a vibration estimate. The compensation value may be selected from a calibration table according to the measured ambient temperature.\n\n[0004] When network connectivity is unavailable, each sensor stores timestamped measurements in a local buffer. Buffered measurements are transmitted after the mesh network reconnects.\n\n[0005] An alert engine compares the compensated vibration estimate with a machine-specific threshold and transmits a maintenance notification when the threshold is exceeded.",
-      queries: ["temperature compensation based on ambient temperature", "store measurements while network connectivity is unavailable", "maintenance alert based on a machine-specific threshold"],
-      topN: "5"
-    }
+    fields: "support"
   },
   antecedent: {
     index: "05",
@@ -80,8 +72,7 @@ const tools = {
     contextCopy: "The checker follows noun-phrase introductions and references. It can miss implicit antecedents and may flag deliberate drafting choices.",
     steps: ["Parse claim text", "Track introductions", "Match references", "Rank issues"],
     explanation: "This review tracks when claim terms are introduced and how later references use them. It flags definite references without a likely earlier introduction and separately notes introduced terms that are never reused.",
-    fields: "claim",
-    sample: { claimText: "1. A sensing system comprising: a processor; a memory coupled to the processor; and the controller configured to store a calibration coefficient in the memory, wherein the processor applies the calibration coefficient to a measurement signal." }
+    fields: "claim"
   },
   linguistic: {
     index: "06",
@@ -96,8 +87,7 @@ const tools = {
     contextCopy: "The diagram exposes linguistic relationships. It does not decide whether a limitation is definite, enabled, or patentable.",
     steps: ["Parse syntax", "Segment limitations", "Classify relationships", "Render diagram"],
     explanation: "This review separates the claim into limitations, then maps the actions, objects, details, alternatives, and dependencies so dense language can be inspected more easily.",
-    fields: "claim",
-    sample: { claimText: "1. A sensing system comprising: a sensor configured to generate a measurement signal; a processor configured to receive the measurement signal and determine a compensated value based on at least one of an ambient temperature, a calibration coefficient, or a sensor age; and a transmitter configured to send an alert when the compensated value exceeds a threshold." }
+    fields: "claim"
   },
   "art-unit": {
     index: "07",
@@ -105,15 +95,14 @@ const tools = {
     shortTitle: "Art unit predictor",
     category: "Drafting review",
     mode: "prototype",
-    runtime: "Routing preview",
+    runtime: "Routing estimate",
     description: "Rank the five most likely USPTO art units from invention text, then connect the estimate to examiner analytics.",
     guidance: "The loaded specification and claims provide the technical language used for the routing estimate.",
     contextTitle: "Routing estimates are directional",
     contextCopy: "Art unit assignment depends on classification practice and incoming workload. Treat ranked estimates as a planning signal, not a filing outcome.",
     steps: ["Review invention text", "Identify technical focus", "Rank art units", "Connect relevant trends"],
     explanation: "This review uses the invention description to rank likely USPTO art units and connect the leading candidates with the prosecution trends most useful for planning.",
-    fields: "invention",
-    sample: { inventionText: "A distributed optical sensing platform compensates vibration measurements according to ambient temperature and sensor-specific calibration coefficients. A mesh-connected controller detects machine anomalies and schedules predictive maintenance." }
+    fields: "invention"
   },
   examiner: {
     index: "08",
@@ -121,15 +110,14 @@ const tools = {
     shortTitle: "Examiner analytics",
     category: "Examiner research",
     mode: "prototype",
-    runtime: "Examiner trends preview",
+    runtime: "Examiner trends",
     description: "Move from raw prosecution records to an examiner, art unit, work group, or technology-center strategy view.",
-    guidance: "Search by examiner name, art unit, work group, or technology center. Preview results use representative prosecution data.",
+    guidance: "Search by examiner name, art unit, work group, or technology center. Example results use clearly identified illustrative prosecution data.",
     contextTitle: "Descriptive data needs context",
     contextCopy: "Observed grant ratios and rejection patterns describe past records. They do not predict a specific application or account for case mix by themselves.",
     steps: ["Resolve entity", "Aggregate records", "Calculate trends", "Render analytics"],
     explanation: "This review summarizes historical prosecution records into grant, office-action, rejection, and pendency trends for an examiner or organizational unit.",
-    fields: "examiner",
-    sample: { examinerQuery: "Art Unit 2123" }
+    fields: "examiner"
   }
 };
 
@@ -138,6 +126,7 @@ let activeToolKey = null;
 let lastResultSummary = "";
 let toastTimer = null;
 let loadedMatter = null;
+const demoRecord = window.PatentAgilityDemoRecord;
 
 const overviewView = document.getElementById("overview-view");
 const toolView = document.getElementById("tool-view");
@@ -159,6 +148,7 @@ function escapeHtml(value) {
 }
 
 function toolModeLabel(tool) {
+  if (loadedMatter?.is_demo) return "Example";
   return tool.mode === "live" ? "Available" : "Preview";
 }
 
@@ -213,9 +203,11 @@ function openTool(toolKey) {
   document.getElementById("context-copy").textContent = tool.contextCopy;
   const sampleButton = document.getElementById("load-sample");
   const usesRecordText = ["claim", "support", "invention"].includes(tool.fields);
-  const usesLoadedIdentifier = tool.fields === "identifier" && Boolean(loadedMatter);
-  sampleButton.hidden = usesRecordText || usesLoadedIdentifier;
+  sampleButton.hidden = usesRecordText || Boolean(loadedMatter);
   sampleButton.textContent = "Use example";
+  document.getElementById("input-assurance-copy").innerHTML = loadedMatter?.is_demo
+    ? "<strong>Illustrative example.</strong> The built-in record is synthetic and exists only to demonstrate the review workflow."
+    : "<strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.";
   const modeBadge = document.getElementById("mode-badge");
   modeBadge.textContent = toolModeLabel(tool);
   modeBadge.classList.toggle("prototype", tool.mode === "prototype");
@@ -233,6 +225,7 @@ function field(label, control, hint = "") {
 }
 
 function identifierFields() {
+  if (loadedMatter?.is_demo) return matterSourceField("Patent record");
   const identifier = loadedMatter ? (loadedMatter.application_number || loadedMatter.patent_number) : "";
   const identifierType = loadedMatter && loadedMatter.application_number ? "application" : "patent";
   const identifierHint = loadedMatter ? "The loaded patent number is filled automatically. Punctuation is optional." : "Punctuation is optional.";
@@ -246,9 +239,14 @@ function matterSourceField(section) {
   if (!loadedMatter) {
     return `<div class="matter-source empty"><span>No patent record loaded</span><strong>Open a U.S. patent or application from Overview.</strong></div>`;
   }
+  const isTextSection = section === "Specification" || section === "Claims";
   const count = section === "Specification" ? loadedMatter.specification_character_count : loadedMatter.claims_character_count;
-  const detail = count ? `${count.toLocaleString()} characters ready` : `${section} text was not found in the retrieved document`;
-  return `<div class="matter-source"><span>${escapeHtml(section)} from loaded patent</span><strong>${escapeHtml(loadedMatter.title || `Application ${loadedMatter.application_number}`)}</strong><small>${escapeHtml(detail)} · Used automatically for this review</small></div>`;
+  const detail = isTextSection
+    ? (count ? `${count.toLocaleString()} characters ready` : `${section} text was not found in the retrieved document`)
+    : (loadedMatter.display_identifier || loadedMatter.source);
+  const sourceLabel = loadedMatter.is_demo ? "example patent" : "loaded patent";
+  const sourceDetail = loadedMatter.is_demo ? "Illustrative example · Used automatically" : "Used automatically for this review";
+  return `<div class="matter-source ${loadedMatter.is_demo ? "demo" : ""}"><span>${escapeHtml(section)} from ${sourceLabel}</span><strong>${escapeHtml(loadedMatter.title || `Application ${loadedMatter.application_number}`)}</strong><small>${escapeHtml(detail)} · ${sourceDetail}</small></div>`;
 }
 
 function claimField() {
@@ -275,14 +273,17 @@ function renderFields(tool) {
     dynamicFields.innerHTML = matterSourceField("Specification");
   }
   if (tool.fields === "examiner") {
-    dynamicFields.innerHTML = field("Examiner, art unit, work group, or tech center", `<input id="examiner-query" name="examinerQuery" type="search" aria-label="Examiner, art unit, work group, or tech center" placeholder="Try: Art Unit 2123" required>`, "Search results can be narrowed by name or USPTO organizational unit.");
+    const value = loadedMatter?.is_demo ? loadedMatter.review_examples.examiner_query : "";
+    dynamicFields.innerHTML = `${loadedMatter?.is_demo ? matterSourceField("Analytics cohort") : ""}${field("Examiner, art unit, work group, or tech center", `<input id="examiner-query" name="examinerQuery" type="search" aria-label="Examiner, art unit, work group, or tech center" placeholder="Try: Art Unit 2123" value="${escapeHtml(value)}" required>`, "Search results can be narrowed by name or USPTO organizational unit.")}`;
   }
   attachFieldBehavior(tool);
 }
 
 function attachFieldBehavior(tool) {
   if (tool.fields === "support") {
-    addQueryRow("");
+    const queries = loadedMatter?.is_demo ? loadedMatter.review_examples.support_queries : [""];
+    queries.forEach((query) => addQueryRow(query));
+    if (loadedMatter?.is_demo) document.getElementById("top-n").value = "3";
     document.getElementById("add-query").addEventListener("click", () => addQueryRow(""));
   }
 }
@@ -307,17 +308,19 @@ function addQueryRow(value) {
 function loadSample() {
   const tool = tools[activeToolKey];
   if (!tool) return;
-  const sample = tool.sample;
-  if (tool.fields === "identifier") {
-    document.getElementById("id-type").value = sample.idType;
-    document.getElementById("identifier").value = sample.identifier;
-  }
-  if (tool.fields === "examiner") document.getElementById("examiner-query").value = sample.examinerQuery;
-  showToast("Example loaded.");
+  const toolKey = activeToolKey;
+  loadDemoPatent();
+  openTool(toolKey);
 }
 
 function collectPayload(tool) {
+  if (tool.mode === "prototype" && !loadedMatter?.is_demo) {
+    throw new Error("Open the built-in example patent to explore this illustrative workflow.");
+  }
   if (tool.fields === "identifier") {
+    if (loadedMatter?.is_demo) {
+      return { idType: "example", identifier: loadedMatter.display_identifier };
+    }
     const identifier = document.getElementById("identifier").value.replace(/\D/g, "");
     if (!identifier) throw new Error("Enter a U.S. patent or application number.");
     return { idType: document.getElementById("id-type").value, identifier };
@@ -325,6 +328,7 @@ function collectPayload(tool) {
   if (tool.fields === "claim") {
     if (!loadedMatter) throw new Error("Open a patent record before running this analysis.");
     if (!loadedMatter.claims_character_count) throw new Error("No claims text was found in the retrieved specification.");
+    if (loadedMatter.is_demo) return { claim_text: loadedMatter.claims_text };
     return { record_id: loadedMatter.record_id };
   }
   if (tool.fields === "support") {
@@ -332,10 +336,14 @@ function collectPayload(tool) {
     if (!loadedMatter) throw new Error("Open a patent record before running this search.");
     if (!loadedMatter.specification_character_count) throw new Error("No specification text was found in the retrieved record.");
     if (!queries.length) throw new Error("Add at least one limitation or concept.");
+    if (loadedMatter.is_demo) {
+      return { patent_text: loadedMatter.specification_text, queries, top_n: Number(document.getElementById("top-n").value) };
+    }
     return { record_id: loadedMatter.record_id, queries, top_n: Number(document.getElementById("top-n").value) };
   }
   if (tool.fields === "invention") {
     if (!loadedMatter) throw new Error("Open a patent record before predicting an art unit.");
+    if (loadedMatter.is_demo) return { inventionText: loadedMatter.abstract };
     return { recordId: loadedMatter.record_id };
   }
   const examinerQuery = document.getElementById("examiner-query").value.trim();
@@ -435,11 +443,13 @@ function formatPatentNumber(value) {
 function renderLoadedMatter() {
   if (!loadedMatter) return;
   const title = loadedMatter.title || `Application ${formatApplicationNumber(loadedMatter.application_number)}`;
-  const application = formatApplicationNumber(loadedMatter.application_number);
-  const patent = formatPatentNumber(loadedMatter.patent_number);
+  const application = loadedMatter.is_demo ? "Illustrative" : formatApplicationNumber(loadedMatter.application_number);
+  const patent = loadedMatter.is_demo ? "Illustrative" : formatPatentNumber(loadedMatter.patent_number);
   document.getElementById("matter-name").textContent = title;
-  document.getElementById("matter-meta").textContent = `US ${application} · ${loadedMatter.status || "Public record"}`;
-  document.getElementById("record-status").textContent = "Loaded";
+  document.getElementById("matter-meta").textContent = loadedMatter.is_demo
+    ? `${loadedMatter.display_identifier} · Illustrative data`
+    : `US ${application} · ${loadedMatter.status || "Public record"}`;
+  document.getElementById("record-status").textContent = loadedMatter.is_demo ? "Example" : "Loaded";
   document.getElementById("record-title").textContent = title;
   document.getElementById("record-application").textContent = application;
   document.getElementById("record-patent").textContent = patent;
@@ -448,7 +458,19 @@ function renderLoadedMatter() {
   document.getElementById("context-application").textContent = application;
   document.getElementById("context-patent").textContent = patent;
   document.getElementById("context-status").textContent = loadedMatter.status || "—";
-  document.getElementById("context-source").textContent = "USPTO ODP";
+  document.getElementById("context-source").textContent = loadedMatter.is_demo ? "Illustrative dataset" : loadedMatter.source;
+  document.getElementById("source-assurance-title").textContent = loadedMatter.is_demo ? "Illustrative example" : "Official source";
+  document.getElementById("source-assurance-copy").textContent = loadedMatter.is_demo ? "The example uses a built-in synthetic dossier and makes no USPTO request." : "Records are retrieved from the USPTO Open Data Portal.";
+  renderToolGrid();
+}
+
+function loadDemoPatent() {
+  loadedMatter = demoRecord;
+  renderLoadedMatter();
+  const message = document.getElementById("lookup-message");
+  message.textContent = "Example patent loaded. Every review workflow is ready to explore.";
+  message.className = "lookup-message is-success";
+  showToast("Example patent loaded.");
 }
 
 async function lookupPatent(event) {
@@ -488,6 +510,9 @@ async function lookupPatent(event) {
 }
 
 function executeTool(toolKey, payload) {
+  if (loadedMatter?.is_demo && loadedMatter.demo_results?.[toolKey]) {
+    return new Promise((resolve) => setTimeout(() => resolve(loadedMatter.demo_results[toolKey]), 260));
+  }
   if (toolKey === "support") return requestJson("/v1/support/search", payload);
   if (toolKey === "antecedent") return requestJson("/v1/claims/antecedent", payload);
   if (toolKey === "linguistic") return requestJson("/v1/claims/diagram", payload);
@@ -505,6 +530,7 @@ function renderResult(toolKey, result, payload) {
   if (toolKey === "family-claims") renderFamilyClaims(payload);
   if (toolKey === "unclaimed") renderUnclaimed(payload);
   if (toolKey === "art-unit") renderArtUnit(payload);
+  lastResultSummary = `${document.getElementById("results-title").innerText}\n${document.getElementById("results-summary").innerText}\n\n${resultsContent.innerText}`;
   resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -551,15 +577,16 @@ function renderAntecedent(result) {
   const issues = result.issues || [];
   const high = result.summary?.high || 0;
   const info = result.summary?.info || 0;
-  setResultHeading("Antecedent basis review", high ? `${high} likely missing antecedent${high === 1 ? "" : "s"} require attorney review. Informational flags identify terms introduced but not reused.` : "No likely missing antecedent basis was identified by the heuristic review.");
-  const cards = issues.map((issue, index) => `<article class="issue-card ${issue.severity === "info" ? "info" : ""}"><div class="issue-card-top"><span>${escapeHtml(issue.severity)} · ${escapeHtml(issue.code)}</span><span>I${String(index + 1).padStart(3, "0")}</span></div><h3>${escapeHtml(issue.title)}</h3><p>“${escapeHtml(issue.text)}” at characters ${issue.start}–${issue.end}. Confirm the intended antecedent in the complete claim chain.</p></article>`).join("");
+  setResultHeading("Antecedent basis review", high ? `${high} likely missing antecedent${high === 1 ? " requires" : "s require"} attorney review. Informational flags identify terms introduced but not reused.` : "No likely missing antecedent basis was identified by the heuristic review.");
+  const cards = issues.map((issue, index) => `<article class="issue-card ${issue.severity === "info" ? "info" : ""}"><div class="issue-card-top"><span>${escapeHtml(issue.severity === "high" ? "Needs review" : "Information")}</span><span>Finding ${String(index + 1).padStart(2, "0")}</span></div><h3>${escapeHtml(issue.title)}</h3><p>“${escapeHtml(issue.text)}” does not have a likely earlier introduction. Confirm whether the intended term is “the communications interface” or introduce a transmitter expressly.</p></article>`).join("");
   resultsContent.innerHTML = `<div class="summary-band">${stat("High", high)}${stat("Information", info)}${stat("Mentions tracked", (result.mentions || []).length)}${stat("Review state", high ? "Attention" : "Clear")}</div><div class="issue-layout"><div class="claim-paper">${highlightedClaim(result.claim_text || "", issues)}</div><div class="issue-list">${cards || '<article class="issue-card info"><h3>No flagged references</h3><p>The heuristic found no definite noun phrase without an earlier introduction.</p></article>'}</div></div>`;
 }
 
 function renderDiagrams(result) {
   const segments = result.segments || [];
   const frames = result.frames || [];
-  setResultHeading("Claim structure", `${segments.length} linguistic segment${segments.length === 1 ? "" : "s"} extracted from the submitted claim. Inspect the action, object, and detail relationships before revising the draft.`);
+  const demoScope = loadedMatter?.is_demo && result.reviewed;
+  setResultHeading("Claim structure", demoScope ? `${segments.length} reviewed segments from the principal limitations of example claim 1. The complete claim remains visible in the dossier.` : `${segments.length} linguistic segment${segments.length === 1 ? "" : "s"} extracted from the submitted claim. Inspect the action, object, and detail relationships before revising the draft.`);
   const rows = segments.map((segment, index) => {
     const frame = frames[index] || {};
     const leaves = frame.leaves || [];
@@ -575,16 +602,17 @@ function renderDiagrams(result) {
       </div>
     </article>`;
   }).join("");
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Segments", segments.length)}${stat("Review scope", "Claim text")}${stat("Output", "Structure map")}${stat("Decision", "Attorney review")}</div><div class="structure-map">${rows || '<div class="error-box"><strong>No structure generated</strong><p>Try preserving claim punctuation and transitional phrases.</p></div>'}</div>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Segments", segments.length)}${stat("Review scope", demoScope ? "Claim 1 excerpt" : "Claim text")}${stat("Output", "Structure map")}${stat("Decision", "Attorney review")}</div><div class="structure-map">${rows || '<div class="error-box"><strong>No structure generated</strong><p>Try preserving claim punctuation and transitional phrases.</p></div>'}</div>`;
 }
 
 function renderExaminer(payload) {
-  setResultHeading("Art Unit 2123 analytics", `Representative prosecution trends for “${payload.examinerQuery}.” Confirm current records before relying on these values.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Observed grants", "71.4%")} ${stat("Avg. office actions", "2.6")} ${stat("Applications", "18,420")} ${stat("Status", "Preview")}</div><div class="chart-grid"><article class="chart-card"><h3>Observed grant timeline</h3><p>Share of disposed applications with an observed patent grant, by disposal year.</p><svg class="line-chart" viewBox="0 0 640 230" role="img" aria-label="Representative grant ratio trend"><line class="grid" x1="40" y1="40" x2="620" y2="40"/><line class="grid" x1="40" y1="110" x2="620" y2="110"/><line class="grid" x1="40" y1="180" x2="620" y2="180"/><path class="area" d="M40,157 L112,135 L184,143 L256,111 L328,101 L400,87 L472,94 L544,76 L616,68 L616,180 L40,180 Z"/><path class="line" d="M40,157 L112,135 L184,143 L256,111 L328,101 L400,87 L472,94 L544,76 L616,68"/>${[40,112,184,256,328,400,472,544,616].map((x,i)=>`<circle cx="${x}" cy="${[157,135,143,111,101,87,94,76,68][i]}" r="5"/>`).join("")}</svg></article><div class="metric-stack"><div><small>First-action §101</small><strong>18.2%</strong><p>Observed share of first office actions containing a §101 rejection.</p></div><div><small>First-action §103</small><strong>63.7%</strong><p>Observed share containing an obviousness rejection.</p></div><div><small>Median pendency</small><strong>31 mo.</strong><p>From filing to abandonment or observed grant.</p></div></div></div>`;
+  const cohort = payload.examinerQuery || "Art Unit 2123";
+  setResultHeading(`${cohort} analytics`, `Illustrative prosecution trends for ${cohort}, covering disposed applications from 2016 through 2024.`);
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Observed grants", "71.4%")} ${stat("Avg. office actions", "2.6")} ${stat("Disposed applications", "18,420")} ${stat("Observation window", "2016–2024")}</div><div class="chart-grid"><article class="chart-card"><h3>Observed grant timeline</h3><p>Share of disposed applications with an observed patent grant, by disposal year.</p><svg class="line-chart" viewBox="0 0 700 260" role="img" aria-labelledby="grant-chart-title grant-chart-desc"><title id="grant-chart-title">Illustrative observed grant rate by disposal year</title><desc id="grant-chart-desc">The annual rate rises from 57.1 percent in 2016 to 74.3 percent in 2024. The aggregate observed grant rate for the full cohort is 71.4 percent.</desc><line class="grid" x1="70" y1="40" x2="650" y2="40"/><line class="grid" x1="70" y1="110" x2="650" y2="110"/><line class="grid" x1="70" y1="180" x2="650" y2="180"/><text x="32" y="44">80%</text><text x="32" y="114">65%</text><text x="32" y="184">50%</text><path class="area" d="M70,147 L142,129 L214,137 L286,107 L358,97 L430,84 L502,91 L574,73 L646,66 L646,180 L70,180 Z"/><path class="line" d="M70,147 L142,129 L214,137 L286,107 L358,97 L430,84 L502,91 L574,73 L646,66"/><g><circle cx="70" cy="147" r="5"/><title>2016: 57.1%</title></g><g><circle cx="142" cy="129" r="5"/><title>2017: 60.9%</title></g><g><circle cx="214" cy="137" r="5"/><title>2018: 59.2%</title></g><g><circle cx="286" cy="107" r="5"/><title>2019: 65.6%</title></g><g><circle cx="358" cy="97" r="5"/><title>2020: 67.8%</title></g><g><circle cx="430" cy="84" r="5"/><title>2021: 70.5%</title></g><g><circle cx="502" cy="91" r="5"/><title>2022: 69.1%</title></g><g><circle cx="574" cy="73" r="5"/><title>2023: 72.8%</title></g><g><circle cx="646" cy="66" r="5"/><title>2024: 74.3%</title></g><text class="axis-label" x="70" y="211" text-anchor="middle">2016</text><text class="axis-label" x="142" y="211" text-anchor="middle">2017</text><text class="axis-label" x="214" y="211" text-anchor="middle">2018</text><text class="axis-label" x="286" y="211" text-anchor="middle">2019</text><text class="axis-label" x="358" y="211" text-anchor="middle">2020</text><text class="axis-label" x="430" y="211" text-anchor="middle">2021</text><text class="axis-label" x="502" y="211" text-anchor="middle">2022</text><text class="axis-label" x="574" y="211" text-anchor="middle">2023</text><text class="axis-label" x="646" y="211" text-anchor="middle">2024</text></svg><p class="chart-source">Illustrative cohort · 18,420 disposed applications · data through Dec. 2024</p></article><div class="metric-stack"><div><small>First-action §101</small><strong>18.2%</strong><p>3,352 of 18,420 observed applications received a first-action eligibility rejection.</p></div><div><small>First-action §103</small><strong>63.7%</strong><p>11,734 applications received a first-action obviousness rejection.</p></div><div><small>Median pendency</small><strong>31 mo.</strong><p>From filing to abandonment or observed grant in the illustrative cohort.</p></div></div></div>`;
 }
 
 function renderFamilyHistory(payload) {
-  setResultHeading("U.S. family prosecution timeline", `Representative claim-history view seeded from ${payload.idType} ${payload.identifier}. Verify every event against the linked Image File Wrapper record.`);
+  setResultHeading("U.S. family prosecution timeline", `Illustrative claim-history review for ${payload.identifier}. The example traces one limitation from filing through allowance.`);
   const events = [
     ["Mar 2022", "Filed", "Independent claim 1 filed with sensor, controller, and alert limitations."],
     ["Nov 2023", "Non-final rejection", "§103 rejection over distributed monitoring references."],
@@ -592,29 +620,29 @@ function renderFamilyHistory(payload) {
     ["Sep 2024", "Final rejection", "Examiner maintained the combination and raised §112 clarity concerns."],
     ["Jan 2025", "Notice of allowance", "Clarified sensor-specific coefficient and offline measurement buffer."],
   ];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members", "7")} ${stat("Prosecution events", "26")} ${stat("Independent claims", "11")} ${stat("Status", "Preview")}</div><article class="timeline-card"><h3>Claim 1 · Scope movement</h3><div class="timeline"><div class="timeline-events">${events.map((event, index) => `<div class="timeline-event ${index === events.length - 1 ? "allowance" : ""}"><small>${event[0]}</small><div class="timeline-dot"></div><strong>${event[1]}</strong><p>${event[2]}</p></div>`).join("")}</div></div></article>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members", "3")} ${stat("Events shown", events.length)} ${stat("Claims traced", "1")} ${stat("Data", "Illustrative")}</div><article class="timeline-card"><h3>Claim 1 · Scope movement</h3><div class="timeline"><div class="timeline-events">${events.map((event, index) => `<div class="timeline-event ${index === events.length - 1 ? "allowance" : ""}"><small>${event[0]}</small><div class="timeline-dot"></div><strong>${event[1]}</strong><p>${event[2]}</p></div>`).join("")}</div></div></article><article class="amendment-detail"><div><small>Filed limitation</small><p>“determine a vibration value from the measurement signal”</p></div><div><small>Allowed limitation</small><p>“determine a compensated vibration value by applying a sensor-specific temperature coefficient to the measurement signal”</p></div><p><strong>Scope movement:</strong> the allowed claim narrows the calculation to temperature compensation using calibration data associated with the individual sensor.</p></article>`;
 }
 
 function renderFamilyClaims(payload) {
-  setResultHeading("Granted family claim comparison", `Three representative granted independent claims aligned from the family seeded by ${payload.idType} ${payload.identifier}. Highlighting distinguishes added and materially changed language.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Granted members", "3")} ${stat("Independent claims", "6")} ${stat("Shared core", "Sensor + controller")} ${stat("Status", "Preview")}</div><div class="claim-comparison"><div class="claim-columns"><article class="claim-column"><header><strong>US 11,874,219</strong><small>Parent · Claim 1</small></header><p>A sensing system comprising a sensor configured to generate a measurement signal and a controller configured to determine a compensated value <span class="diff-add">using a calibration coefficient stored for the sensor</span>.</p></article><article class="claim-column"><header><strong>US 12,041,882</strong><small>Continuation · Claim 1</small></header><p>A distributed sensing system comprising <span class="diff-change">a plurality of mesh-connected optical sensors</span> and a controller configured to determine compensated vibration values according to ambient temperature.</p></article><article class="claim-column"><header><strong>US 12,188,407</strong><small>Continuation · Claim 8</small></header><p>A method comprising receiving a sensor signal, applying a compensation value, and <span class="diff-add">storing timestamped measurements locally while network connectivity is unavailable</span>.</p></article></div></div><article class="comparison-summary"><h3>Difference summary</h3><p>The parent emphasizes sensor-specific calibration. The first continuation shifts toward distributed mesh topology and ambient-temperature compensation. The second continuation claims offline buffering as a method, creating a distinct operational fallback focus.</p></article>`;
+  setResultHeading("Granted family claim comparison", `Three illustrative independent claims aligned for ${payload.identifier}. Highlighting distinguishes additions from changed emphasis.`);
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members shown", "3")} ${stat("Claims aligned", "3")} ${stat("Shared core", "Sensor + controller")} ${stat("Data", "Illustrative")}</div><div class="comparison-legend"><span class="legend-add">Added limitation</span><span class="legend-change">Changed emphasis</span></div><div class="claim-comparison"><div class="claim-columns"><article class="claim-column"><header><strong>Example parent</strong><small>DS-101 · Claim 1</small></header><p>A sensing system comprising an optical sensing probe configured to generate a measurement signal and a controller configured to determine a compensated value <span class="diff-add">using a calibration coefficient stored for the probe</span>.</p></article><article class="claim-column"><header><strong>Continuation A</strong><small>DS-101-A · Claim 1</small></header><p>A distributed sensing system comprising <span class="diff-change">a plurality of mesh-connected optical sensing probes</span> and a controller configured to determine compensated vibration values according to ambient temperature.</p></article><article class="claim-column"><header><strong>Continuation B</strong><small>DS-101-B · Claim 8</small></header><p>A method comprising receiving a measurement signal, applying temperature compensation, and <span class="diff-add">storing timestamped measurements locally while network connectivity is unavailable</span>.</p></article></div></div><article class="comparison-summary"><h3>Difference summary</h3><p>The example parent emphasizes probe-specific calibration. Continuation A shifts toward distributed mesh topology. Continuation B isolates offline buffering and ordered retransmission as a method claim.</p></article>`;
 }
 
 function renderUnclaimed(payload) {
   setResultHeading("Specification concept coverage", `Representative family coverage review seeded from ${payload.idType} ${payload.identifier}. Low-scoring concepts are research candidates, not determinations of unclaimed scope.`);
   const items = [
-    ["unclaimed", "Optical self-test pulse", "The specification describes a periodic emitter self-test; no close language was located in reviewed family claims.", "18%"],
-    ["weak", "Calibration table interpolation", "One claim recites a calibration coefficient but not interpolation between temperature-indexed entries.", "42%"],
-    ["weak", "Gateway handoff protocol", "Family claims address mesh reconnection generally, with limited detail on gateway handoff.", "51%"],
-    ["covered", "Offline measurement buffer", "Expressly recited in US 12,188,407 claim 8.", "93%"]
+    ["unclaimed", "Confirmation interval for persistent alerts", "The specification suppresses isolated transients by requiring the threshold to remain exceeded for a confirmation interval; no example family claim recites the interval.", "16%", "Specification ¶[0005] · No express family claim"],
+    ["weak", "Probe-specific temperature coefficient", "Claim 1 requires temperature compensation but does not expressly tie the coefficient to the individual probe identifier.", "48%", "Specification ¶[0004] · Closest match: Example parent claim 1"],
+    ["weak", "Bearing-housing trend display", "The maintenance server may display a trend for each bearing housing, while the reviewed claims stop at sending alert records.", "37%", "Specification ¶[0006] · Closest match: Example parent claim 1"],
+    ["covered", "Buffered chronological retransmission", "Example continuation B expressly recites local buffering during an outage and chronological transmission after connectivity returns.", "94%", "Specification ¶[0007] · Example continuation B claim 8"]
   ];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Concepts reviewed", "34")} ${stat("Potentially unclaimed", "1")} ${stat("Weakly claimed", "2")} ${stat("Status", "Preview")}</div><div class="coverage-list">${items.map((item) => `<article class="coverage-item"><span class="coverage-state ${item[0]}">${item[0]}</span><div><h3>${item[1]}</h3><p>${item[2]}</p></div><div class="coverage-score">${item[3]}</div></article>`).join("")}</div>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Concepts shown", items.length)} ${stat("Potentially unclaimed", "1")} ${stat("Weakly covered", "2")} ${stat("Data", "Illustrative")}</div><div class="coverage-list">${items.map((item) => `<article class="coverage-item"><span class="coverage-state ${item[0]}">${item[0]}</span><div><h3>${item[1]}</h3><p>${item[2]}</p><p>${item[4]}</p></div><div class="coverage-score"><small>Text overlap</small><strong>${item[3]}</strong></div></article>`).join("")}</div>`;
 }
 
 function renderArtUnit() {
-  setResultHeading("Likely USPTO routing", "Representative top-five routing estimates. Confirm current classifications and routing practices independently.");
-  const predictions = [["2123", "AI & simulation", 44], ["2124", "Computer systems", 24], ["2858", "Optical measurements", 15], ["3682", "Condition monitoring", 10], ["2195", "Distributed processing", 7]];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Top prediction", "AU 2123")} ${stat("Confidence", "44%")} ${stat("Alternatives", "4")} ${stat("Status", "Preview")}</div><div class="prediction-list">${predictions.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>Art Unit ${item[0]}</h3><p>${item[1]}</p></div><div class="prediction-bar"><span style="width:${item[2]}%"></span></div><div class="prediction-value">${item[2]}%</div></article>`).join("")}</div>`;
+  setResultHeading("Likely USPTO routing", "Illustrative routing estimate based on the example patent’s optical sensing, signal compensation, and condition-monitoring language.");
+  const predictions = [["2123", "AI & simulation", 44, "Predictive maintenance and anomaly classification"], ["2124", "Computer systems", 24, "Controller, memory, and network-failure handling"], ["2858", "Optical measurements", 15, "Fiber Bragg grating and wavelength response"], ["3682", "Condition monitoring", 10, "Machine vibration thresholds and alerts"], ["2195", "Distributed processing", 7, "Mesh-connected probes and buffered records"]];
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Top prediction", "AU 2123")} ${stat("Illustrative score", "44%")} ${stat("Alternatives", "4")} ${stat("Data", "Example")}</div><div class="prediction-list">${predictions.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>Art Unit ${item[0]}</h3><p>${item[1]}</p></div><div class="prediction-bar"><span style="width:${item[2]}%"></span></div><div class="prediction-value">${item[2]}%</div><div class="prediction-evidence"><strong>Routing evidence:</strong> ${item[3]}</div></article>`).join("")}</div><button class="analysis-link" type="button" data-tool="examiner">Open Art Unit 2123 analytics →</button>`;
 }
 
 function renderError(error) {
@@ -630,13 +658,14 @@ function showExplanation() {
   const tool = tools[activeToolKey];
   if (!tool) return;
   document.getElementById("dialog-title").textContent = `How ${tool.shortTitle.toLowerCase()} works`;
-  document.getElementById("dialog-content").innerHTML = `<p>${escapeHtml(tool.explanation)}</p><ol>${tool.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>${tool.mode === "prototype" ? '<p><strong>Preview:</strong> results use representative example data and should not be treated as current prosecution evidence.</p>' : ""}`;
+  const exampleNote = tool.mode === "prototype" ? `<p><strong>${loadedMatter?.is_demo ? "Illustrative example" : "Preview"}:</strong> results use synthetic data and should not be treated as current prosecution evidence.</p>` : "";
+  document.getElementById("dialog-content").innerHTML = `<p>${escapeHtml(tool.explanation)}</p><ol>${tool.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>${exampleNote}`;
   document.getElementById("explain-dialog").showModal();
 }
 
 function showDataHandling() {
   document.getElementById("dialog-title").textContent = "How review information is handled";
-  document.getElementById("dialog-content").innerHTML = `<p>Claim and specification text is used to produce the current analysis and is not saved in review history.</p><ol><li>Submitted text is checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>Public USPTO documents may be retained temporarily to avoid repeated retrieval and text extraction.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
+  document.getElementById("dialog-content").innerHTML = `<p>Claim and specification text is used to produce the current analysis and is not saved in review history.</p><ol><li>The built-in example uses a fixed synthetic patent and does not contact the USPTO.</li><li>Submitted text is checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>Public USPTO documents may be retained temporarily to avoid repeated retrieval and text extraction.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
   document.getElementById("explain-dialog").showModal();
 }
 
@@ -658,6 +687,7 @@ document.addEventListener("click", (event) => {
 document.getElementById("back-overview").addEventListener("click", showOverview);
 document.querySelector(".brand").addEventListener("click", (event) => { event.preventDefault(); showOverview(); });
 document.getElementById("load-sample").addEventListener("click", loadSample);
+document.getElementById("load-demo-record").addEventListener("click", loadDemoPatent);
 document.getElementById("patent-lookup-form").addEventListener("submit", lookupPatent);
 document.getElementById("how-button").addEventListener("click", showExplanation);
 document.getElementById("data-handling").addEventListener("click", showDataHandling);

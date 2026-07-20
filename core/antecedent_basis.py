@@ -82,10 +82,10 @@ def _starts_with_intro_phrase(span_text):
 # Helper function to extract Noun Phrase (NP) mentions and classify them as
 # either an introduction (e.g., "a ball") versus a reference (e.g., "the ball,"
 # "said ball")
-def extract_np_mentions(claim_text):
+def extract_np_mentions(claim_text, *, nlp=None):
 
     # Run SpaCy on the claim text provided
-    doc = get_nlp()(claim_text)
+    doc = (nlp if nlp is not None else get_nlp())(claim_text)
 
     # Define an empty list of mentions of NPs
     mentions: List[Mention] = []
@@ -93,14 +93,11 @@ def extract_np_mentions(claim_text):
     # For each chunk available based on SpaCy processing...
     for chunk in doc.noun_chunks:
 
-        # Define and lowercase the chunk
+        # Define the chunk text
         chunk_text = chunk.text
-        chunk_text_l = chunk_text.lower().strip()
 
-        # Grab our FIRST and SECOND tokens
+        # Grab the first token
         first_tok = chunk[0].lower_
-        second_tok = chunk[1].lower_ if len(chunk) > 1 else ""
-        first_two = f"{first_tok} {second_tok}".strip()
 
         # Now, process through and figure out if we have an
         # introduction ("a," "an") and/or definite ("the," "said")
@@ -135,10 +132,10 @@ def extract_np_mentions(claim_text):
     return mentions
 
 # Helper function to basically pocess everything and collect errors
-def analyze_intro_ref(claim_text):
+def analyze_intro_ref(claim_text, *, nlp=None):
 
     # Get our list of mentions
-    mentions = extract_np_mentions(claim_text)
+    mentions = extract_np_mentions(claim_text, nlp=nlp)
 
     # Define empty placeholders for our introductions for NPs and subsequent
     # uses of those NPs

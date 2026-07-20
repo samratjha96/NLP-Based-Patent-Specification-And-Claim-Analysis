@@ -81,6 +81,12 @@ clear configuration error rather than sample or fabricated record data. The
 retrieval layer keeps a small in-memory record cache so repeated analyses of
 one patent record do not download or extract the same specification again.
 
+For a credential-free product walkthrough, choose **Try example patent** on the
+overview. The built-in `Example DS-101` dossier is clearly labeled as synthetic,
+does not contact the USPTO, and carries one internally consistent specification,
+claim set, family history, coverage review, routing estimate, and analytics
+cohort through all eight workflows.
+
 The reconstruction covers the eight workflows shown by the deployed product.
 The public repository can execute three of them end to end; five require the
 author's private data or models and are deliberately labeled as prototype

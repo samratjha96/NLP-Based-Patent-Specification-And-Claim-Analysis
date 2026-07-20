@@ -299,7 +299,10 @@ def create_app(
                 request_id=request_id,
             )
 
-        analysis = analyze_intro_ref(claim_text)
+        analysis = analyze_intro_ref(
+            claim_text,
+            nlp=get_claim_nlp(settings.spacy_model),
+        )
         issues = [
             {
                 "code": "missing_antecedent",
