@@ -151,6 +151,7 @@ def test_frontend_is_served_from_the_inference_service(settings):
 
     response = client.get("/")
     script = client.get("/app/app.js")
+    error_helpers = client.get("/app/request_errors.js")
 
     assert response.status_code == 200
     assert b"PatentAgility" in response.data
@@ -158,6 +159,8 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert b"patent-lookup-form" in response.data
     assert script.status_code == 200
     assert script.mimetype == "text/javascript"
+    assert error_helpers.status_code == 200
+    assert error_helpers.mimetype == "text/javascript"
     assert b"/v1/patents/lookup" in script.data
     assert b"Paste specification text" not in script.data
 

@@ -6,6 +6,7 @@
   <meta name="description" content="A patent analysis workspace for claim drafting, specification support, family review, and examiner research.">
   <title>PatentAgility | Matter Workspace</title>
   <link rel="stylesheet" href="/app/app.css">
+  <script src="/app/request_errors.js" defer></script>
   <script src="/app/app.js" defer></script>
 </head>
 <body>
@@ -89,7 +90,7 @@
                 <input id="lookup-identifier" inputmode="numeric" autocomplete="off" placeholder="12,345,678" required>
                 <button type="submit" id="lookup-submit">Open</button>
               </div>
-              <p id="lookup-message">Numbers are resolved against the USPTO Open Data Portal.</p>
+              <p class="lookup-message" id="lookup-message" aria-live="polite">Numbers are resolved against the USPTO Open Data Portal.</p>
             </form>
             <div class="record-summary hidden" id="record-summary" aria-live="polite">
               <strong id="record-title"></strong>

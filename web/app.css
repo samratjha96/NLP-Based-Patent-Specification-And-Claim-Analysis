@@ -151,6 +151,12 @@ main:focus { outline: none; }
 .record-lookup-row button { padding: 0 16px; color: white; background: var(--forest); border: 1px solid var(--forest); cursor: pointer; }
 .record-lookup-row button:disabled { opacity: .6; cursor: wait; }
 .record-loader #lookup-message { min-height: 30px; margin: 8px 0 0; line-height: 1.45; }
+.lookup-message { position: relative; padding-left: 0; transition: color 120ms ease; }
+.lookup-message.is-error { padding: 9px 10px 9px 28px; color: var(--oxblood); background: var(--oxblood-soft); border-left: 3px solid var(--oxblood); }
+.lookup-message.is-error::before { content: "!"; position: absolute; left: 10px; top: 9px; font-family: var(--mono); font-weight: 700; }
+.lookup-message.is-working { color: var(--ink-soft); }
+.lookup-message.is-success { padding-left: 18px; color: var(--forest); }
+.lookup-message.is-success::before { content: "✓"; position: absolute; left: 0; }
 .record-summary { margin-top: 20px; padding-top: 17px; border-top: 1px solid var(--rule); }
 .record-summary > strong { display: block; font-family: var(--serif); font-size: 20px; font-weight: 500; }
 .record-summary dl { margin: 12px 0 0; }

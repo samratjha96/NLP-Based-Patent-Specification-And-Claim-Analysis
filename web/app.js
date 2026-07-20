@@ -405,14 +405,21 @@ async function animateProgress(tool, resultPromise) {
 }
 
 async function requestJson(url, payload) {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Request-ID": crypto.randomUUID() },
-    body: JSON.stringify(payload)
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Request-ID": crypto.randomUUID() },
+      body: JSON.stringify(payload)
+    });
+  } catch (cause) {
+    const error = new Error(PatentAgilityErrors.networkErrorMessage(), { cause });
+    error.kind = "network";
+    throw error;
+  }
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    const error = new Error((data && data.message) || `Analysis failed with HTTP ${response.status}.`);
+    const error = new Error(PatentAgilityErrors.apiErrorMessage(response.status, data));
     error.status = response.status;
     error.retryAfter = response.headers.get("Retry-After");
     throw error;
@@ -455,9 +462,17 @@ async function lookupPatent(event) {
   const identifier = document.getElementById("lookup-identifier").value.trim();
   const submit = document.getElementById("lookup-submit");
   const message = document.getElementById("lookup-message");
+  const validationMessage = PatentAgilityErrors.validatePatentIdentifier(identifierType, identifier);
+  if (validationMessage) {
+    message.textContent = validationMessage;
+    message.className = "lookup-message is-error";
+    document.getElementById("lookup-identifier").focus();
+    return;
+  }
   submit.disabled = true;
   submit.textContent = "Opening…";
   message.textContent = "Retrieving the official file and preparing its specification and claims.";
+  message.className = "lookup-message is-working";
   try {
     loadedMatter = await requestJson("/v1/patents/lookup", {
       identifier_type: identifierType,
@@ -465,9 +480,11 @@ async function lookupPatent(event) {
     });
     renderLoadedMatter();
     message.textContent = "Official record loaded. Choose a review task below.";
+    message.className = "lookup-message is-success";
     showToast("USPTO record loaded.");
   } catch (error) {
     message.textContent = error.message;
+    message.className = "lookup-message is-error";
     showToast(error.message);
   } finally {
     submit.disabled = false;
