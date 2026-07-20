@@ -143,9 +143,15 @@ const recentTable = document.querySelector(".recent-table");
 const clearHistoryButton = document.getElementById("clear-history");
 const { requestJson } = window.PatentAgilityRequestClient.createRequestClient({
   errors: window.PatentAgilityErrors,
-  onRetry: ({ attempt, maxRetries, waitMilliseconds }) => {
-    const seconds = Math.ceil(waitMilliseconds / 1000);
-    showToast(`The review service is busy. Retrying in ${seconds} seconds (${attempt}/${maxRetries}).`);
+  onRetry: ({ attempt }) => {
+    const message = "The service is busy. Your request will start automatically.";
+    document.querySelectorAll(".lookup-message.is-working").forEach((element) => {
+      element.textContent = message;
+    });
+    if (!progressPanel.classList.contains("hidden")) {
+      document.getElementById("progress-title").textContent = "Waiting to start";
+    }
+    if (attempt === 1) showToast(message);
   }
 });
 
@@ -797,7 +803,7 @@ function renderError(error) {
   progressPanel.classList.add("hidden");
   resultsPanel.classList.remove("hidden");
   const overloaded = error.status === 429;
-  setResultHeading(overloaded ? "The review is still busy" : "Analysis could not complete", overloaded ? "The service stayed busy through two automatic retries." : "No reviewable result was produced.");
+  setResultHeading(overloaded ? "The review is still busy" : "Analysis could not complete", overloaded ? "The service could not start this review within two minutes." : "No reviewable result was produced.");
   resultsContent.innerHTML = `<div class="error-box"><strong>${overloaded ? "Please try again shortly" : "Please try the review again"}</strong><p>${overloaded ? "Your input is still available, so you can run the review again without re-entering it." : "If the problem continues, preserve your input and contact the workspace administrator."}</p></div>`;
   resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }

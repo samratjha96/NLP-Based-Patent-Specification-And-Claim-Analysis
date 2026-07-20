@@ -138,7 +138,7 @@ for another complete model copy. The queue is intentionally in-process and
 non-durable: retryable overload returns `429` with `Retry-After`, while work
 that misses its deadline returns `504`. The included browser client follows
 `Retry-After`, adds a small random delay to avoid synchronized retries, and
-automatically retries twice before asking the user to resubmit.
+keeps trying for up to two minutes before asking the user to resubmit.
 
 Submit all claim limitations for one patent together so its specification is
 embedded once:

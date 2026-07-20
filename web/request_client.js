@@ -18,8 +18,9 @@
     createRequestId = () => globalThis.crypto.randomUUID(),
     onRetry = () => {},
   }) {
-    async function requestJson(url, payload, { maxRetries = 2 } = {}) {
+    async function requestJson(url, payload, { maxWaitMilliseconds = 120000 } = {}) {
       const requestId = createRequestId();
+      let waitedMilliseconds = 0;
       for (let attempt = 0; ; attempt += 1) {
         let response;
         try {
@@ -36,16 +37,20 @@
 
         const data = await response.json().catch(() => null);
         const retryAfter = response.headers.get("Retry-After");
-        if (response.status === 429 && attempt < maxRetries) {
+        if (response.status === 429) {
           const waitMilliseconds = retryDelayMilliseconds(retryAfter, random);
-          onRetry({ attempt: attempt + 1, maxRetries, waitMilliseconds });
-          await wait(waitMilliseconds);
-          continue;
+          if (waitedMilliseconds + waitMilliseconds <= maxWaitMilliseconds) {
+            onRetry({ attempt: attempt + 1, waitMilliseconds, waitedMilliseconds });
+            await wait(waitMilliseconds);
+            waitedMilliseconds += waitMilliseconds;
+            continue;
+          }
         }
         if (!response.ok) {
           const error = new Error(errors.apiErrorMessage(response.status, data));
           error.status = response.status;
           error.retryAfter = retryAfter;
+          error.waitedMilliseconds = waitedMilliseconds;
           throw error;
         }
         return data;

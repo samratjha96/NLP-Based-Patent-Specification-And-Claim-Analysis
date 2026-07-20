@@ -13,8 +13,13 @@ function response(status, body = {}, retryAfter = null) {
   };
 }
 
-test("capacity responses wait and retry the same logical request", async () => {
-  const responses = [response(429, {}, "2"), response(200, { result: "ok" })];
+test("capacity responses keep waiting for the same logical request", async () => {
+  const responses = [
+    response(429, {}, "1"),
+    response(429, {}, "1"),
+    response(429, {}, "1"),
+    response(200, { result: "ok" }),
+  ];
   const requests = [];
   const waits = [];
   const retries = [];
@@ -33,14 +38,22 @@ test("capacity responses wait and retry the same logical request", async () => {
   const result = await client.requestJson("/analysis", { claim: "text" });
 
   assert.deepEqual(result, { result: "ok" });
-  assert.equal(requests.length, 2);
-  assert.equal(requests[0].headers["X-Request-ID"], "request-123");
-  assert.equal(requests[1].headers["X-Request-ID"], "request-123");
-  assert.deepEqual(waits, [2200]);
-  assert.deepEqual(retries, [{ attempt: 1, maxRetries: 2, waitMilliseconds: 2200 }]);
+  assert.equal(requests.length, 4);
+  assert.deepEqual(requests.map((request) => request.headers["X-Request-ID"]), [
+    "request-123",
+    "request-123",
+    "request-123",
+    "request-123",
+  ]);
+  assert.deepEqual(waits, [1100, 1100, 1100]);
+  assert.deepEqual(retries, [
+    { attempt: 1, waitMilliseconds: 1100, waitedMilliseconds: 0 },
+    { attempt: 2, waitMilliseconds: 1100, waitedMilliseconds: 1100 },
+    { attempt: 3, waitMilliseconds: 1100, waitedMilliseconds: 2200 },
+  ]);
 });
 
-test("capacity retries stop after two delayed attempts", async () => {
+test("capacity retries stop when the total wait budget is exhausted", async () => {
   let requestCount = 0;
   const waits = [];
   const client = createRequestClient({
@@ -55,8 +68,8 @@ test("capacity retries stop after two delayed attempts", async () => {
   });
 
   await assert.rejects(
-    client.requestJson("/analysis", {}),
-    (error) => error.status === 429 && error.retryAfter === "1",
+    client.requestJson("/analysis", {}, { maxWaitMilliseconds: 2500 }),
+    (error) => error.status === 429 && error.retryAfter === "1" && error.waitedMilliseconds === 2000,
   );
   assert.equal(requestCount, 3);
   assert.deepEqual(waits, [1000, 1000]);
