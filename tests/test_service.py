@@ -154,6 +154,7 @@ def test_frontend_is_served_from_the_inference_service(settings):
     browser_state = client.get("/app/browser_state.js")
     demo_record = client.get("/app/demo_record.js")
     error_helpers = client.get("/app/request_errors.js")
+    request_client = client.get("/app/request_client.js")
 
     assert response.status_code == 200
     assert b"PatentAgility" in response.data
@@ -168,6 +169,7 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert b"data-load-demo-record" in script.data
     assert b"Try example patent" in script.data
     assert b"/app/browser_state.js" in response.data
+    assert b"/app/request_client.js" in response.data
     assert script.status_code == 200
     assert script.mimetype == "text/javascript"
     assert browser_state.status_code == 200
@@ -177,6 +179,8 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert demo_record.mimetype == "text/javascript"
     assert error_helpers.status_code == 200
     assert error_helpers.mimetype == "text/javascript"
+    assert request_client.status_code == 200
+    assert request_client.mimetype == "text/javascript"
     assert b"/v1/patents/lookup" in script.data
     assert b"Paste specification text" not in script.data
     assert b"current matter" not in script.data.lower()

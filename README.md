@@ -136,8 +136,9 @@ PATENTAGILITY_MODEL_PROFILE=balanced \
 Scale with additional service instances only when the host has enough memory
 for another complete model copy. The queue is intentionally in-process and
 non-durable: retryable overload returns `429` with `Retry-After`, while work
-that misses its deadline returns `504`. Clients should honor `Retry-After` and
-cap retries rather than retrying indefinitely.
+that misses its deadline returns `504`. The included browser client follows
+`Retry-After`, adds a small random delay to avoid synchronized retries, and
+automatically retries twice before asking the user to resubmit.
 
 Submit all claim limitations for one patent together so its specification is
 embedded once:

@@ -141,6 +141,13 @@ const resultsPanel = document.getElementById("results-panel");
 const resultsContent = document.getElementById("results-content");
 const recentTable = document.querySelector(".recent-table");
 const clearHistoryButton = document.getElementById("clear-history");
+const { requestJson } = window.PatentAgilityRequestClient.createRequestClient({
+  errors: window.PatentAgilityErrors,
+  onRetry: ({ attempt, maxRetries, waitMilliseconds }) => {
+    const seconds = Math.ceil(waitMilliseconds / 1000);
+    showToast(`The review service is busy. Retrying in ${seconds} seconds (${attempt}/${maxRetries}).`);
+  }
+});
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -548,29 +555,6 @@ async function animateProgress(tool, resultPromise) {
   document.getElementById("progress-fill").style.width = "100%";
 }
 
-async function requestJson(url, payload) {
-  let response;
-  try {
-    response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Request-ID": crypto.randomUUID() },
-      body: JSON.stringify(payload)
-    });
-  } catch (cause) {
-    const error = new Error(PatentAgilityErrors.networkErrorMessage(), { cause });
-    error.kind = "network";
-    throw error;
-  }
-  const data = await response.json().catch(() => null);
-  if (!response.ok) {
-    const error = new Error(PatentAgilityErrors.apiErrorMessage(response.status, data));
-    error.status = response.status;
-    error.retryAfter = response.headers.get("Retry-After");
-    throw error;
-  }
-  return data;
-}
-
 function formatApplicationNumber(value) {
   const digits = String(value || "").replace(/\D/g, "");
   return digits.length === 8 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : (digits || "—");
@@ -813,8 +797,8 @@ function renderError(error) {
   progressPanel.classList.add("hidden");
   resultsPanel.classList.remove("hidden");
   const overloaded = error.status === 429;
-  setResultHeading(overloaded ? "Review capacity reached" : "Analysis could not complete", overloaded ? `This review could not start. Try again in ${error.retryAfter || "a few"} seconds.` : "No reviewable result was produced.");
-  resultsContent.innerHTML = `<div class="error-box"><strong>${overloaded ? "Please retry shortly" : "Please try the review again"}</strong><p>${overloaded ? "Your input was not retained. The review can be resubmitted when capacity is available." : "If the problem continues, preserve your input and contact the workspace administrator."}</p></div>`;
+  setResultHeading(overloaded ? "The review is still busy" : "Analysis could not complete", overloaded ? "The service stayed busy through two automatic retries." : "No reviewable result was produced.");
+  resultsContent.innerHTML = `<div class="error-box"><strong>${overloaded ? "Please try again shortly" : "Please try the review again"}</strong><p>${overloaded ? "Your input is still available, so you can run the review again without re-entering it." : "If the problem continues, preserve your input and contact the workspace administrator."}</p></div>`;
   resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
