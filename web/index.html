@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A patent analysis workspace for claim drafting, specification support, family review, and examiner research.">
-  <title>PatentAgility | Matter Workspace</title>
+  <title>PatentAgility | Patent Review</title>
   <link rel="stylesheet" href="/app/app.css">
   <script src="/app/request_errors.js" defer></script>
   <script src="/app/app.js" defer></script>
@@ -16,18 +16,18 @@
     <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Open tool navigation" aria-expanded="false">Menu</button>
     <a class="brand" href="#overview" aria-label="PatentAgility home">
       <span class="brand-mark" aria-hidden="true">PA</span>
-      <span><strong>PatentAgility</strong><small>Patent analysis workspace</small></span>
+      <span><strong>PatentAgility</strong><small>Patent analysis</small></span>
     </a>
-    <div class="matter-switcher" aria-label="Current matter">
-      <span class="matter-label">Matter</span>
+    <div class="matter-switcher" aria-label="Loaded patent record">
+      <span class="matter-label">Patent</span>
       <button type="button" id="matter-button" aria-haspopup="listbox" aria-expanded="false">
         <span><strong id="matter-name">No record loaded</strong><small id="matter-meta">Open a U.S. patent record</small></span>
         <span aria-hidden="true">⌄</span>
       </button>
     </div>
     <div class="topbar-actions">
-      <div class="privacy-status"><span aria-hidden="true"></span> Private workspace</div>
-      <button class="quiet-button" id="new-review" type="button">New review</button>
+      <div class="privacy-status"><span aria-hidden="true"></span> Private review</div>
+      <button class="quiet-button" id="new-review" type="button">Open patent</button>
       <button class="avatar" type="button" aria-label="Account menu">SJ</button>
     </div>
   </header>
@@ -37,7 +37,7 @@
       <nav>
         <button class="nav-home is-active" type="button" data-view="overview">
           <span class="nav-glyph" aria-hidden="true">⌂</span>
-          Matter overview
+          Overview
         </button>
 
         <div class="nav-group">
@@ -64,7 +64,7 @@
       <div class="sidebar-foot">
         <div class="workspace-readiness">
           <span class="readiness-dot" aria-hidden="true"></span>
-          <div><strong>Workspace ready</strong><small>Start a focused review</small></div>
+          <div><strong>Ready for review</strong><small>Start a focused review</small></div>
         </div>
         <button type="button" id="data-handling">Data handling</button>
       </div>
@@ -74,7 +74,7 @@
       <section class="overview-view" id="overview-view" aria-labelledby="overview-title">
         <div class="overview-hero">
           <div>
-            <div class="eyebrow">Matter workspace</div>
+            <div class="eyebrow">Patent review</div>
             <h1 id="overview-title">Start with the record.</h1>
             <p>Enter a U.S. patent or application number once. PatentAgility retrieves the public file, prepares the specification and claims, and makes them available across the review tools.</p>
           </div>
@@ -105,7 +105,7 @@
 
         <div class="assurance-strip" aria-label="Data handling assurances">
           <div><span class="assurance-icon">U</span><p><strong>Official source</strong><small>Records are retrieved from the USPTO Open Data Portal.</small></p></div>
-          <div><span class="assurance-icon">1</span><p><strong>Load once</strong><small>The same matter record is reused across review tools.</small></p></div>
+          <div><span class="assurance-icon">1</span><p><strong>Load once</strong><small>The loaded patent is used automatically across review tools.</small></p></div>
           <div><span class="assurance-icon">E</span><p><strong>Evidence first</strong><small>Every result preserves its source passage.</small></p></div>
           <div><span class="assurance-icon">H</span><p><strong>Human decision</strong><small>Flags are review prompts, not legal conclusions.</small></p></div>
         </div>
@@ -121,7 +121,7 @@
         <section class="recent-section" aria-labelledby="recent-heading">
           <div class="section-heading compact">
             <div><div class="eyebrow">Work product</div><h2 id="recent-heading">Recent analyses</h2></div>
-            <button class="text-button" type="button">View matter history →</button>
+            <button class="text-button" type="button">View review history →</button>
           </div>
           <div class="recent-table" role="status" aria-label="Recent analyses">
             <div class="empty-history"><strong>No analyses yet</strong><span>Open a patent record and choose a review task.</span></div>
@@ -135,7 +135,7 @@
       </section>
 
       <section class="tool-view hidden" id="tool-view" aria-labelledby="tool-title">
-        <div class="tool-breadcrumb"><button type="button" id="back-overview">Matter overview</button><span aria-hidden="true">/</span><span id="breadcrumb-name">Tool</span></div>
+        <div class="tool-breadcrumb"><button type="button" id="back-overview">Overview</button><span aria-hidden="true">/</span><span id="breadcrumb-name">Tool</span></div>
         <div class="tool-header">
           <div class="tool-index" id="tool-index">04</div>
           <div>
@@ -152,7 +152,7 @@
               <div class="form-heading"><span>01</span><div><h2>Review input</h2><p id="form-guidance"></p></div></div>
               <div id="dynamic-fields"></div>
               <div class="form-actions">
-                <button class="sample-button" id="load-sample" type="button">Use current matter</button>
+                <button class="sample-button" id="load-sample" type="button">Use example</button>
                 <button class="primary-button" id="run-analysis" type="submit"><span>Run analysis</span><span aria-hidden="true">→</span></button>
               </div>
               <div class="input-assurance"><span aria-hidden="true">◇</span><span><strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.</span></div>
@@ -180,7 +180,7 @@
               <p id="context-copy">Treat ranked passages as a research aid. Confirm the cited specification language and prosecution record before relying on a result.</p>
             </section>
             <section class="context-card evidence-card">
-              <div class="context-label">Current matter</div>
+              <div class="context-label">Patent record</div>
               <dl>
                 <div><dt>Application</dt><dd id="context-application">Not loaded</dd></div>
                 <div><dt>Patent</dt><dd id="context-patent">Not loaded</dd></div>

@@ -211,6 +211,11 @@ function openTool(toolKey) {
   document.getElementById("form-guidance").textContent = tool.guidance;
   document.getElementById("context-title").textContent = tool.contextTitle;
   document.getElementById("context-copy").textContent = tool.contextCopy;
+  const sampleButton = document.getElementById("load-sample");
+  const usesRecordText = ["claim", "support", "invention"].includes(tool.fields);
+  const usesLoadedIdentifier = tool.fields === "identifier" && Boolean(loadedMatter);
+  sampleButton.hidden = usesRecordText || usesLoadedIdentifier;
+  sampleButton.textContent = "Use example";
   const modeBadge = document.getElementById("mode-badge");
   modeBadge.textContent = toolModeLabel(tool);
   modeBadge.classList.toggle("prototype", tool.mode === "prototype");
@@ -230,19 +235,20 @@ function field(label, control, hint = "") {
 function identifierFields() {
   const identifier = loadedMatter ? (loadedMatter.application_number || loadedMatter.patent_number) : "";
   const identifierType = loadedMatter && loadedMatter.application_number ? "application" : "patent";
+  const identifierHint = loadedMatter ? "The loaded patent number is filled automatically. Punctuation is optional." : "Punctuation is optional.";
   return `<div class="field-grid">
     ${field("Identifier type", `<select id="id-type" name="idType" aria-label="Identifier type"><option value="application" ${identifierType === "application" ? "selected" : ""}>Application number</option><option value="patent" ${identifierType === "patent" ? "selected" : ""}>Patent number</option></select>`)}
-    ${field("U.S. identifier", `<input id="identifier" name="identifier" inputmode="numeric" autocomplete="off" aria-label="U.S. identifier" placeholder="18/456,219" value="${escapeHtml(identifier)}" required>`, "The current matter is filled automatically. Punctuation is optional.")}
+    ${field("U.S. identifier", `<input id="identifier" name="identifier" inputmode="numeric" autocomplete="off" aria-label="U.S. identifier" placeholder="18/456,219" value="${escapeHtml(identifier)}" required>`, identifierHint)}
   </div>`;
 }
 
 function matterSourceField(section) {
   if (!loadedMatter) {
-    return `<div class="matter-source empty"><span>No patent record loaded</span><strong>Open a U.S. patent or application from Matter overview.</strong></div>`;
+    return `<div class="matter-source empty"><span>No patent record loaded</span><strong>Open a U.S. patent or application from Overview.</strong></div>`;
   }
   const count = section === "Specification" ? loadedMatter.specification_character_count : loadedMatter.claims_character_count;
   const detail = count ? `${count.toLocaleString()} characters ready` : `${section} text was not found in the retrieved document`;
-  return `<div class="matter-source"><span>${escapeHtml(section)} from current matter</span><strong>${escapeHtml(loadedMatter.title || `Application ${loadedMatter.application_number}`)}</strong><small>${escapeHtml(detail)} · ${escapeHtml(loadedMatter.source)}</small></div>`;
+  return `<div class="matter-source"><span>${escapeHtml(section)} from loaded patent</span><strong>${escapeHtml(loadedMatter.title || `Application ${loadedMatter.application_number}`)}</strong><small>${escapeHtml(detail)} · Used automatically for this review</small></div>`;
 }
 
 function claimField() {
@@ -301,24 +307,13 @@ function addQueryRow(value) {
 function loadSample() {
   const tool = tools[activeToolKey];
   if (!tool) return;
-  if (loadedMatter) {
-    renderFields(tool);
-    showToast("Current USPTO record selected.");
-    return;
-  }
-  if (["claim", "support", "invention"].includes(tool.fields)) {
-    showOverview();
-    document.getElementById("lookup-identifier").focus();
-    showToast("Open a patent record before starting this review.");
-    return;
-  }
   const sample = tool.sample;
   if (tool.fields === "identifier") {
     document.getElementById("id-type").value = sample.idType;
     document.getElementById("identifier").value = sample.identifier;
   }
   if (tool.fields === "examiner") document.getElementById("examiner-query").value = sample.examinerQuery;
-  showToast("Example identifier loaded.");
+  showToast("Example loaded.");
 }
 
 function collectPayload(tool) {
@@ -635,13 +630,13 @@ function showExplanation() {
   const tool = tools[activeToolKey];
   if (!tool) return;
   document.getElementById("dialog-title").textContent = `How ${tool.shortTitle.toLowerCase()} works`;
-  document.getElementById("dialog-content").innerHTML = `<p>${escapeHtml(tool.explanation)}</p><ol>${tool.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>${tool.mode === "prototype" ? '<p><strong>Preview:</strong> results use representative matter data and should not be treated as current prosecution evidence.</p>' : ""}`;
+  document.getElementById("dialog-content").innerHTML = `<p>${escapeHtml(tool.explanation)}</p><ol>${tool.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>${tool.mode === "prototype" ? '<p><strong>Preview:</strong> results use representative example data and should not be treated as current prosecution evidence.</p>' : ""}`;
   document.getElementById("explain-dialog").showModal();
 }
 
 function showDataHandling() {
   document.getElementById("dialog-title").textContent = "How review information is handled";
-  document.getElementById("dialog-content").innerHTML = `<p>Claim and specification text is used to produce the current analysis and is not added to matter history.</p><ol><li>Submitted text is checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>Public USPTO documents may be retained temporarily to avoid repeated retrieval and text extraction.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
+  document.getElementById("dialog-content").innerHTML = `<p>Claim and specification text is used to produce the current analysis and is not saved in review history.</p><ol><li>Submitted text is checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>Public USPTO documents may be retained temporarily to avoid repeated retrieval and text extraction.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
   document.getElementById("explain-dialog").showModal();
 }
 
@@ -668,8 +663,8 @@ document.getElementById("how-button").addEventListener("click", showExplanation)
 document.getElementById("data-handling").addEventListener("click", showDataHandling);
 document.getElementById("new-review").addEventListener("click", () => { showOverview(); document.getElementById("lookup-identifier").focus(); });
 document.getElementById("matter-button").addEventListener("click", () => { showOverview(); document.getElementById("lookup-identifier").focus(); });
-document.querySelector(".avatar").addEventListener("click", () => showToast("Account settings are not available in this workspace preview."));
-document.querySelector(".text-button").addEventListener("click", () => showToast("Completed analyses will appear here during this workspace session."));
+document.querySelector(".avatar").addEventListener("click", () => showToast("Account settings are not available in this local preview."));
+document.querySelector(".text-button").addEventListener("click", () => showToast("Completed analyses will appear here during this session."));
 document.getElementById("mobile-menu").addEventListener("click", () => {
   const expanded = sidebar.classList.toggle("is-open");
   document.getElementById("mobile-menu").setAttribute("aria-expanded", String(expanded));

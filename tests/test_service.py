@@ -155,14 +155,19 @@ def test_frontend_is_served_from_the_inference_service(settings):
 
     assert response.status_code == 200
     assert b"PatentAgility" in response.data
-    assert b"Matter workspace" in response.data
+    assert b"Patent review" in response.data
     assert b"patent-lookup-form" in response.data
+    assert b"Matter workspace" not in response.data
+    assert b"Current matter" not in response.data
+    assert b"Matter overview" not in response.data
+    assert b"Use current matter" not in response.data
     assert script.status_code == 200
     assert script.mimetype == "text/javascript"
     assert error_helpers.status_code == 200
     assert error_helpers.mimetype == "text/javascript"
     assert b"/v1/patents/lookup" in script.data
     assert b"Paste specification text" not in script.data
+    assert b"current matter" not in script.data.lower()
 
 
 def test_patent_lookup_returns_an_official_record(settings):

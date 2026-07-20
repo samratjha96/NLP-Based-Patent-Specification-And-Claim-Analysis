@@ -56,7 +56,7 @@ individually with `PATENTAGILITY_HF_CACHE_DIR` and
 ## Lawyer-facing web workspace
 
 The inference service now serves a complete local frontend at `/`. It is built
-as a matter-oriented review workspace rather than a collection of generic AI
+as a patent-record-oriented review workspace rather than a collection of generic AI
 forms: every result keeps the submitted question, source passage, confidence
 context, and attorney-review boundary visible together.
 
@@ -71,7 +71,7 @@ uv run python service.py
 
 Then open `http://127.0.0.1:8000/`. The web workspace does not retain
 substantive claim or specification text in browser storage. Enter a U.S.
-patent or application number on the matter overview to retrieve its public
+patent or application number on the overview to retrieve its public
 file-wrapper record, download the earliest specification, extract its text,
 and make the specification and claims available to the live review tools.
 
@@ -79,7 +79,7 @@ The USPTO Open Data Portal requires an account and API key. Without
 `USPTO_API_KEY`, the workspace remains available but patent lookup returns a
 clear configuration error rather than sample or fabricated record data. The
 retrieval layer keeps a small in-memory record cache so repeated analyses of
-one matter do not download or extract the same specification again.
+one patent record do not download or extract the same specification again.
 
 The reconstruction covers the eight workflows shown by the deployed product.
 The public repository can execute three of them end to end; five require the
