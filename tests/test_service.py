@@ -157,15 +157,15 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert response.status_code == 200
     assert b"PatentAgility" in response.data
     assert b"Patent review" in response.data
-    assert b"patent-lookup-form" in response.data
+    assert b"data-record-loader-host" in response.data
     assert b"Matter workspace" not in response.data
     assert b"Current matter" not in response.data
     assert b"Matter overview" not in response.data
     assert b"Use current matter" not in response.data
     assert b"workspace-readiness" not in response.data
     assert b"Ready for review" not in response.data
-    assert b'id="load-demo-record"' in response.data
-    assert b"Try example patent" in response.data
+    assert b"data-load-demo-record" in script.data
+    assert b"Try example patent" in script.data
     assert script.status_code == 200
     assert script.mimetype == "text/javascript"
     assert demo_record.status_code == 200
@@ -175,6 +175,7 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert b"/v1/patents/lookup" in script.data
     assert b"Paste specification text" not in script.data
     assert b"current matter" not in script.data.lower()
+    assert b"Open a U.S. patent or application from Overview." not in script.data
     assert b">2016<" in script.data
     assert b">2024<" in script.data
 

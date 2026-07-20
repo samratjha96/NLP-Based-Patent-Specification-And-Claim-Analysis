@@ -77,30 +77,7 @@
           </div>
           <div class="matter-card record-loader">
             <div class="matter-card-top"><span>Open public record</span><span class="status-pill" id="record-status">Not loaded</span></div>
-            <form id="patent-lookup-form">
-              <label for="lookup-identifier">U.S. patent or application number</label>
-              <div class="record-lookup-row">
-                <select id="lookup-identifier-type" aria-label="Identifier type">
-                  <option value="patent">Patent</option>
-                  <option value="application">Application</option>
-                </select>
-                <input id="lookup-identifier" inputmode="numeric" autocomplete="off" placeholder="12,345,678" required>
-                <button type="submit" id="lookup-submit">Open</button>
-              </div>
-              <p class="lookup-message" id="lookup-message" aria-live="polite">Numbers are resolved against the USPTO Open Data Portal.</p>
-            </form>
-            <div class="demo-record-action">
-              <div><strong>Try example patent</strong><small>Explore every workflow without a USPTO key.</small></div>
-              <button type="button" id="load-demo-record">Open example</button>
-            </div>
-            <div class="record-summary hidden" id="record-summary" aria-live="polite">
-              <strong id="record-title"></strong>
-              <dl>
-                <div><dt>Application</dt><dd id="record-application">—</dd></div>
-                <div><dt>Patent</dt><dd id="record-patent">—</dd></div>
-                <div><dt>Status</dt><dd id="record-case-status">—</dd></div>
-              </dl>
-            </div>
+            <div data-record-loader-host data-variant="overview"></div>
           </div>
         </div>
 
@@ -153,7 +130,6 @@
               <div class="form-heading"><span>01</span><div><h2>Review input</h2><p id="form-guidance"></p></div></div>
               <div id="dynamic-fields"></div>
               <div class="form-actions">
-                <button class="sample-button" id="load-sample" type="button">Use example</button>
                 <button class="primary-button" id="run-analysis" type="submit"><span>Run analysis</span><span aria-hidden="true">→</span></button>
               </div>
               <div class="input-assurance"><span aria-hidden="true">◇</span><span id="input-assurance-copy"><strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.</span></div>

@@ -201,10 +201,6 @@ function openTool(toolKey) {
   document.getElementById("form-guidance").textContent = tool.guidance;
   document.getElementById("context-title").textContent = tool.contextTitle;
   document.getElementById("context-copy").textContent = tool.contextCopy;
-  const sampleButton = document.getElementById("load-sample");
-  const usesRecordText = ["claim", "support", "invention"].includes(tool.fields);
-  sampleButton.hidden = usesRecordText || Boolean(loadedMatter);
-  sampleButton.textContent = "Use example";
   document.getElementById("input-assurance-copy").innerHTML = loadedMatter?.is_demo
     ? "<strong>Illustrative example.</strong> The built-in record is synthetic and exists only to demonstrate the review workflow."
     : "<strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.";
@@ -224,20 +220,55 @@ function field(label, control, hint = "") {
   return `<div class="field"><label>${label}</label>${control}${hint ? `<div class="field-hint">${hint}</div>` : ""}</div>`;
 }
 
-function identifierFields() {
-  if (loadedMatter?.is_demo) return matterSourceField("Patent record");
-  const identifier = loadedMatter ? (loadedMatter.application_number || loadedMatter.patent_number) : "";
-  const identifierType = loadedMatter && loadedMatter.application_number ? "application" : "patent";
-  const identifierHint = loadedMatter ? "The loaded patent number is filled automatically. Punctuation is optional." : "Punctuation is optional.";
-  return `<div class="field-grid">
-    ${field("Identifier type", `<select id="id-type" name="idType" aria-label="Identifier type"><option value="application" ${identifierType === "application" ? "selected" : ""}>Application number</option><option value="patent" ${identifierType === "patent" ? "selected" : ""}>Patent number</option></select>`)}
-    ${field("U.S. identifier", `<input id="identifier" name="identifier" inputmode="numeric" autocomplete="off" aria-label="U.S. identifier" placeholder="18/456,219" value="${escapeHtml(identifier)}" required>`, identifierHint)}
+function patentLoaderMarkup(variant) {
+  if (loadedMatter) {
+    const application = loadedMatter.is_demo ? "Illustrative" : formatApplicationNumber(loadedMatter.application_number);
+    const patent = loadedMatter.is_demo ? "Illustrative" : formatPatentNumber(loadedMatter.patent_number);
+    return `<div class="patent-loader-component ${variant} loaded">
+      <div class="record-summary">
+        <strong>${escapeHtml(loadedMatter.title)}</strong>
+        <dl>
+          <div><dt>Application</dt><dd>${escapeHtml(application)}</dd></div>
+          <div><dt>Patent</dt><dd>${escapeHtml(patent)}</dd></div>
+          <div><dt>Status</dt><dd>${escapeHtml(loadedMatter.status || "—")}</dd></div>
+        </dl>
+        ${variant === "overview" ? '<button class="change-patent" type="button" data-change-patent>Open a different patent</button>' : ""}
+      </div>
+    </div>`;
+  }
+
+  return `<div class="patent-loader-component ${variant}" data-patent-record-loader>
+    ${variant === "inline" ? '<div class="inline-loader-heading"><span>No patent loaded</span><strong>Choose a patent once. It will carry through every review.</strong></div>' : ""}
+    <label>U.S. patent or application number</label>
+    <div class="record-lookup-row">
+      <select data-lookup-identifier-type aria-label="Identifier type">
+        <option value="patent">Patent</option>
+        <option value="application">Application</option>
+      </select>
+      <input data-lookup-identifier inputmode="numeric" autocomplete="off" aria-label="U.S. patent or application number" placeholder="12,345,678">
+      <button type="button" data-patent-lookup-submit>Open</button>
+    </div>
+    <p class="lookup-message" data-lookup-message aria-live="polite">Numbers are resolved against the USPTO Open Data Portal.</p>
+    <div class="demo-record-action">
+      <div><strong>Try example patent</strong><small>Explore every workflow without a USPTO key.</small></div>
+      <button type="button" data-load-demo-record>Open example</button>
+    </div>
   </div>`;
+}
+
+function renderPatentLoaders() {
+  document.querySelectorAll("[data-record-loader-host]").forEach((host) => {
+    host.innerHTML = patentLoaderMarkup(host.dataset.variant || "inline");
+  });
+}
+
+function identifierFields() {
+  return matterSourceField("Patent record");
 }
 
 function matterSourceField(section) {
   if (!loadedMatter) {
-    return `<div class="matter-source empty"><span>No patent record loaded</span><strong>Open a U.S. patent or application from Overview.</strong></div>`;
+    return `<div class="inline-record-loader" data-record-loader-host data-variant="inline"></div>`;
   }
   const isTextSection = section === "Specification" || section === "Claims";
   const count = section === "Specification" ? loadedMatter.specification_character_count : loadedMatter.claims_character_count;
@@ -266,6 +297,12 @@ function supportFields() {
 }
 
 function renderFields(tool) {
+  if (!loadedMatter) {
+    dynamicFields.innerHTML = matterSourceField("Patent record");
+    renderPatentLoaders();
+    syncRunButton();
+    return;
+  }
   if (tool.fields === "identifier") dynamicFields.innerHTML = identifierFields();
   if (tool.fields === "claim") dynamicFields.innerHTML = claimField();
   if (tool.fields === "support") dynamicFields.innerHTML = supportFields();
@@ -274,9 +311,17 @@ function renderFields(tool) {
   }
   if (tool.fields === "examiner") {
     const value = loadedMatter?.is_demo ? loadedMatter.review_examples.examiner_query : "";
-    dynamicFields.innerHTML = `${loadedMatter?.is_demo ? matterSourceField("Analytics cohort") : ""}${field("Examiner, art unit, work group, or tech center", `<input id="examiner-query" name="examinerQuery" type="search" aria-label="Examiner, art unit, work group, or tech center" placeholder="Try: Art Unit 2123" value="${escapeHtml(value)}" required>`, "Search results can be narrowed by name or USPTO organizational unit.")}`;
+    dynamicFields.innerHTML = `${matterSourceField("Analytics cohort")}${field("Examiner, art unit, work group, or tech center", `<input id="examiner-query" name="examinerQuery" type="search" aria-label="Examiner, art unit, work group, or tech center" placeholder="Try: Art Unit 2123" value="${escapeHtml(value)}" required>`, "Search results can be narrowed by name or USPTO organizational unit.")}`;
   }
   attachFieldBehavior(tool);
+  renderPatentLoaders();
+  syncRunButton();
+}
+
+function syncRunButton() {
+  const runButton = document.getElementById("run-analysis");
+  runButton.disabled = !loadedMatter;
+  runButton.querySelector("span:first-child").textContent = loadedMatter ? "Run analysis" : "Choose a patent above";
 }
 
 function attachFieldBehavior(tool) {
@@ -305,14 +350,6 @@ function addQueryRow(value) {
   queryList.append(row);
 }
 
-function loadSample() {
-  const tool = tools[activeToolKey];
-  if (!tool) return;
-  const toolKey = activeToolKey;
-  loadDemoPatent();
-  openTool(toolKey);
-}
-
 function collectPayload(tool) {
   if (tool.mode === "prototype" && !loadedMatter?.is_demo) {
     throw new Error("Open the built-in example patent to explore this illustrative workflow.");
@@ -321,9 +358,10 @@ function collectPayload(tool) {
     if (loadedMatter?.is_demo) {
       return { idType: "example", identifier: loadedMatter.display_identifier };
     }
-    const identifier = document.getElementById("identifier").value.replace(/\D/g, "");
-    if (!identifier) throw new Error("Enter a U.S. patent or application number.");
-    return { idType: document.getElementById("id-type").value, identifier };
+    if (!loadedMatter) throw new Error("Choose a patent before running this analysis.");
+    const idType = loadedMatter.application_number ? "application" : "patent";
+    const identifier = loadedMatter.application_number || loadedMatter.patent_number;
+    return { idType, identifier };
   }
   if (tool.fields === "claim") {
     if (!loadedMatter) throw new Error("Open a patent record before running this analysis.");
@@ -450,11 +488,6 @@ function renderLoadedMatter() {
     ? `${loadedMatter.display_identifier} · Illustrative data`
     : `US ${application} · ${loadedMatter.status || "Public record"}`;
   document.getElementById("record-status").textContent = loadedMatter.is_demo ? "Example" : "Loaded";
-  document.getElementById("record-title").textContent = title;
-  document.getElementById("record-application").textContent = application;
-  document.getElementById("record-patent").textContent = patent;
-  document.getElementById("record-case-status").textContent = loadedMatter.status || "—";
-  document.getElementById("record-summary").classList.remove("hidden");
   document.getElementById("context-application").textContent = application;
   document.getElementById("context-patent").textContent = patent;
   document.getElementById("context-status").textContent = loadedMatter.status || "—";
@@ -462,28 +495,50 @@ function renderLoadedMatter() {
   document.getElementById("source-assurance-title").textContent = loadedMatter.is_demo ? "Illustrative example" : "Official source";
   document.getElementById("source-assurance-copy").textContent = loadedMatter.is_demo ? "The example uses a built-in synthetic dossier and makes no USPTO request." : "Records are retrieved from the USPTO Open Data Portal.";
   renderToolGrid();
+  renderPatentLoaders();
+  if (activeToolKey) {
+    const tool = tools[activeToolKey];
+    document.getElementById("mode-badge").textContent = toolModeLabel(tool);
+    document.getElementById("input-assurance-copy").innerHTML = loadedMatter.is_demo
+      ? "<strong>Illustrative example.</strong> The built-in record is synthetic and exists only to demonstrate the review workflow."
+      : "<strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.";
+    renderFields(tool);
+  }
 }
 
 function loadDemoPatent() {
   loadedMatter = demoRecord;
   renderLoadedMatter();
-  const message = document.getElementById("lookup-message");
-  message.textContent = "Example patent loaded. Every review workflow is ready to explore.";
-  message.className = "lookup-message is-success";
   showToast("Example patent loaded.");
 }
 
-async function lookupPatent(event) {
-  event.preventDefault();
-  const identifierType = document.getElementById("lookup-identifier-type").value;
-  const identifier = document.getElementById("lookup-identifier").value.trim();
-  const submit = document.getElementById("lookup-submit");
-  const message = document.getElementById("lookup-message");
+function clearLoadedPatent() {
+  loadedMatter = null;
+  document.getElementById("matter-name").textContent = "No record loaded";
+  document.getElementById("matter-meta").textContent = "Open a U.S. patent record";
+  document.getElementById("record-status").textContent = "Not loaded";
+  document.getElementById("context-application").textContent = "Not loaded";
+  document.getElementById("context-patent").textContent = "Not loaded";
+  document.getElementById("context-status").textContent = "Not loaded";
+  document.getElementById("context-source").textContent = "USPTO";
+  document.getElementById("source-assurance-title").textContent = "Official source";
+  document.getElementById("source-assurance-copy").textContent = "Records are retrieved from the USPTO Open Data Portal.";
+  renderToolGrid();
+  renderPatentLoaders();
+  if (activeToolKey) renderFields(tools[activeToolKey]);
+}
+
+async function lookupPatent(loader) {
+  const identifierType = loader.querySelector("[data-lookup-identifier-type]").value;
+  const identifierInput = loader.querySelector("[data-lookup-identifier]");
+  const identifier = identifierInput.value.trim();
+  const submit = loader.querySelector("[data-patent-lookup-submit]");
+  const message = loader.querySelector("[data-lookup-message]");
   const validationMessage = PatentAgilityErrors.validatePatentIdentifier(identifierType, identifier);
   if (validationMessage) {
     message.textContent = validationMessage;
     message.className = "lookup-message is-error";
-    document.getElementById("lookup-identifier").focus();
+    identifierInput.focus();
     return;
   }
   submit.disabled = true;
@@ -496,8 +551,6 @@ async function lookupPatent(event) {
       identifier
     });
     renderLoadedMatter();
-    message.textContent = "Official record loaded. Choose a review task below.";
-    message.className = "lookup-message is-success";
     showToast("USPTO record loaded.");
   } catch (error) {
     message.textContent = error.message;
@@ -678,21 +731,37 @@ function showToast(message) {
 }
 
 renderToolGrid();
+renderPatentLoaders();
 document.addEventListener("click", (event) => {
   const toolButton = event.target.closest("[data-tool]");
   if (toolButton) openTool(toolButton.dataset.tool);
   const viewButton = event.target.closest('[data-view="overview"]');
   if (viewButton) showOverview();
+  const lookupButton = event.target.closest("[data-patent-lookup-submit]");
+  if (lookupButton) lookupPatent(lookupButton.closest("[data-patent-record-loader]"));
+  const demoButton = event.target.closest("[data-load-demo-record]");
+  if (demoButton) loadDemoPatent();
+  const changeButton = event.target.closest("[data-change-patent]");
+  if (changeButton) {
+    clearLoadedPatent();
+    document.querySelector('[data-record-loader-host][data-variant="overview"] [data-lookup-identifier]')?.focus();
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || !event.target.matches("[data-lookup-identifier]")) return;
+  event.preventDefault();
+  lookupPatent(event.target.closest("[data-patent-record-loader]"));
 });
 document.getElementById("back-overview").addEventListener("click", showOverview);
 document.querySelector(".brand").addEventListener("click", (event) => { event.preventDefault(); showOverview(); });
-document.getElementById("load-sample").addEventListener("click", loadSample);
-document.getElementById("load-demo-record").addEventListener("click", loadDemoPatent);
-document.getElementById("patent-lookup-form").addEventListener("submit", lookupPatent);
 document.getElementById("how-button").addEventListener("click", showExplanation);
 document.getElementById("data-handling").addEventListener("click", showDataHandling);
-document.getElementById("new-review").addEventListener("click", () => { showOverview(); document.getElementById("lookup-identifier").focus(); });
-document.getElementById("matter-button").addEventListener("click", () => { showOverview(); document.getElementById("lookup-identifier").focus(); });
+const openRecordOverview = () => {
+  showOverview();
+  document.querySelector('[data-record-loader-host][data-variant="overview"] [data-lookup-identifier]')?.focus();
+};
+document.getElementById("new-review").addEventListener("click", openRecordOverview);
+document.getElementById("matter-button").addEventListener("click", openRecordOverview);
 document.querySelector(".avatar").addEventListener("click", () => showToast("Account settings are not available in this local preview."));
 document.querySelector(".text-button").addEventListener("click", () => showToast("Completed analyses will appear here during this session."));
 document.getElementById("mobile-menu").addEventListener("click", () => {

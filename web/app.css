@@ -138,14 +138,14 @@ main:focus { outline: none; }
 .matter-progress { height: 4px; background: var(--paper-deep); }
 .matter-progress span { display: block; height: 100%; background: var(--oxblood); }
 .matter-card small { display: block; margin-top: 8px; color: var(--ink-soft); font-size: 10px; }
-.record-loader form { margin-top: 22px; }
-.record-loader label { display: block; margin-bottom: 7px; font-size: 11px; font-weight: 700; }
+.record-loader .patent-loader-component { margin-top: 22px; }
+.patent-loader-component label { display: block; margin-bottom: 7px; font-size: 11px; font-weight: 700; }
 .record-lookup-row { display: grid; grid-template-columns: 108px minmax(0, 1fr) auto; }
 .record-lookup-row select, .record-lookup-row input { min-width: 0; padding: 11px 10px; color: var(--ink); background: var(--paper-bright); border: 1px solid #a9a194; border-right: 0; border-radius: 0; outline: 0; }
 .record-lookup-row input:focus, .record-lookup-row select:focus { position: relative; border-color: var(--forest); box-shadow: inset 0 0 0 1px var(--forest); }
 .record-lookup-row button { padding: 0 16px; color: white; background: var(--forest); border: 1px solid var(--forest); cursor: pointer; }
 .record-lookup-row button:disabled { opacity: .6; cursor: wait; }
-.record-loader #lookup-message { min-height: 30px; margin: 8px 0 0; line-height: 1.45; }
+.patent-loader-component .lookup-message { min-height: 30px; margin: 8px 0 0; line-height: 1.45; }
 .lookup-message { position: relative; padding-left: 0; transition: color 120ms ease; }
 .lookup-message.is-error { padding: 9px 10px 9px 28px; color: var(--oxblood); background: var(--oxblood-soft); border-left: 3px solid var(--oxblood); }
 .lookup-message.is-error::before { content: "!"; position: absolute; left: 10px; top: 9px; font-family: var(--mono); font-weight: 700; }
@@ -164,6 +164,13 @@ main:focus { outline: none; }
 .record-summary dl div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--rule); }
 .record-summary dt { color: var(--ink-soft); font-size: 9px; }
 .record-summary dd { margin: 0; max-width: 65%; font-family: var(--mono); font-size: 9px; text-align: right; }
+.change-patent { margin-top: 14px; padding: 8px 10px; color: var(--oxblood); background: transparent; border: 1px solid var(--oxblood); font-family: var(--mono); font-size: 8px; text-transform: uppercase; cursor: pointer; }
+.change-patent:hover { color: white; background: var(--oxblood); }
+.inline-record-loader { margin-bottom: 4px; }
+.patent-loader-component.inline { padding: 18px; background: var(--paper-deep); border-left: 4px solid var(--oxblood); }
+.inline-loader-heading { display: grid; gap: 5px; margin-bottom: 17px; }
+.inline-loader-heading span { color: var(--oxblood); font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .12em; }
+.inline-loader-heading strong { font-family: var(--serif); font-size: 20px; font-weight: 500; line-height: 1.25; }
 
 .assurance-strip { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); background: rgba(255,253,247,.58); }
 .assurance-strip > div { display: flex; gap: 13px; padding: 17px 18px; border-right: 1px solid var(--rule); }
@@ -258,8 +265,7 @@ button.recent-row:hover { background: var(--paper-bright); }
 .query-row input { border: 0; }
 .query-row button { height: 100%; background: transparent; border: 0; color: var(--ink-soft); cursor: pointer; }
 .add-query { padding: 8px 0; color: var(--oxblood); background: transparent; border: 0; font-family: var(--mono); font-size: 9px; text-transform: uppercase; cursor: pointer; }
-.form-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--rule); }
-.sample-button { padding: 10px 0; color: var(--oxblood); background: transparent; border: 0; font-family: var(--mono); font-size: 9px; text-transform: uppercase; cursor: pointer; }
+.form-actions { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--rule); }
 .primary-button { min-width: 190px; display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; color: white; background: var(--forest); border: 1px solid var(--forest); cursor: pointer; box-shadow: 5px 5px 0 var(--gold); }
 .primary-button:hover { transform: translate(2px,2px); box-shadow: 3px 3px 0 var(--gold); }
 .primary-button:disabled { opacity: .55; cursor: wait; transform: none; }
