@@ -161,6 +161,8 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert b"Current matter" not in response.data
     assert b"Matter overview" not in response.data
     assert b"Use current matter" not in response.data
+    assert b"workspace-readiness" not in response.data
+    assert b"Ready for review" not in response.data
     assert script.status_code == 200
     assert script.mimetype == "text/javascript"
     assert error_helpers.status_code == 200
