@@ -151,6 +151,7 @@ def test_frontend_is_served_from_the_inference_service(settings):
 
     response = client.get("/")
     script = client.get("/app/app.js")
+    browser_state = client.get("/app/browser_state.js")
     demo_record = client.get("/app/demo_record.js")
     error_helpers = client.get("/app/request_errors.js")
 
@@ -166,8 +167,12 @@ def test_frontend_is_served_from_the_inference_service(settings):
     assert b"Ready for review" not in response.data
     assert b"data-load-demo-record" in script.data
     assert b"Try example patent" in script.data
+    assert b"/app/browser_state.js" in response.data
     assert script.status_code == 200
     assert script.mimetype == "text/javascript"
+    assert browser_state.status_code == 200
+    assert browser_state.mimetype == "text/javascript"
+    assert b"indexedDB.open" in browser_state.data
     assert demo_record.status_code == 200
     assert demo_record.mimetype == "text/javascript"
     assert error_helpers.status_code == 200

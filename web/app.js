@@ -126,7 +126,9 @@ let activeToolKey = null;
 let lastResultSummary = "";
 let toastTimer = null;
 let loadedMatter = null;
+let recentAnalyses = [];
 const demoRecord = window.PatentAgilityDemoRecord;
+const browserState = window.PatentAgilityState;
 
 const overviewView = document.getElementById("overview-view");
 const toolView = document.getElementById("tool-view");
@@ -137,6 +139,8 @@ const dynamicFields = document.getElementById("dynamic-fields");
 const progressPanel = document.getElementById("progress-panel");
 const resultsPanel = document.getElementById("results-panel");
 const resultsContent = document.getElementById("results-content");
+const recentTable = document.querySelector(".recent-table");
+const clearHistoryButton = document.getElementById("clear-history");
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -163,6 +167,103 @@ function renderToolGrid() {
         <span class="tool-card-foot"><span>Open workflow</span><span aria-hidden="true">↗</span></span>
       </button>`;
   }).join("");
+}
+
+function analysisRecordLabel(matter) {
+  if (matter.is_demo) return matter.display_identifier;
+  if (matter.application_number) return `US ${formatApplicationNumber(matter.application_number)}`;
+  if (matter.patent_number) return `US ${formatPatentNumber(matter.patent_number)}`;
+  return "U.S. patent record";
+}
+
+function renderRecentAnalyses() {
+  clearHistoryButton.hidden = recentAnalyses.length === 0;
+  if (!recentAnalyses.length) {
+    recentTable.innerHTML = '<div class="empty-history"><strong>No analyses yet</strong><span>Open a patent record and choose a review task.</span></div>';
+    return;
+  }
+  const dateFormatter = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  recentTable.innerHTML = `<div class="recent-row recent-head"><span>Analysis</span><span>Patent</span><span>Completed</span><span>Status</span></div>${recentAnalyses.map((analysis) => {
+    const tool = tools[analysis.toolKey];
+    return `<button class="recent-row" type="button" data-analysis-id="${escapeHtml(analysis.id)}">
+      <span><b>${escapeHtml(tool.shortTitle)}</b><small>${escapeHtml(analysis.resultTitle)}</small></span>
+      <span>${escapeHtml(analysisRecordLabel(analysis.matter))}</span>
+      <span><time datetime="${escapeHtml(analysis.createdAt)}">${escapeHtml(dateFormatter.format(new Date(analysis.createdAt)))}</time></span>
+      <span class="result-status complete">Saved</span>
+    </button>`;
+  }).join("")}`;
+}
+
+async function persistCurrentMatter() {
+  try {
+    await browserState.saveCurrentMatter(loadedMatter);
+  } catch (error) {
+    console.error("Unable to save the selected patent", error);
+    showToast("The patent is open, but this browser could not save it.");
+  }
+}
+
+async function persistCompletedAnalysis(toolKey, result, payload) {
+  const analysis = {
+    id: crypto.randomUUID(),
+    toolKey,
+    createdAt: new Date().toISOString(),
+    matter: loadedMatter,
+    payload,
+    result,
+    resultTitle: document.getElementById("results-title").textContent
+  };
+  try {
+    await browserState.saveAnalysis(analysis);
+    recentAnalyses = await browserState.listAnalyses();
+    renderRecentAnalyses();
+  } catch (error) {
+    console.error("Unable to save the completed analysis", error);
+    showToast("The analysis completed, but this browser could not save it.");
+  }
+}
+
+async function openSavedAnalysis(analysisId) {
+  const analysis = recentAnalyses.find((item) => item.id === analysisId);
+  if (!analysis || !tools[analysis.toolKey]) return;
+  loadedMatter = analysis.matter;
+  renderLoadedMatter();
+  const persistence = persistCurrentMatter();
+  openTool(analysis.toolKey);
+  renderResult(analysis.toolKey, analysis.result, analysis.payload);
+  await persistence;
+  showToast("Saved analysis opened.");
+}
+
+async function clearAnalysisHistory() {
+  try {
+    await browserState.clearAnalyses();
+    recentAnalyses = [];
+    renderRecentAnalyses();
+    showToast("Review history cleared.");
+  } catch (error) {
+    console.error("Unable to clear analysis history", error);
+    showToast("Review history could not be cleared.");
+  }
+}
+
+async function restoreBrowserState() {
+  try {
+    const [matter, analyses] = await Promise.all([
+      browserState.getCurrentMatter(),
+      browserState.listAnalyses()
+    ]);
+    recentAnalyses = analyses.filter((analysis) => tools[analysis.toolKey] && analysis.matter);
+    if (matter) {
+      loadedMatter = matter;
+      renderLoadedMatter();
+    }
+    renderRecentAnalyses();
+  } catch (error) {
+    console.error("Unable to restore saved review state", error);
+    renderRecentAnalyses();
+    showToast("Saved review state could not be restored in this browser.");
+  }
 }
 
 function setActiveNavigation(toolKey) {
@@ -391,7 +492,8 @@ function collectPayload(tool) {
 
 async function runAnalysis(event) {
   event.preventDefault();
-  const tool = tools[activeToolKey];
+  const toolKey = activeToolKey;
+  const tool = tools[toolKey];
   if (!tool) return;
   let payload;
   try {
@@ -406,10 +508,11 @@ async function runAnalysis(event) {
   resultsPanel.classList.add("hidden");
   startProgress(tool);
   try {
-    const resultPromise = executeTool(activeToolKey, payload);
+    const resultPromise = executeTool(toolKey, payload);
     await animateProgress(tool, resultPromise);
     const result = await resultPromise;
-    renderResult(activeToolKey, result, payload);
+    renderResult(toolKey, result, payload);
+    await persistCompletedAnalysis(toolKey, result, payload);
   } catch (error) {
     renderError(error);
   } finally {
@@ -506,13 +609,14 @@ function renderLoadedMatter() {
   }
 }
 
-function loadDemoPatent() {
+async function loadDemoPatent() {
   loadedMatter = demoRecord;
   renderLoadedMatter();
+  await persistCurrentMatter();
   showToast("Example patent loaded.");
 }
 
-function clearLoadedPatent() {
+async function clearLoadedPatent() {
   loadedMatter = null;
   document.getElementById("matter-name").textContent = "No record loaded";
   document.getElementById("matter-meta").textContent = "Open a U.S. patent record";
@@ -526,6 +630,12 @@ function clearLoadedPatent() {
   renderToolGrid();
   renderPatentLoaders();
   if (activeToolKey) renderFields(tools[activeToolKey]);
+  try {
+    await browserState.clearCurrentMatter();
+  } catch (error) {
+    console.error("Unable to clear the selected patent", error);
+    showToast("The saved patent could not be cleared from this browser.");
+  }
 }
 
 async function lookupPatent(loader) {
@@ -551,6 +661,7 @@ async function lookupPatent(loader) {
       identifier
     });
     renderLoadedMatter();
+    await persistCurrentMatter();
     showToast("USPTO record loaded.");
   } catch (error) {
     message.textContent = error.message;
@@ -718,7 +829,7 @@ function showExplanation() {
 
 function showDataHandling() {
   document.getElementById("dialog-title").textContent = "How review information is handled";
-  document.getElementById("dialog-content").innerHTML = `<p>Claim and specification text is used to produce the current analysis and is not saved in review history.</p><ol><li>The built-in example uses a fixed synthetic patent and does not contact the USPTO.</li><li>Submitted text is checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>Public USPTO documents may be retained temporarily to avoid repeated retrieval and text extraction.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
+  document.getElementById("dialog-content").innerHTML = `<p>The selected patent, review inputs, and completed results are saved in this browser so work can be resumed after a refresh.</p><ol><li>The current patent remains selected until another is opened. Completed analyses remain in IndexedDB until review history is cleared.</li><li>The built-in example uses a fixed synthetic patent and does not contact the USPTO.</li><li>Review inputs are checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
   document.getElementById("explain-dialog").showModal();
 }
 
@@ -746,6 +857,8 @@ document.addEventListener("click", (event) => {
     clearLoadedPatent();
     document.querySelector('[data-record-loader-host][data-variant="overview"] [data-lookup-identifier]')?.focus();
   }
+  const savedAnalysisButton = event.target.closest("[data-analysis-id]");
+  if (savedAnalysisButton) openSavedAnalysis(savedAnalysisButton.dataset.analysisId);
 });
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Enter" || !event.target.matches("[data-lookup-identifier]")) return;
@@ -763,7 +876,7 @@ const openRecordOverview = () => {
 document.getElementById("new-review").addEventListener("click", openRecordOverview);
 document.getElementById("matter-button").addEventListener("click", openRecordOverview);
 document.querySelector(".avatar").addEventListener("click", () => showToast("Account settings are not available in this local preview."));
-document.querySelector(".text-button").addEventListener("click", () => showToast("Completed analyses will appear here during this session."));
+clearHistoryButton.addEventListener("click", clearAnalysisHistory);
 document.getElementById("mobile-menu").addEventListener("click", () => {
   const expanded = sidebar.classList.toggle("is-open");
   document.getElementById("mobile-menu").setAttribute("aria-expanded", String(expanded));
@@ -775,5 +888,10 @@ document.getElementById("copy-results").addEventListener("click", async () => {
 document.getElementById("print-results").addEventListener("click", () => window.print());
 toolForm.addEventListener("submit", runAnalysis);
 
-const initialHash = location.hash.slice(1);
-if (tools[initialHash]) openTool(initialHash); else showOverview();
+async function initializeApp() {
+  await restoreBrowserState();
+  const initialHash = location.hash.slice(1);
+  if (tools[initialHash]) openTool(initialHash); else showOverview();
+}
+
+initializeApp();

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/app/app.css">
   <script src="/app/demo_record.js" defer></script>
   <script src="/app/request_errors.js" defer></script>
+  <script src="/app/browser_state.js" defer></script>
   <script src="/app/app.js" defer></script>
 </head>
 <body>
@@ -99,7 +100,7 @@
         <section class="recent-section" aria-labelledby="recent-heading">
           <div class="section-heading compact">
             <div><div class="eyebrow">Work product</div><h2 id="recent-heading">Recent analyses</h2></div>
-            <button class="text-button" type="button">View review history →</button>
+            <button class="text-button" id="clear-history" type="button" hidden>Clear history</button>
           </div>
           <div class="recent-table" role="status" aria-label="Recent analyses">
             <div class="empty-history"><strong>No analyses yet</strong><span>Open a patent record and choose a review task.</span></div>
