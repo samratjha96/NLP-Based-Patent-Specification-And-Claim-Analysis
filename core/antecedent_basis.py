@@ -59,8 +59,9 @@ def _span_key(span):
 
     # For each token (word-like chunk) in the span...
     for tok in span:
-        # If the chunk is a compound/modifier, append it
-        if tok.dep_ in {"compound", "amod", "nummod"} and tok.head == head:
+        # Keep stable compound nouns. Descriptive modifiers often change form
+        # between an introduction and a later reference.
+        if tok.dep_ == "compound" and tok.head == head:
             mods.append(tok.lemma_.lower())
 
     # Return a SORTED list
@@ -108,20 +109,25 @@ def extract_np_mentions(claim_text, *, nlp=None):
         if first_tok in DEF_DETS:
             is_ref = True
 
+        # SpaCy can parse a claim transition as a noun phrase with
+        # "comprising" as its head. The transition is not a claim element.
+        if is_ref and chunk_text.lower().strip().endswith(" comprising"):
+            continue
+
         # If somehow we figure out if it's a pronoun, jettison this process
         if chunk.root.pos_ == "PRON":
             continue
 
         # If we've successfully identified the NP as an intro ("a") or
         # definite ("the")
-        if is_intro or is_ref:
+        if is_intro or is_ref or chunk.root.pos_ in {"NOUN", "PROPN"}:
 
             # Convert the chunk into a corresponding key
             key = _span_key(chunk)
 
             # Append to our mentions list an indicator of the key
             mentions.append(Mention(
-                kind="intro" if is_intro else "ref",
+                kind="intro" if is_intro else ("ref" if is_ref else "bare"),
                 text=chunk_text,
                 key=key,
                 start=chunk.start_char,
@@ -142,32 +148,29 @@ def analyze_intro_ref(claim_text, *, nlp=None):
     introduced: Dict[str, List[Mention]] = {}
     refs: List[Mention] = []
 
-    # Begin to process through the mentions of a NP and tag them as either
-    # the introduction or a follow-up reference
+    # Process mentions in source order. A later introduction cannot establish
+    # antecedent basis for an earlier reference. Bare plural and mass nouns can
+    # establish an element without an article.
+    used_without_intro: List[Mention] = []
+    referenced_keys = set()
     for m in mentions:
-        if m.kind == "intro":
+        if m.kind in {"intro", "bare"}:
             introduced.setdefault(m.key, []).append(m)
         else:
             refs.append(m)
-
-    # Now, we need to find instances where the NP was used WITHOUT being
-    # introduction.  We define an empty list, and append to that list where
-    # we find NPs without introductions
-    used_without_intro: List[Mention] = []
-    referenced_keys = set()
-    for r in refs:
-        if r.key not in introduced:
-            used_without_intro.append(r)
-        else:
-            referenced_keys.add(r.key)
+            if m.key not in introduced:
+                used_without_intro.append(m)
+            else:
+                referenced_keys.add(m.key)
 
     # Now, we also (somewhat) care about NPs mentioned but not later used.
     # Here, we make an empty list and walk through to find the instance
     # of the r
     introduced_never_referenced: List[Mention] = []
     for k, ms in introduced.items():
-        if k not in referenced_keys:
-            introduced_never_referenced.append(ms[0])
+        explicit_introductions = [mention for mention in ms if mention.kind == "intro"]
+        if explicit_introductions and k not in referenced_keys:
+            introduced_never_referenced.append(explicit_introductions[0])
 
     # Return our list of mentions, introductions, references, and (perhaps most
     # importantly) the instances where we saw errors

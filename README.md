@@ -81,11 +81,12 @@ clear configuration error rather than sample or fabricated record data. The
 retrieval layer keeps a small in-memory record cache so repeated analyses of
 one patent record do not download or extract the same specification again.
 
-For a credential-free product walkthrough, choose **Try example patent** on the
-overview. The built-in `Example DS-101` dossier is clearly labeled as synthetic,
-does not contact the USPTO, and carries one internally consistent specification,
-claim set, family history, coverage review, routing estimate, and analytics
-cohort through all eight workflows.
+For a credential-free product walkthrough, choose **Open US 9,922,200** on the
+overview. The app includes text from the official parent and continuation grant
+documents. It also includes official document links. The three implemented
+analysis tools process the saved specification and claims through the local
+service. The other views use saved USPTO facts and state when the source record
+does not support a result.
 
 The reconstruction covers the eight workflows shown by the deployed product.
 The public repository can execute three of them end to end; five require the
@@ -97,11 +98,11 @@ views rather than presented as live analysis:
 | Specification support | Live | Bounded batched retrieval service |
 | Antecedent basis | Live | `core/antecedent_basis.py` |
 | Linguistic claim analysis | Live | Structured output from `core/claim_segmentation.py`; no system Graphviz binary required |
-| Examiner analytics | Prototype view | Private USPTO analytics database required |
-| Claim amendment history | Prototype view | Private family and prosecution data required |
-| Compare U.S. family claims | Prototype view | Private family and grant corpus required |
-| Unclaimed subject matter | Prototype view | Private specification/family corpus required |
-| Art unit predictor | Prototype view | Private patent-BERT classifier required |
+| Examiner analytics | Saved record view | Shows official grant examiner names; cohort analytics need a prosecution database |
+| U.S. family history | Saved record view | Shows official filing, publication, and grant dates for the parent and continuation |
+| Compare U.S. family claims | Saved record view | Compares official independent claims from two family grants |
+| Unclaimed subject matter | Saved record view | Shows evidence-backed research prompts without making a claim-scope conclusion |
+| Classification review | Saved record view | Shows official CPC codes; art-unit prediction needs a validated routing model |
 
 The deployed PHP site submits normalized form data to `POST /start/`, polls
 `GET /results/<job-id>/` as JSON, and then opens the completed server-rendered

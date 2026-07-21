@@ -1,13 +1,13 @@
 const tools = {
   "family-history": {
     index: "01",
-    title: "Claim amendment history",
-    shortTitle: "Amendment history",
+    title: "U.S. patent family history",
+    shortTitle: "Family history",
     category: "Patent review",
     mode: "prototype",
     runtime: "Prosecution timeline",
-    description: "Resolve a U.S. patent family and review how independent claim language changed from filing through allowance.",
-    guidance: "Enter a U.S. patent or application number to review prosecution events across the related U.S. family.",
+    description: "Review related U.S. applications, publications, grants, and independent claims in date order.",
+    guidance: "Start with one U.S. patent or application number to review the related U.S. family.",
     contextTitle: "Read scope movement in sequence",
     contextCopy: "An amendment is evidence of prosecution history, not a standalone claim-construction conclusion. Review the cited office action and applicant response together.",
     steps: ["Resolve family", "Retrieve histories", "Compare claim text", "Render timeline"],
@@ -82,7 +82,7 @@ const tools = {
     mode: "live",
     runtime: "Claim structure map",
     description: "Turn dense claim language into an inspectable map of actions, objects, details, alternatives, and dependencies.",
-    guidance: "The claims from the loaded USPTO record are mapped with their original punctuation and transitional phrases.",
+    guidance: "Independent claim 1 from the loaded USPTO record is mapped with its original punctuation and transitional phrases.",
     contextTitle: "Structure is easier to review when visible",
     contextCopy: "The diagram exposes linguistic relationships. It does not decide whether a limitation is definite, enabled, or patentable.",
     steps: ["Parse syntax", "Segment limitations", "Classify relationships", "Render diagram"],
@@ -91,17 +91,17 @@ const tools = {
   },
   "art-unit": {
     index: "07",
-    title: "Art unit predictor",
-    shortTitle: "Art unit predictor",
+    title: "USPTO classification review",
+    shortTitle: "Classification review",
     category: "Drafting review",
     mode: "prototype",
-    runtime: "Routing estimate",
-    description: "Rank the five most likely USPTO art units from invention text, then connect the estimate to examiner analytics.",
-    guidance: "The loaded specification and claims provide the technical language used for the routing estimate.",
-    contextTitle: "Routing estimates are directional",
-    contextCopy: "Art unit assignment depends on classification practice and incoming workload. Treat ranked estimates as a planning signal, not a filing outcome.",
-    steps: ["Review invention text", "Identify technical focus", "Rank art units", "Connect relevant trends"],
-    explanation: "This review uses the invention description to rank likely USPTO art units and connect the leading candidates with the prosecution trends most useful for planning.",
+    runtime: "Official routing evidence",
+    description: "Review official classification codes and determine whether the record supports an art-unit conclusion.",
+    guidance: "The loaded USPTO record provides the official classification evidence used for this review.",
+    contextTitle: "Classification evidence is not an art-unit result",
+    contextCopy: "A public grant can show classification codes without stating the assigned art unit. Do not treat one as the other.",
+    steps: ["Review invention text", "Collect classifications", "Check routing evidence", "State the record limit"],
+    explanation: "This review presents the official classification codes in the loaded record and states whether the available evidence supports an art-unit conclusion.",
     fields: "invention"
   },
   examiner: {
@@ -112,7 +112,7 @@ const tools = {
     mode: "prototype",
     runtime: "Examiner trends",
     description: "Move from raw prosecution records to an examiner, art unit, work group, or technology-center strategy view.",
-    guidance: "Search by examiner name, art unit, work group, or technology center. Example results use clearly identified illustrative prosecution data.",
+    guidance: "Search by examiner name, art unit, work group, or technology center.",
     contextTitle: "Descriptive data needs context",
     contextCopy: "Observed grant ratios and rejection patterns describe past records. They do not predict a specific application or account for case mix by themselves.",
     steps: ["Resolve entity", "Aggregate records", "Calculate trends", "Render analytics"],
@@ -165,8 +165,8 @@ function escapeHtml(value) {
 }
 
 function toolModeLabel(tool) {
-  if (loadedMatter?.is_demo) return "Example";
-  return tool.mode === "live" ? "Available" : "Preview";
+  if (loadedMatter?.is_demo) return "Ready";
+  return loadedMatter ? "Ready" : "Choose a patent";
 }
 
 function renderToolGrid() {
@@ -266,10 +266,14 @@ async function restoreBrowserState() {
       browserState.getCurrentMatter(),
       browserState.listAnalyses()
     ]);
-    recentAnalyses = analyses.filter((analysis) => tools[analysis.toolKey] && analysis.matter);
+    recentAnalyses = analyses.filter((analysis) => {
+      if (!tools[analysis.toolKey] || !analysis.matter) return false;
+      return !analysis.matter.is_demo || analysis.matter.record_id === demoRecord.record_id;
+    });
     if (matter) {
-      loadedMatter = matter;
+      loadedMatter = matter.is_demo ? demoRecord : matter;
       renderLoadedMatter();
+      if (matter.is_demo) await browserState.saveCurrentMatter(loadedMatter);
     }
     renderRecentAnalyses();
   } catch (error) {
@@ -316,7 +320,7 @@ function openTool(toolKey) {
   document.getElementById("context-title").textContent = tool.contextTitle;
   document.getElementById("context-copy").textContent = tool.contextCopy;
   document.getElementById("input-assurance-copy").innerHTML = loadedMatter?.is_demo
-    ? "<strong>Illustrative example.</strong> The built-in record is synthetic and exists only to demonstrate the review workflow."
+    ? "<strong>Official USPTO record.</strong> This saved public record includes the complete grant specification and claims."
     : "<strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.";
   const modeBadge = document.getElementById("mode-badge");
   modeBadge.textContent = toolModeLabel(tool);
@@ -336,8 +340,8 @@ function field(label, control, hint = "") {
 
 function patentLoaderMarkup(variant) {
   if (loadedMatter) {
-    const application = loadedMatter.is_demo ? "Illustrative" : formatApplicationNumber(loadedMatter.application_number);
-    const patent = loadedMatter.is_demo ? "Illustrative" : formatPatentNumber(loadedMatter.patent_number);
+    const application = formatApplicationNumber(loadedMatter.application_number);
+    const patent = formatPatentNumber(loadedMatter.patent_number);
     return `<div class="patent-loader-component ${variant} loaded">
       <div class="record-summary">
         <strong>${escapeHtml(loadedMatter.title)}</strong>
@@ -364,8 +368,8 @@ function patentLoaderMarkup(variant) {
     </div>
     <p class="lookup-message" data-lookup-message aria-live="polite">Numbers are resolved against the USPTO Open Data Portal.</p>
     <div class="demo-record-action">
-      <div><strong>Try example patent</strong><small>Explore every workflow without a USPTO key.</small></div>
-      <button type="button" data-load-demo-record>Open example</button>
+      <div><strong>Open a real USPTO patent</strong><small>Use a saved official record without a USPTO account.</small></div>
+      <button type="button" data-load-demo-record>Open US 9,922,200</button>
     </div>
   </div>`;
 }
@@ -389,8 +393,8 @@ function matterSourceField(section) {
   const detail = isTextSection
     ? (count ? `${count.toLocaleString()} characters ready` : `${section} text was not found in the retrieved document`)
     : (loadedMatter.display_identifier || loadedMatter.source);
-  const sourceLabel = loadedMatter.is_demo ? "example patent" : "loaded patent";
-  const sourceDetail = loadedMatter.is_demo ? "Illustrative example · Used automatically" : "Used automatically for this review";
+  const sourceLabel = loadedMatter.is_demo ? "saved USPTO record" : "loaded patent";
+  const sourceDetail = loadedMatter.is_demo ? "Official document text · Used automatically" : "Used automatically for this review";
   return `<div class="matter-source ${loadedMatter.is_demo ? "demo" : ""}"><span>${escapeHtml(section)} from ${sourceLabel}</span><strong>${escapeHtml(loadedMatter.title || `Application ${loadedMatter.application_number}`)}</strong><small>${escapeHtml(detail)} · ${sourceDetail}</small></div>`;
 }
 
@@ -466,11 +470,11 @@ function addQueryRow(value) {
 
 function collectPayload(tool) {
   if (tool.mode === "prototype" && !loadedMatter?.is_demo) {
-    throw new Error("Open the built-in example patent to explore this illustrative workflow.");
+    throw new Error("This review currently needs the built-in USPTO record.");
   }
   if (tool.fields === "identifier") {
     if (loadedMatter?.is_demo) {
-      return { idType: "example", identifier: loadedMatter.display_identifier };
+      return { idType: "patent", identifier: loadedMatter.patent_number };
     }
     if (!loadedMatter) throw new Error("Choose a patent before running this analysis.");
     const idType = loadedMatter.application_number ? "application" : "patent";
@@ -480,7 +484,10 @@ function collectPayload(tool) {
   if (tool.fields === "claim") {
     if (!loadedMatter) throw new Error("Open a patent record before running this analysis.");
     if (!loadedMatter.claims_character_count) throw new Error("No claims text was found in the retrieved specification.");
-    if (loadedMatter.is_demo) return { claim_text: loadedMatter.claims_text };
+    if (loadedMatter.is_demo) {
+      const claimText = activeToolKey === "linguistic" ? loadedMatter.principal_claim_text : loadedMatter.claims_text;
+      return { claim_text: claimText };
+    }
     return { record_id: loadedMatter.record_id };
   }
   if (tool.fields === "support") {
@@ -574,26 +581,26 @@ function formatPatentNumber(value) {
 function renderLoadedMatter() {
   if (!loadedMatter) return;
   const title = loadedMatter.title || `Application ${formatApplicationNumber(loadedMatter.application_number)}`;
-  const application = loadedMatter.is_demo ? "Illustrative" : formatApplicationNumber(loadedMatter.application_number);
-  const patent = loadedMatter.is_demo ? "Illustrative" : formatPatentNumber(loadedMatter.patent_number);
+  const application = formatApplicationNumber(loadedMatter.application_number);
+  const patent = formatPatentNumber(loadedMatter.patent_number);
   document.getElementById("matter-name").textContent = title;
   document.getElementById("matter-meta").textContent = loadedMatter.is_demo
-    ? `${loadedMatter.display_identifier} · Illustrative data`
+    ? `${loadedMatter.display_identifier} · Saved USPTO record`
     : `US ${application} · ${loadedMatter.status || "Public record"}`;
-  document.getElementById("record-status").textContent = loadedMatter.is_demo ? "Example" : "Loaded";
+  document.getElementById("record-status").textContent = "Loaded";
   document.getElementById("context-application").textContent = application;
   document.getElementById("context-patent").textContent = patent;
   document.getElementById("context-status").textContent = loadedMatter.status || "—";
-  document.getElementById("context-source").textContent = loadedMatter.is_demo ? "Illustrative dataset" : loadedMatter.source;
-  document.getElementById("source-assurance-title").textContent = loadedMatter.is_demo ? "Illustrative example" : "Official source";
-  document.getElementById("source-assurance-copy").textContent = loadedMatter.is_demo ? "The example uses a built-in synthetic dossier and makes no USPTO request." : "Records are retrieved from the USPTO Open Data Portal.";
+  document.getElementById("context-source").textContent = loadedMatter.source;
+  document.getElementById("source-assurance-title").textContent = "Official source";
+  document.getElementById("source-assurance-copy").textContent = loadedMatter.is_demo ? "This saved record comes from USPTO Patent Public Search." : "Records are retrieved from the USPTO Open Data Portal.";
   renderToolGrid();
   renderPatentLoaders();
   if (activeToolKey) {
     const tool = tools[activeToolKey];
     document.getElementById("mode-badge").textContent = toolModeLabel(tool);
     document.getElementById("input-assurance-copy").innerHTML = loadedMatter.is_demo
-      ? "<strong>Illustrative example.</strong> The built-in record is synthetic and exists only to demonstrate the review workflow."
+      ? "<strong>Official USPTO record.</strong> This saved public record includes the complete grant specification and claims."
       : "<strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.";
     renderFields(tool);
   }
@@ -603,7 +610,7 @@ async function loadDemoPatent() {
   loadedMatter = demoRecord;
   renderLoadedMatter();
   await persistCurrentMatter();
-  showToast("Example patent loaded.");
+  showToast("US 9,922,200 loaded.");
 }
 
 async function clearLoadedPatent() {
@@ -664,9 +671,6 @@ async function lookupPatent(loader) {
 }
 
 function executeTool(toolKey, payload) {
-  if (loadedMatter?.is_demo && loadedMatter.demo_results?.[toolKey]) {
-    return new Promise((resolve) => setTimeout(() => resolve(loadedMatter.demo_results[toolKey]), 260));
-  }
   if (toolKey === "support") return requestJson("/v1/support/search", payload);
   if (toolKey === "antecedent") return requestJson("/v1/claims/antecedent", payload);
   if (toolKey === "linguistic") return requestJson("/v1/claims/diagram", payload);
@@ -701,14 +705,14 @@ function stat(label, value) {
 function renderSupport(result) {
   const resultGroups = Array.isArray(result.results) ? result.results : [];
   const hitCount = resultGroups.reduce((total, group) => total + (group.hits || []).length, 0);
-  setResultHeading("Specification evidence", `${hitCount} ranked passages across ${resultGroups.length} limitation${resultGroups.length === 1 ? "" : "s"}. Scores indicate retrieval similarity, not a legal support conclusion.`);
+  setResultHeading("Specification evidence", `${hitCount} ranked passages across ${resultGroups.length} limitation${resultGroups.length === 1 ? "" : "s"}. Scores show relative retrieval rank, not a legal support conclusion.`);
   const groups = resultGroups.map((group, groupIndex) => `
     <section class="evidence-group">
       <div class="section-heading compact"><div><div class="eyebrow">Limitation ${String(groupIndex + 1).padStart(2, "0")}</div><h2>${escapeHtml(group.query)}</h2></div></div>
       <div class="evidence-list">${(group.hits || []).map((hit, index) => {
         const score = Number(hit.score || 0);
         const displayScore = score <= 1 ? Math.max(0, Math.min(100, score * 100)) : 100;
-        return `<article class="evidence-hit"><div class="hit-rank">${String(index + 1).padStart(2, "0")}</div><div><h3>Paragraph ${Number(hit.paragraph_id) + 1}, sentence ${Number(hit.sentence_id) + 1}</h3><p>${escapeHtml(hit.sentence)}</p></div><footer>Similarity ${score.toFixed(3)}<div class="score-bar"><span style="width:${displayScore}%"></span></div></footer></article>`;
+        return `<article class="evidence-hit"><div class="hit-rank">${String(index + 1).padStart(2, "0")}</div><div><h3>Paragraph ${Number(hit.paragraph_id) + 1}, sentence ${Number(hit.sentence_id) + 1}</h3><p>${escapeHtml(hit.sentence)}</p></div><footer>Retrieval score ${score.toFixed(3)}<div class="score-bar"><span style="width:${displayScore}%"></span></div></footer></article>`;
       }).join("")}</div>
     </section>`).join("");
   resultsContent.innerHTML = `<div class="summary-band">${stat("Review method", "Ranked evidence")}${stat("Limitations", resultGroups.length)}${stat("Passages", hitCount)}${stat("Decision", "Attorney review")}</div>${groups || '<div class="error-box"><strong>No passages returned</strong><p>Confirm that the specification contains readable sentences.</p></div>'}`;
@@ -732,15 +736,15 @@ function renderAntecedent(result) {
   const high = result.summary?.high || 0;
   const info = result.summary?.info || 0;
   setResultHeading("Antecedent basis review", high ? `${high} likely missing antecedent${high === 1 ? " requires" : "s require"} attorney review. Informational flags identify terms introduced but not reused.` : "No likely missing antecedent basis was identified by the heuristic review.");
-  const cards = issues.map((issue, index) => `<article class="issue-card ${issue.severity === "info" ? "info" : ""}"><div class="issue-card-top"><span>${escapeHtml(issue.severity === "high" ? "Needs review" : "Information")}</span><span>Finding ${String(index + 1).padStart(2, "0")}</span></div><h3>${escapeHtml(issue.title)}</h3><p>“${escapeHtml(issue.text)}” does not have a likely earlier introduction. Confirm whether the intended term is “the communications interface” or introduce a transmitter expressly.</p></article>`).join("");
+  const cards = issues.map((issue, index) => `<article class="issue-card ${issue.severity === "info" ? "info" : ""}"><div class="issue-card-top"><span>${escapeHtml(issue.severity === "high" ? "Needs review" : "Information")}</span><span>Finding ${String(index + 1).padStart(2, "0")}</span></div><h3>${escapeHtml(issue.title)}</h3><p>Review “${escapeHtml(issue.text)}” against the earlier claim language and confirm that the intended term has a clear introduction.</p></article>`).join("");
   resultsContent.innerHTML = `<div class="summary-band">${stat("High", high)}${stat("Information", info)}${stat("Mentions tracked", (result.mentions || []).length)}${stat("Review state", high ? "Attention" : "Clear")}</div><div class="issue-layout"><div class="claim-paper">${highlightedClaim(result.claim_text || "", issues)}</div><div class="issue-list">${cards || '<article class="issue-card info"><h3>No flagged references</h3><p>The heuristic found no definite noun phrase without an earlier introduction.</p></article>'}</div></div>`;
 }
 
 function renderDiagrams(result) {
   const segments = result.segments || [];
   const frames = result.frames || [];
-  const demoScope = loadedMatter?.is_demo && result.reviewed;
-  setResultHeading("Claim structure", demoScope ? `${segments.length} reviewed segments from the principal limitations of example claim 1. The complete claim remains visible in the dossier.` : `${segments.length} linguistic segment${segments.length === 1 ? "" : "s"} extracted from the submitted claim. Inspect the action, object, and detail relationships before revising the draft.`);
+  const demoScope = loadedMatter?.is_demo;
+  setResultHeading("Claim structure", demoScope ? `${segments.length} segments extracted from claim 1 of US 9,922,200. Inspect the action, object, and detail relationships against the official claim text.` : `${segments.length} linguistic segment${segments.length === 1 ? "" : "s"} extracted from the submitted claim. Inspect the action, object, and detail relationships before revising the draft.`);
   const rows = segments.map((segment, index) => {
     const frame = frames[index] || {};
     const leaves = frame.leaves || [];
@@ -756,47 +760,40 @@ function renderDiagrams(result) {
       </div>
     </article>`;
   }).join("");
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Segments", segments.length)}${stat("Review scope", demoScope ? "Claim 1 excerpt" : "Claim text")}${stat("Output", "Structure map")}${stat("Decision", "Attorney review")}</div><div class="structure-map">${rows || '<div class="error-box"><strong>No structure generated</strong><p>Try preserving claim punctuation and transitional phrases.</p></div>'}</div>`;
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Segments", segments.length)}${stat("Review scope", demoScope ? "Official claim 1" : "Claim text")}${stat("Output", "Structure map")}${stat("Decision", "Attorney review")}</div><div class="structure-map">${rows || '<div class="error-box"><strong>No structure generated</strong><p>Try preserving claim punctuation and transitional phrases.</p></div>'}</div>`;
 }
 
 function renderExaminer(payload) {
-  const cohort = payload.examinerQuery || "Art Unit 2123";
-  setResultHeading(`${cohort} analytics`, `Illustrative prosecution trends for ${cohort}, covering disposed applications from 2016 through 2024.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Observed grants", "71.4%")} ${stat("Avg. office actions", "2.6")} ${stat("Disposed applications", "18,420")} ${stat("Observation window", "2016–2024")}</div><div class="chart-grid"><article class="chart-card"><h3>Observed grant timeline</h3><p>Share of disposed applications with an observed patent grant, by disposal year.</p><svg class="line-chart" viewBox="0 0 700 260" role="img" aria-labelledby="grant-chart-title grant-chart-desc"><title id="grant-chart-title">Illustrative observed grant rate by disposal year</title><desc id="grant-chart-desc">The annual rate rises from 57.1 percent in 2016 to 74.3 percent in 2024. The aggregate observed grant rate for the full cohort is 71.4 percent.</desc><line class="grid" x1="70" y1="40" x2="650" y2="40"/><line class="grid" x1="70" y1="110" x2="650" y2="110"/><line class="grid" x1="70" y1="180" x2="650" y2="180"/><text x="32" y="44">80%</text><text x="32" y="114">65%</text><text x="32" y="184">50%</text><path class="area" d="M70,147 L142,129 L214,137 L286,107 L358,97 L430,84 L502,91 L574,73 L646,66 L646,180 L70,180 Z"/><path class="line" d="M70,147 L142,129 L214,137 L286,107 L358,97 L430,84 L502,91 L574,73 L646,66"/><g><circle cx="70" cy="147" r="5"/><title>2016: 57.1%</title></g><g><circle cx="142" cy="129" r="5"/><title>2017: 60.9%</title></g><g><circle cx="214" cy="137" r="5"/><title>2018: 59.2%</title></g><g><circle cx="286" cy="107" r="5"/><title>2019: 65.6%</title></g><g><circle cx="358" cy="97" r="5"/><title>2020: 67.8%</title></g><g><circle cx="430" cy="84" r="5"/><title>2021: 70.5%</title></g><g><circle cx="502" cy="91" r="5"/><title>2022: 69.1%</title></g><g><circle cx="574" cy="73" r="5"/><title>2023: 72.8%</title></g><g><circle cx="646" cy="66" r="5"/><title>2024: 74.3%</title></g><text class="axis-label" x="70" y="211" text-anchor="middle">2016</text><text class="axis-label" x="142" y="211" text-anchor="middle">2017</text><text class="axis-label" x="214" y="211" text-anchor="middle">2018</text><text class="axis-label" x="286" y="211" text-anchor="middle">2019</text><text class="axis-label" x="358" y="211" text-anchor="middle">2020</text><text class="axis-label" x="430" y="211" text-anchor="middle">2021</text><text class="axis-label" x="502" y="211" text-anchor="middle">2022</text><text class="axis-label" x="574" y="211" text-anchor="middle">2023</text><text class="axis-label" x="646" y="211" text-anchor="middle">2024</text></svg><p class="chart-source">Illustrative cohort · 18,420 disposed applications · data through Dec. 2024</p></article><div class="metric-stack"><div><small>First-action §101</small><strong>18.2%</strong><p>3,352 of 18,420 observed applications received a first-action eligibility rejection.</p></div><div><small>First-action §103</small><strong>63.7%</strong><p>11,734 applications received a first-action obviousness rejection.</p></div><div><small>Median pendency</small><strong>31 mo.</strong><p>From filing to abandonment or observed grant in the illustrative cohort.</p></div></div></div>`;
+  const members = loadedMatter.family_members || [];
+  const matchingMembers = members.filter((member) => member.examiner.toLowerCase().includes(payload.examinerQuery.toLowerCase()));
+  const records = matchingMembers.length ? matchingMembers : members;
+  setResultHeading("Examiner record", `Official front-page examiner data for the saved U.S. patent family. No cohort rate is shown because the saved patent documents do not contain one.`);
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Query", payload.examinerQuery)}${stat("Family grants", members.length)}${stat("Matching grants", matchingMembers.length)}${stat("Source", "USPTO grants")}</div><div class="coverage-list">${records.map((member) => `<article class="coverage-item"><span class="coverage-state covered">Grant</span><div><h3>${escapeHtml(member.examiner)}</h3><p>${escapeHtml(member.document_number)} · Application ${escapeHtml(formatApplicationNumber(member.application_number))}</p><p>${escapeHtml(member.relationship)} · Granted ${escapeHtml(member.granted)}</p></div><div class="coverage-score"><small>Record</small><strong>Official</strong></div></article>`).join("")}</div><article class="comparison-summary"><h3>Cohort data is not in the patent document</h3><p>Grant rates, office-action counts, and pendency require a separate prosecution-record dataset. This view does not invent those values.</p></article>`;
 }
 
 function renderFamilyHistory(payload) {
-  setResultHeading("U.S. family prosecution timeline", `Illustrative claim-history review for ${payload.identifier}. The example traces one limitation from filing through allowance.`);
-  const events = [
-    ["Mar 2022", "Filed", "Independent claim 1 filed with sensor, controller, and alert limitations."],
-    ["Nov 2023", "Non-final rejection", "§103 rejection over distributed monitoring references."],
-    ["Feb 2024", "Amendment", "Added temperature compensation based on a stored calibration coefficient."],
-    ["Sep 2024", "Final rejection", "Examiner maintained the combination and raised §112 clarity concerns."],
-    ["Jan 2025", "Notice of allowance", "Clarified sensor-specific coefficient and offline measurement buffer."],
-  ];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members", "3")} ${stat("Events shown", events.length)} ${stat("Claims traced", "1")} ${stat("Data", "Illustrative")}</div><article class="timeline-card"><h3>Claim 1 · Scope movement</h3><div class="timeline"><div class="timeline-events">${events.map((event, index) => `<div class="timeline-event ${index === events.length - 1 ? "allowance" : ""}"><small>${event[0]}</small><div class="timeline-dot"></div><strong>${event[1]}</strong><p>${event[2]}</p></div>`).join("")}</div></div></article><article class="amendment-detail"><div><small>Filed limitation</small><p>“determine a vibration value from the measurement signal”</p></div><div><small>Allowed limitation</small><p>“determine a compensated vibration value by applying a sensor-specific temperature coefficient to the measurement signal”</p></div><p><strong>Scope movement:</strong> the allowed claim narrows the calculation to temperature compensation using calibration data associated with the individual sensor.</p></article>`;
+  const events = loadedMatter.family_events || [];
+  const sources = loadedMatter.source_documents || [];
+  setResultHeading("U.S. patent family timeline", `Official filing, publication, and grant dates for the family seeded by US ${formatPatentNumber(payload.identifier)}.`);
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members", loadedMatter.family_members.length)}${stat("Events shown", events.length)}${stat("First filing", events[0]?.date || "—")}${stat("Latest grant", events.at(-1)?.date || "—")}</div><article class="timeline-card"><h3>Public document history</h3><div class="timeline"><div class="timeline-events">${events.map((event, index) => `<div class="timeline-event ${index === events.length - 1 ? "allowance" : ""}"><small>${escapeHtml(event.date)}</small><div class="timeline-dot"></div><strong>${escapeHtml(event.label)}</strong><p>${escapeHtml(event.detail)}</p></div>`).join("")}</div></div></article><article class="comparison-summary"><h3>Official documents</h3><p>${sources.map((source) => `<a href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(source.label)} · ${escapeHtml(source.document_number)}</a>`).join(" · ")}</p><p>The saved documents prove this family timeline. Office actions and applicant responses need separate file-wrapper records and are not shown here.</p></article>`;
 }
 
 function renderFamilyClaims(payload) {
-  setResultHeading("Granted family claim comparison", `Three illustrative independent claims aligned for ${payload.identifier}. Highlighting distinguishes additions from changed emphasis.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members shown", "3")} ${stat("Claims aligned", "3")} ${stat("Shared core", "Sensor + controller")} ${stat("Data", "Illustrative")}</div><div class="comparison-legend"><span class="legend-add">Added limitation</span><span class="legend-change">Changed emphasis</span></div><div class="claim-comparison"><div class="claim-columns"><article class="claim-column"><header><strong>Example parent</strong><small>DS-101 · Claim 1</small></header><p>A sensing system comprising an optical sensing probe configured to generate a measurement signal and a controller configured to determine a compensated value <span class="diff-add">using a calibration coefficient stored for the probe</span>.</p></article><article class="claim-column"><header><strong>Continuation A</strong><small>DS-101-A · Claim 1</small></header><p>A distributed sensing system comprising <span class="diff-change">a plurality of mesh-connected optical sensing probes</span> and a controller configured to determine compensated vibration values according to ambient temperature.</p></article><article class="claim-column"><header><strong>Continuation B</strong><small>DS-101-B · Claim 8</small></header><p>A method comprising receiving a measurement signal, applying temperature compensation, and <span class="diff-add">storing timestamped measurements locally while network connectivity is unavailable</span>.</p></article></div></div><article class="comparison-summary"><h3>Difference summary</h3><p>The example parent emphasizes probe-specific calibration. Continuation A shifts toward distributed mesh topology. Continuation B isolates offline buffering and ordered retransmission as a method claim.</p></article>`;
+  const claims = loadedMatter.family_claims || [];
+  setResultHeading("Granted family claim comparison", `${claims.length} official independent claims from the parent and continuation grants seeded by US ${formatPatentNumber(payload.identifier)}.`);
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members shown", claims.length)}${stat("Claims aligned", claims.length)}${stat("Claim number", "1")}${stat("Source", "USPTO grants")}</div><div class="claim-comparison"><div class="claim-columns">${claims.map((item) => `<article class="claim-column"><header><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.document_number)} · Claim ${item.claim_number}</small></header><p>${escapeHtml(item.claim_text)}</p></article>`).join("")}</div></div><article class="comparison-summary"><h3>Review focus</h3><p>The parent claim receives encrypted content, stores it on the selected processor, and instructs decryption in a secure enclave. The continuation claim focuses on providing processors and processor-specific public keys. Read the complete claims before reaching a scope conclusion.</p></article>`;
 }
 
 function renderUnclaimed(payload) {
-  setResultHeading("Specification concept coverage", `Representative family coverage review seeded from ${payload.idType} ${payload.identifier}. Low-scoring concepts are research candidates, not determinations of unclaimed scope.`);
-  const items = [
-    ["unclaimed", "Confirmation interval for persistent alerts", "The specification suppresses isolated transients by requiring the threshold to remain exceeded for a confirmation interval; no example family claim recites the interval.", "16%", "Specification ¶[0005] · No express family claim"],
-    ["weak", "Probe-specific temperature coefficient", "Claim 1 requires temperature compensation but does not expressly tie the coefficient to the individual probe identifier.", "48%", "Specification ¶[0004] · Closest match: Example parent claim 1"],
-    ["weak", "Bearing-housing trend display", "The maintenance server may display a trend for each bearing housing, while the reviewed claims stop at sending alert records.", "37%", "Specification ¶[0006] · Closest match: Example parent claim 1"],
-    ["covered", "Buffered chronological retransmission", "Example continuation B expressly recites local buffering during an outage and chronological transmission after connectivity returns.", "94%", "Specification ¶[0007] · Example continuation B claim 8"]
-  ];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Concepts shown", items.length)} ${stat("Potentially unclaimed", "1")} ${stat("Weakly covered", "2")} ${stat("Data", "Illustrative")}</div><div class="coverage-list">${items.map((item) => `<article class="coverage-item"><span class="coverage-state ${item[0]}">${item[0]}</span><div><h3>${item[1]}</h3><p>${item[2]}</p><p>${item[4]}</p></div><div class="coverage-score"><small>Text overlap</small><strong>${item[3]}</strong></div></article>`).join("")}</div>`;
+  const items = loadedMatter.coverage_candidates || [];
+  setResultHeading("Specification concept coverage", `Evidence-backed research candidates from the official specification of US ${formatPatentNumber(payload.identifier)}. These are review prompts, not conclusions about claim scope.`);
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Concepts shown", items.length)}${stat("Family grants checked", loadedMatter.family_claims.length)}${stat("Status", "Needs review")}${stat("Source", "Official specification")}</div><div class="coverage-list">${items.map((item) => `<article class="coverage-item"><span class="coverage-state weak">Review</span><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.evidence)}</p><p>${escapeHtml(item.claim_check)}</p></div><div class="coverage-score"><small>Next step</small><strong>Compare</strong></div></article>`).join("")}</div>`;
 }
 
 function renderArtUnit() {
-  setResultHeading("Likely USPTO routing", "Illustrative routing estimate based on the example patent’s optical sensing, signal compensation, and condition-monitoring language.");
-  const predictions = [["2123", "AI & simulation", 44, "Predictive maintenance and anomaly classification"], ["2124", "Computer systems", 24, "Controller, memory, and network-failure handling"], ["2858", "Optical measurements", 15, "Fiber Bragg grating and wavelength response"], ["3682", "Condition monitoring", 10, "Machine vibration thresholds and alerts"], ["2195", "Distributed processing", 7, "Mesh-connected probes and buffered records"]];
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Top prediction", "AU 2123")} ${stat("Illustrative score", "44%")} ${stat("Alternatives", "4")} ${stat("Data", "Example")}</div><div class="prediction-list">${predictions.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>Art Unit ${item[0]}</h3><p>${item[1]}</p></div><div class="prediction-bar"><span style="width:${item[2]}%"></span></div><div class="prediction-value">${item[2]}%</div><div class="prediction-evidence"><strong>Routing evidence:</strong> ${item[3]}</div></article>`).join("")}</div><button class="analysis-link" type="button" data-tool="examiner">Open Art Unit 2123 analytics →</button>`;
+  const classifications = loadedMatter.classification_records || [];
+  setResultHeading("Official classification context", "The saved grant provides CPC classification evidence. The public patent document does not state an art unit, so this view does not invent a routing prediction.");
+  resultsContent.innerHTML = `<div class="summary-band">${stat("Classifications", classifications.length)}${stat("Scheme", "CPC")}${stat("Art unit", "Not stated")}${stat("Source", "USPTO grant")}</div><div class="prediction-list">${classifications.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>${escapeHtml(item.code)}</h3><p>${escapeHtml(item.description)}</p></div><div class="prediction-evidence"><strong>${escapeHtml(item.scheme)} record</strong></div></article>`).join("")}</div><article class="comparison-summary"><h3>Routing limit</h3><p>A validated art-unit prediction needs training data that links invention text to actual USPTO routing outcomes. The saved grant alone cannot prove such a result.</p></article>`;
 }
 
 function renderError(error) {
@@ -812,14 +809,14 @@ function showExplanation() {
   const tool = tools[activeToolKey];
   if (!tool) return;
   document.getElementById("dialog-title").textContent = `How ${tool.shortTitle.toLowerCase()} works`;
-  const exampleNote = tool.mode === "prototype" ? `<p><strong>${loadedMatter?.is_demo ? "Illustrative example" : "Preview"}:</strong> results use synthetic data and should not be treated as current prosecution evidence.</p>` : "";
+  const exampleNote = tool.mode === "prototype" ? `<p><strong>${loadedMatter?.is_demo ? "Saved USPTO record" : "Preview"}:</strong> this review is limited to the evidence available in the loaded record.</p>` : "";
   document.getElementById("dialog-content").innerHTML = `<p>${escapeHtml(tool.explanation)}</p><ol>${tool.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>${exampleNote}`;
   document.getElementById("explain-dialog").showModal();
 }
 
 function showDataHandling() {
   document.getElementById("dialog-title").textContent = "How review information is handled";
-  document.getElementById("dialog-content").innerHTML = `<p>The selected patent, review inputs, and completed results are saved in this browser so work can be resumed after a refresh.</p><ol><li>The current patent remains selected until another is opened. Completed analyses remain in IndexedDB until review history is cleared.</li><li>The built-in example uses a fixed synthetic patent and does not contact the USPTO.</li><li>Review inputs are checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
+  document.getElementById("dialog-content").innerHTML = `<p>The selected patent, review inputs, and completed results are saved in this browser so work can be resumed after a refresh.</p><ol><li>The current patent remains selected until another is opened. Completed analyses remain in IndexedDB until review history is cleared.</li><li>The built-in record contains text saved from official USPTO patent documents.</li><li>Review inputs are checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
   document.getElementById("explain-dialog").showModal();
 }
 

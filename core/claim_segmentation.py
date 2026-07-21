@@ -316,6 +316,10 @@ def split_top_level_semicolons_claimaware(text):
         r"\bat\s+least\s+the\s+following\b(?:\s+\w+)?\s*$",
         re.IGNORECASE,
     )
+    CLAIM_TRANSITION_BEFORE_COLON_RE = re.compile(
+        r"\b(?:comprising|consisting\s+of|consisting\s+essentially\s+of)\s*$",
+        re.IGNORECASE,
+    )
 
     # Walk through the text...
     t = text or ""
@@ -340,7 +344,7 @@ def split_top_level_semicolons_claimaware(text):
         # Split at a colon, this captures a variety of lists and claim preambles
         if ch == ":":
             before = t[start:i]
-            if LIST_INTRO_BEFORE_COLON_RE.search(before):
+            if LIST_INTRO_BEFORE_COLON_RE.search(before) or CLAIM_TRANSITION_BEFORE_COLON_RE.search(before):
                 segs.append((start, i, t[start:i]))
                 start = i + 1
                 last_hard_boundary = start
@@ -646,13 +650,15 @@ def build_action_frame(seg_text, nlp=None):
     doc_full = nlp(seg_text)
 
     # Identify our anchor verb (and, if needed, fall back to "verb-ish" stuff)
-    anchor = doc_core[:].root
+    leading_core = next((token for token in doc_core if not token.is_punct), None)
+    anchor = leading_core if leading_core is not None and _is_verbish(leading_core) else doc_core[:].root
     if not _is_verbish(anchor):
         anchor = next((t for t in doc_core if _is_verbish(t)), anchor)
     anchor_verb = anchor.lemma_ if _is_verbish(anchor) else "(no-verb)"
 
     # Find the corresponding anchor token in the FULL doc so we can mark its span as covered
-    anchor_full = doc_full[:].root
+    leading_full = next((token for token in doc_full if not token.is_punct), None)
+    anchor_full = leading_full if leading_full is not None and _is_verbish(leading_full) else doc_full[:].root
     if not _is_verbish(anchor_full):
         anchor_full = next((t for t in doc_full if _is_verbish(t)), anchor_full)
 
