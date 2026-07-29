@@ -10,6 +10,7 @@ __pycache__
 benchmarks
 data/benchmark
 data/benchmarks
+data/public_patents
 outputs
 tests
 
