@@ -254,10 +254,14 @@ def _top_level_split_parts(text, delim):
         # Ignore parentheticals
         if ch == "(":
             depth += 1
-            buf.append(ch); i += 1; continue
+            buf.append(ch)
+            i += 1
+            continue
         if ch == ")" and depth > 0:
             depth -= 1
-            buf.append(ch); i += 1; continue
+            buf.append(ch)
+            i += 1
+            continue
 
         # Split if we're not in a parenthetical
         if depth == 0 and t[i:i+dlen].lower() == dlow:
