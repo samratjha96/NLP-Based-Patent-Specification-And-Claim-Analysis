@@ -1,6 +1,8 @@
 .cache/
+.wrangler/
 .pytest_cache/
 .venv/
+node_modules/
 __pycache__/
 *.py[cod]
 benchmarks/__pycache__/

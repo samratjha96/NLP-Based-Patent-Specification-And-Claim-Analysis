@@ -22,6 +22,99 @@ window.PatentAgilityDemoRecord = {
   "principal_claim_text": "1. A method being performed by one or more computing devices including at least one hardware processor, the method for securely storing content, received from a content owner, in a cloud provided by a cloud provider, the method comprising: providing a set of processor identifiers accessible to the content owner, wherein each processor identifier of the set identifies a processor having secure enclave capability and being available for storing content, wherein each identified processor is a hardware processor, and wherein secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and other data outside of the area; receiving, from the content owner, encrypted content and at least one selected processor identifier selected from the set, the encrypted content being encrypted using a processor-specific public key that corresponds to a processor that is identified by the at least one selected processor identifier; storing the encrypted content on the processor identified by the at least one selected processor identifier; and instructing the processor to decrypt the encrypted content in a secure enclave on the processor.",
   "specification_character_count": 46561,
   "claims_character_count": 5450,
+  "examiner_profile": {
+    "name": "Samson B Lemma",
+    "art_unit": "2498",
+    "group": "2490 - Cryptography and Cybersecurity",
+    "tech_center": "2400 - Computer Networks, Multiplex, Cable and Cryptography/Security",
+    "observed_years": "2008–2026",
+    "predicted_supervisor": "Yin-Chen Shaw",
+    "art_units_seen": ["2132", "2431", "2432", "2498"],
+    "work_groups_seen": [
+      "2430 - Cryptography and Cybersecurity",
+      "2490 - Cryptography and Cybersecurity"
+    ],
+    "assessment": "The observed grant ratio is higher than the saved comparison cohorts.",
+    "source_url": "https://patentagility.kelldann.com/USPTO_examiner_data/tc-2400/group-2490/au-2498/examiner-80349/samson-b-lemma/",
+    "snapshot_date": "2026-07-28",
+    "data_recency": "2026-07-01",
+    "grant_validation": {
+      "family_validated_grants": 755,
+      "office_action_only_signals": 1
+    },
+    "metrics": {
+      "applications": 883,
+      "granted": 755,
+      "not_granted": 128,
+      "grant_ratio": 85.5,
+      "average_office_actions_per_grant": 1.74
+    },
+    "context_comparison": [
+      {"scope": "This examiner", "examiners": 1, "grant_ratio": 85.5, "average_office_actions_per_grant": 1.74},
+      {"scope": "Art unit", "examiners": 21, "grant_ratio": 63.5, "average_office_actions_per_grant": 1.90},
+      {"scope": "Group", "examiners": 198, "grant_ratio": 61.8, "average_office_actions_per_grant": 2.06},
+      {"scope": "Technology center", "examiners": 1748, "grant_ratio": 59.1, "average_office_actions_per_grant": 2.14},
+      {"scope": "USPTO", "examiners": 16348, "grant_ratio": 53.5, "average_office_actions_per_grant": 1.98}
+    ],
+    "grant_timeline": [
+      {"year": 2008, "applications": 45, "granted": 35, "grant_rate": 77.8},
+      {"year": 2009, "applications": 60, "granted": 50, "grant_rate": 83.3},
+      {"year": 2010, "applications": 32, "granted": 21, "grant_rate": 65.6},
+      {"year": 2011, "applications": 62, "granted": 56, "grant_rate": 90.3},
+      {"year": 2012, "applications": 87, "granted": 79, "grant_rate": 90.8},
+      {"year": 2013, "applications": 83, "granted": 80, "grant_rate": 96.4},
+      {"year": 2014, "applications": 60, "granted": 54, "grant_rate": 90.0},
+      {"year": 2015, "applications": 55, "granted": 52, "grant_rate": 94.5},
+      {"year": 2016, "applications": 67, "granted": 58, "grant_rate": 86.6},
+      {"year": 2017, "applications": 52, "granted": 47, "grant_rate": 90.4},
+      {"year": 2018, "applications": 56, "granted": 50, "grant_rate": 89.3},
+      {"year": 2019, "applications": 45, "granted": 37, "grant_rate": 82.2},
+      {"year": 2020, "applications": 36, "granted": 32, "grant_rate": 88.9},
+      {"year": 2021, "applications": 20, "granted": 17, "grant_rate": 85.0},
+      {"year": 2022, "applications": 34, "granted": 31, "grant_rate": 91.2},
+      {"year": 2023, "applications": 26, "granted": 24, "grant_rate": 92.3},
+      {"year": 2024, "applications": 19, "granted": 18, "grant_rate": 94.7},
+      {"year": 2025, "applications": 25, "granted": 14, "grant_rate": 56.0},
+      {"year": 2026, "applications": 19, "granted": 0, "grant_rate": 0.0}
+    ],
+    "rejection_timeline": [
+      {"office_action_number": 1, "office_actions": 874, "section_101": 9.4, "section_102": 22.7, "section_103": 54.1, "section_112": 4.9},
+      {"office_action_number": 2, "office_actions": 399, "section_101": 8.3, "section_102": 17.8, "section_103": 62.7, "section_112": 3.0},
+      {"office_action_number": 3, "office_actions": 126, "section_101": 8.7, "section_102": 19.8, "section_103": 57.1, "section_112": 5.6},
+      {"office_action_number": 4, "office_actions": 52, "section_101": 7.7, "section_102": 11.5, "section_103": 65.4, "section_112": 5.8},
+      {"office_action_number": 5, "office_actions": 20, "section_101": 5.0, "section_102": 15.0, "section_103": 75.0, "section_112": 0.0},
+      {"office_action_number": 6, "office_actions": 9, "section_101": 0.0, "section_102": 11.1, "section_103": 66.7, "section_112": 0.0},
+      {"office_action_number": 7, "office_actions": 3, "section_101": 0.0, "section_102": 0.0, "section_103": 100.0, "section_112": 0.0},
+      {"office_action_number": 8, "office_actions": 2, "section_101": 0.0, "section_102": 0.0, "section_103": 100.0, "section_112": 0.0}
+    ],
+    "section_101_timeline": [
+      {"year": 2008, "rejection_rate": 1.2},
+      {"year": 2009, "rejection_rate": 5.1},
+      {"year": 2010, "rejection_rate": 4.9},
+      {"year": 2011, "rejection_rate": 18.8},
+      {"year": 2012, "rejection_rate": 10.0},
+      {"year": 2013, "rejection_rate": 11.6},
+      {"year": 2014, "rejection_rate": 8.2},
+      {"year": 2015, "rejection_rate": 13.6},
+      {"year": 2016, "rejection_rate": 10.8},
+      {"year": 2017, "rejection_rate": 9.6},
+      {"year": 2018, "rejection_rate": 13.3},
+      {"year": 2019, "rejection_rate": 3.6},
+      {"year": 2020, "rejection_rate": 5.9},
+      {"year": 2021, "rejection_rate": 0.0},
+      {"year": 2022, "rejection_rate": 9.1},
+      {"year": 2023, "rejection_rate": 0.0},
+      {"year": 2024, "rejection_rate": 0.0},
+      {"year": 2025, "rejection_rate": 0.0},
+      {"year": 2026, "rejection_rate": 0.0}
+    ],
+    "section_101_policy_markers": [
+      {"year": 2014, "label": "Alice"},
+      {"year": 2019, "label": "PEG"},
+      {"year": 2024, "label": "AI Examples"},
+      {"year": 2025, "label": "Aug. Memo"}
+    ]
+  },
   "review_examples": {
     "support_queries": [
       "an area in memory that protects code and data from code and data outside the area",
@@ -73,7 +166,7 @@ window.PatentAgilityDemoRecord = {
     {
       "date": "2018-03-20",
       "label": "Parent granted",
-      "detail": "US 9,922,200 B2 granted with 20 claims."
+      "detail": "US 9,922,200 B2 granted with 9 claims."
     },
     {
       "date": "2019-03-21",
@@ -94,12 +187,113 @@ window.PatentAgilityDemoRecord = {
       "claim_text": "1. A method being performed by one or more computing devices including at least one hardware processor, the method for securely storing content, received from a content owner, in a cloud provided by a cloud provider, the method comprising: providing a set of processor identifiers accessible to the content owner, wherein each processor identifier of the set identifies a processor having secure enclave capability and being available for storing content, wherein each identified processor is a hardware processor, and wherein secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and other data outside of the area; receiving, from the content owner, encrypted content and at least one selected processor identifier selected from the set, the encrypted content being encrypted using a processor-specific public key that corresponds to a processor that is identified by the at least one selected processor identifier; storing the encrypted content on the processor identified by the at least one selected processor identifier; and instructing the processor to decrypt the encrypted content in a secure enclave on the processor."
     },
     {
+      "label": "Parent grant",
+      "document_number": "US 9,922,200 B2",
+      "claim_number": 5,
+      "claim_text": "5. A method being performed by one or more computing devices including at least one hardware processor, the method for securely storing content in a cloud, the method comprising: receiving, from a cloud provider, a set of processor identifiers, each processor identifier of the set being associated with a processor having secure enclave capability and being available for storing content, wherein each associated processor is a hardware processor, and wherein secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and other data outside of the area; identifying one or more selected processor identifiers of the set of processor identifiers, each of the one or more selected processor identifiers being associated with a selected processor selected by the content owner for storing content; providing, to a manufacturer of the one or more selected processors or to a third party associated with the manufacturer, the one or more selected processor identifiers; receiving, from the manufacturer of the one or more selected processors or from the third party associated with the manufacturer, one or more processor-specific public keys, each of the one or more processor-specific public keys corresponding to the selected processor; encrypting content desired for storing on each selected processor with the received one or more processor-specific public keys corresponding thereto; and providing, to the cloud provider, the encrypted content for storing on each selected processor along with the one or more selected processor identifiers associated with each selected processor."
+    },
+    {
+      "label": "Parent grant",
+      "document_number": "US 9,922,200 B2",
+      "claim_number": 7,
+      "claim_text": "7. A system comprising: a secure storing management engine having at least one hardware processor and a computer-readable storage device comprising computer executable instructions embodied thereon that when executed by the at least one hardware processor configure the system to: provide a set of processor identifiers for publication accessible by content owners, each processor identifier of the set of processor identifiers being associated with a processor having secure enclave capability and being available for storing content, wherein each associated processor is a hardware processor, wherein each associated processor includes a processor-specific private code encryption key corresponding to a processor-specific public code encryption key, and wherein secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and other data outside of the area; receive, from a content owner, a subset of the set of processor identifiers along with content encrypted with processor-specific public keys corresponding to the processors identified by the processor identifiers of the subset; and store the encrypted content on appropriate processors as identified by the processor identifiers received from the content owner with the encrypted content."
+    },
+    {
       "label": "Continuation grant",
       "document_number": "US 10,831,913 B2",
       "claim_number": 1,
       "claim_text": "1. A method performed by one or more computing devices for securely storing content in a cloud, the method comprising: providing one or more processors having secure enclave capability to a cloud provider, each processor having a processor identifier associated therewith, wherein the secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and data outside of the area; receiving a set of processor identifiers from a content owner, each processor identifier of the set being associated with a processor of the one or more processors provided to the cloud provider and having been selected for storing content; and providing a processor-specific public key corresponding to each processor identified by the set of processor identifiers."
+    },
+    {
+      "label": "Continuation grant",
+      "document_number": "US 10,831,913 B2",
+      "claim_number": 6,
+      "claim_text": "6. One or more computer storage media having embodied thereon computer-usable instructions which, when executed by one or more processors, perform a method for securely storing content in a cloud, the method comprising: publishing a set of processor identifiers, each processor identifier of the set of processor identifiers being associated with a processor having secure enclave capability and being available for storing content, wherein the secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and data outside of the area; receiving a subset of the set of processor identifiers and content encrypted with processor-specific public keys that correspond to the processors identified by the processor identifiers of the subset; and storing the encrypted content on the processors identified by the processor identifiers of the subset."
+    },
+    {
+      "label": "Continuation grant",
+      "document_number": "US 10,831,913 B2",
+      "claim_number": 14,
+      "claim_text": "14. A system for securely storing content in a cloud, comprising: a secure storing management engine comprising one or more processors, wherein the secure storing management engine: provides a set of processor identifiers for publication, each processor identifier of the set of processor identifiers being associated with a processor having secure enclave capability and being available for storing content, wherein the secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and data outside of the area; receives a subset of the set of processor identifiers and content encrypted with processor-specific public keys that correspond to the processors identified by the processor identifiers of the subset; and stores the encrypted content on the processors identified by the processor identifiers of the subset."
     }
   ],
+  "prosecution_history": [
+    {
+      "label": "Parent",
+      "application_number": "14319969",
+      "patent_number": "9922200",
+      "filed": "2014-06-30",
+      "events": [
+        {"date": "2015-11-25", "type": "office_action", "label": "Non-final rejection"},
+        {"date": "2016-04-25", "type": "amendment", "label": "Claim amendment"},
+        {"date": "2016-08-11", "type": "office_action", "label": "Final rejection"},
+        {"date": "2016-12-12", "type": "amendment", "label": "Claim amendment"},
+        {"date": "2017-11-08", "type": "allowance", "label": "Notice of allowance"}
+      ],
+      "snapshots": [
+        {
+          "date": "2016-04-25",
+          "title": "Response after the first rejection",
+          "changes": [
+            "Specified a cloud provided by a cloud provider.",
+            "Added receipt of encrypted content from the content owner.",
+            "Added storage on the selected processor and decryption inside its secure enclave."
+          ]
+        },
+        {
+          "date": "2016-12-12",
+          "title": "Response after the final rejection",
+          "changes": [
+            "Added access by content owners to the processor-identifier set.",
+            "Added the manufacturer or associated third party as the source of processor-specific public keys.",
+            "Recast the management-engine claim and cancelled claims 10 through 13."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Continuation",
+      "application_number": "15922640",
+      "patent_number": "10831913",
+      "filed": "2018-03-15",
+      "events": [
+        {"date": "2019-09-30", "type": "office_action", "label": "Non-final rejection"},
+        {"date": "2019-12-27", "type": "amendment", "label": "Claim amendment"},
+        {"date": "2020-01-15", "type": "office_action", "label": "Final rejection"},
+        {"date": "2020-07-07", "type": "allowance", "label": "Notice of allowance"}
+      ],
+      "snapshots": [
+        {
+          "date": "2019-12-27",
+          "title": "Continuation response",
+          "claim_number": 1,
+          "before_claim_text": "A method performed by one or more computing devices for securely storing content in a cloud, the method comprising: providing one or more processors having secure enclave capability, each processor having a processor identifier associated therewith, wherein the secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and data outside of the area; receiving a set of processor identifiers, each processor identifier of the set being associated with a processor of the one or more processors and having been selected for storing content; and providing a processor-specific public key corresponding to each processor identified by the set of processor identifiers.",
+          "after_claim_text": "A method performed by one or more computing devices for securely storing content in a cloud, the method comprising: providing one or more processors having secure enclave capability to a cloud provider, each processor having a processor identifier associated therewith, wherein the secure enclave capability comprises an ability to create an area within memory of a computing device for storing code and data that is protected from code and data outside of the area; receiving a set of processor identifiers from a content owner, each processor identifier of the set being associated with a processor of the one or more processors provided to the cloud provider and having been selected for storing content; and providing a processor-specific public key corresponding to each processor identified by the set of processor identifiers.",
+          "diff_source": "Public response filed December 27, 2019",
+          "diff_note": "Non-substantive OCR spacing was removed from the public amendment text.",
+          "changes": [
+            "Focused the independent claims on processor publication, content-owner selection, and processor-specific keys.",
+            "Preserved separate method, storage-media, and system claim forms."
+          ]
+        }
+      ]
+    }
+  ],
+  "family_data_warnings": [
+    "The source family resolver also returned application 01/538,204. Its number and filing date are inconsistent with this family, so this example excludes it from claim analysis."
+  ],
+  "art_unit_prediction_example": {
+    "source": "Verified authenticated PatentAgility result captured 2026-07-21",
+    "input_description": "Secure-cloud invention text about processor identifiers, public encryption keys, and hardware secure enclaves.",
+    "class_count": 588,
+    "predictions": [
+      {"art_unit": "2494", "probability": 11.7, "group": "2490 - Cryptography and Cybersecurity", "tech_center": "2400"},
+      {"art_unit": "2434", "probability": 8.6, "group": "2430 - Cryptography and Cybersecurity", "tech_center": "2400"},
+      {"art_unit": "2432", "probability": 6.8, "group": "2430 - Cryptography and Cybersecurity", "tech_center": "2400"},
+      {"art_unit": "2437", "probability": 6.3, "group": "2430 - Cryptography and Cybersecurity", "tech_center": "2400"},
+      {"art_unit": "2497", "probability": 6.2, "group": "2490 - Cryptography and Cybersecurity", "tech_center": "2400"}
+    ]
+  },
   "classification_records": [
     {
       "scheme": "CPC",

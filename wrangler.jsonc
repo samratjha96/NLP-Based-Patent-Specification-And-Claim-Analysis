@@ -1,0 +1,46 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "patentagility-demo",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-07-26",
+  "assets": {
+    "directory": "./web",
+    "binding": "ASSETS",
+    "run_worker_first": ["/app/*", "/v1/*", "/metrics", "/favicon.ico"]
+  },
+  "ratelimits": [
+    {
+      "name": "ANALYSIS_RATE_LIMITER",
+      "namespace_id": "9922200",
+      "simple": {
+        "limit": 8,
+        "period": 10
+      }
+    }
+  ],
+  "containers": [
+    {
+      "class_name": "PatentAgilityContainer",
+      "image": "./Dockerfile",
+      "instance_type": "standard-3",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PATENT_AGILITY",
+        "class_name": "PatentAgilityContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["PatentAgilityContainer"]
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

@@ -1,25 +1,25 @@
 const tools = {
   "family-history": {
     index: "01",
-    title: "U.S. patent family history",
-    shortTitle: "Family history",
+    title: "Claim Amendment History Across U.S. Family",
+    shortTitle: "Claim Amendment History",
     category: "Patent review",
-    mode: "prototype",
-    runtime: "Prosecution timeline",
-    description: "Review related U.S. applications, publications, grants, and independent claims in date order.",
+    mode: "live",
+    runtime: "Family map",
+    description: "Follow the parent and continuation through filing, rejection, amendment, allowance, and the resulting independent claims.",
     guidance: "Start with one U.S. patent or application number to review the related U.S. family.",
-    contextTitle: "Read scope movement in sequence",
-    contextCopy: "An amendment is evidence of prosecution history, not a standalone claim-construction conclusion. Review the cited office action and applicant response together.",
-    steps: ["Resolve family", "Retrieve histories", "Compare claim text", "Render timeline"],
-    explanation: "Starting from one U.S. patent or application, this review follows related family members, places prosecution events in sequence, and compares how independent claim language changed over time.",
+    contextTitle: "Start with the family relationship",
+    contextCopy: "The parent and continuation can pursue different claim scope while sharing disclosure. Review both grants before choosing a prosecution or enforcement position.",
+    steps: ["Resolve family", "Order public events", "Compare claim 1", "Show the relationship"],
+    explanation: "This review maps the parent and continuation, orders the public filing and grant events, and identifies the claim limitations that changed between the two grants.",
     fields: "identifier"
   },
   "family-claims": {
     index: "02",
-    title: "Compare U.S. family claims",
-    shortTitle: "Compare family claims",
+    title: "Compare U.S. Family Claims",
+    shortTitle: "Compare U.S. Family Claims",
     category: "Patent review",
-    mode: "prototype",
+    mode: "live",
     runtime: "Family scope comparison",
     description: "Line up granted independent claims across a U.S. family and isolate the limitations that changed portfolio scope.",
     guidance: "Start with one U.S. application or patent number to align independent claims from granted family members.",
@@ -31,10 +31,10 @@ const tools = {
   },
   unclaimed: {
     index: "03",
-    title: "Unclaimed subject matter",
-    shortTitle: "Unclaimed subject matter",
+    title: "Find Unclaimed Subject Matter in U.S. Family",
+    shortTitle: "Find Unclaimed Subject Matter",
     category: "Patent review",
-    mode: "prototype",
+    mode: "live",
     runtime: "Coverage review",
     description: "Surface specification concepts that appear weakly covered or absent across related U.S. claims.",
     guidance: "Provide a family seed to compare disclosed concepts with claims across the related U.S. family.",
@@ -46,23 +46,23 @@ const tools = {
   },
   support: {
     index: "04",
-    title: "Specification support",
-    shortTitle: "Specification support",
+    title: "Spec Support",
+    shortTitle: "Spec Support",
     category: "Drafting review",
     mode: "live",
     runtime: "Specification evidence search",
     description: "Find the passages most likely to support a limitation across the complete specification.",
     guidance: "The loaded USPTO specification is searched directly. Add every limitation you want to investigate in the same review.",
     contextTitle: "Ranked passages are starting points",
-    contextCopy: "A high score means the passage is textually relevant, not necessarily that it satisfies written-description or enablement requirements. Read the full paragraph and surrounding disclosure.",
+    contextCopy: "A high score means the passage is textually relevant, not necessarily that it satisfies written-description or enablement requirements. Read the full passage and surrounding disclosure.",
     steps: ["Validate input", "Build document index", "Search limitations", "Rank evidence"],
-    explanation: "This review breaks the specification into passages, ranks the passages most relevant to each limitation, and preserves paragraph and sentence locations so the cited disclosure can be checked in context.",
+    explanation: "This review breaks the specification into passages, ranks the passages most relevant to each limitation, and preserves passage and sentence locations so the cited disclosure can be checked in context.",
     fields: "support"
   },
   antecedent: {
     index: "05",
-    title: "Antecedent basis review",
-    shortTitle: "Antecedent basis",
+    title: "Antecedent Basis",
+    shortTitle: "Antecedent Basis",
     category: "Drafting review",
     mode: "live",
     runtime: "Claim-language review",
@@ -76,8 +76,8 @@ const tools = {
   },
   linguistic: {
     index: "06",
-    title: "Linguistic claim analysis",
-    shortTitle: "Claim structure",
+    title: "Linguistic Claim Analysis",
+    shortTitle: "Linguistic Claim Analysis",
     category: "Drafting review",
     mode: "live",
     runtime: "Claim structure map",
@@ -91,28 +91,28 @@ const tools = {
   },
   "art-unit": {
     index: "07",
-    title: "USPTO classification review",
-    shortTitle: "Classification review",
+    title: "Art Unit Predictor",
+    shortTitle: "Art Unit Predictor",
     category: "Drafting review",
-    mode: "prototype",
+    mode: "record",
     runtime: "Official routing evidence",
     description: "Review official classification codes and determine whether the record supports an art-unit conclusion.",
     guidance: "The loaded USPTO record provides the official classification evidence used for this review.",
-    contextTitle: "Classification evidence is not an art-unit result",
-    contextCopy: "A public grant can show classification codes without stating the assigned art unit. Do not treat one as the other.",
-    steps: ["Review invention text", "Collect classifications", "Check routing evidence", "State the record limit"],
-    explanation: "This review presents the official classification codes in the loaded record and states whether the available evidence supports an art-unit conclusion.",
+    contextTitle: "Separate observed routing from prediction",
+    contextCopy: "The saved example shows the examiner's observed art-unit context and the grant's official CPC codes. A prediction for new text needs a validated routing model.",
+    steps: ["Review invention text", "Collect classifications", "Check observed routing", "Separate fact from prediction"],
+    explanation: "This review places the official CPC codes beside observed examiner routing data. It does not present observed routing as a prediction for a new application.",
     fields: "invention"
   },
   examiner: {
     index: "08",
-    title: "Examiner analytics",
-    shortTitle: "Examiner analytics",
+    title: "Examiner Analytics",
+    shortTitle: "Examiner Analytics",
     category: "Examiner research",
-    mode: "prototype",
+    mode: "record",
     runtime: "Examiner trends",
-    description: "Move from raw prosecution records to an examiner, art unit, work group, or technology-center strategy view.",
-    guidance: "Search by examiner name, art unit, work group, or technology center.",
+    description: "Review grant, office-action, rejection, and pendency trends for an examiner or USPTO group.",
+    guidance: "Review the saved examiner profile for the examiner on this patent.",
     contextTitle: "Descriptive data needs context",
     contextCopy: "Observed grant ratios and rejection patterns describe past records. They do not predict a specific application or account for case mix by themselves.",
     steps: ["Resolve entity", "Aggregate records", "Calculate trends", "Render analytics"],
@@ -122,11 +122,17 @@ const tools = {
 };
 
 const demoToolOrder = ["family-history", "family-claims", "unclaimed", "support", "antecedent", "linguistic", "art-unit", "examiner"];
+const PREPARED_REVIEW_TTL_MS = 6 * 60 * 60 * 1000;
 let activeToolKey = null;
-let lastResultSummary = "";
 let toastTimer = null;
 let loadedMatter = null;
 let recentAnalyses = [];
+let preparedReviewByTool = new Map();
+let preparationToken = 0;
+let preparationExpected = 0;
+let preparationActive = false;
+let preparingToolKeys = new Set();
+let patentLookupExpanded = false;
 const demoRecord = window.PatentAgilityDemoRecord;
 const browserState = window.PatentAgilityState;
 
@@ -139,8 +145,11 @@ const dynamicFields = document.getElementById("dynamic-fields");
 const progressPanel = document.getElementById("progress-panel");
 const resultsPanel = document.getElementById("results-panel");
 const resultsContent = document.getElementById("results-content");
+const analysisColumn = document.querySelector(".analysis-column");
 const recentTable = document.querySelector(".recent-table");
+const recentSection = document.querySelector(".recent-section");
 const clearHistoryButton = document.getElementById("clear-history");
+const reviewBrief = document.getElementById("review-brief");
 const { requestJson } = window.PatentAgilityRequestClient.createRequestClient({
   errors: window.PatentAgilityErrors,
   onRetry: ({ attempt }) => {
@@ -164,22 +173,81 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
-function toolModeLabel(tool) {
-  if (loadedMatter?.is_demo) return "Ready";
-  return loadedMatter ? "Ready" : "Choose a patent";
+function isCompleteExampleIdentifier(identifierType, identifier) {
+  const digits = String(identifier || "").replace(/\D/g, "");
+  const expected = identifierType === "application"
+    ? demoRecord.application_number
+    : demoRecord.patent_number;
+  return digits === expected;
+}
+
+function toolAvailability(toolKey) {
+  if (!loadedMatter) return { available: true, label: "Open review" };
+  if (toolKey === "family-history") {
+    return {
+      available: Boolean(loadedMatter.family_claims?.length && loadedMatter.prosecution_history?.length),
+      label: "Complete example only"
+    };
+  }
+  if (toolKey === "family-claims") {
+    return {
+      available: Boolean(loadedMatter.family_claims?.length),
+      label: "Complete example only"
+    };
+  }
+  if (toolKey === "unclaimed") {
+    return {
+      available: Boolean(loadedMatter.family_claims?.length && loadedMatter.coverage_candidates?.length),
+      label: "Complete example only"
+    };
+  }
+  if (toolKey === "support") {
+    return { available: Boolean(loadedMatter.specification_character_count), label: "Patent text unavailable" };
+  }
+  if (toolKey === "antecedent" || toolKey === "linguistic") {
+    return { available: Boolean(loadedMatter.claims_character_count), label: "Claims unavailable" };
+  }
+  if (toolKey === "art-unit") {
+    return {
+      available: Boolean(loadedMatter.classification_records?.length || loadedMatter.examiner_profile || loadedMatter.art_unit_prediction_example),
+      label: "Complete example only"
+    };
+  }
+  if (toolKey === "examiner") {
+    return {
+      available: Boolean(loadedMatter.examiner_profile),
+      label: "Complete example only"
+    };
+  }
+  return { available: true, label: "Open review" };
+}
+
+function syncNavigationToolAvailability() {
+  document.querySelectorAll(".sidebar [data-tool]").forEach((button) => {
+    const availability = toolAvailability(button.dataset.tool);
+    button.disabled = !availability.available;
+    button.title = availability.available
+      ? ""
+      : "This review is available with the complete US 9,922,200 example.";
+  });
 }
 
 function renderToolGrid() {
   toolGrid.innerHTML = demoToolOrder.map((key) => {
     const tool = tools[key];
+    const isPreparing = preparingToolKeys.has(key);
+    const availability = toolAvailability(key);
+    const unavailable = !availability.available;
+    const actionLabel = isPreparing ? "Preparing" : unavailable ? availability.label : "Open review";
     return `
-      <button class="tool-card" type="button" data-tool="${key}" data-index="${tool.index}">
-        <span class="tool-card-top"><span class="tool-card-index">${tool.index} / ${escapeHtml(tool.category)}</span><span class="tool-mode ${tool.mode === "prototype" ? "prototype" : ""}">${toolModeLabel(tool)}</span></span>
+      <button class="tool-card ${isPreparing ? "is-preparing" : ""} ${unavailable ? "is-unavailable" : ""}" type="button" data-tool="${key}" data-index="${tool.index}" ${unavailable ? "disabled" : ""}>
+        <span class="tool-card-top"><span class="tool-card-index">${tool.index} / ${escapeHtml(tool.category)}</span></span>
         <h3>${escapeHtml(tool.shortTitle)}</h3>
         <p>${escapeHtml(tool.description)}</p>
-        <span class="tool-card-foot"><span>Open workflow</span><span aria-hidden="true">↗</span></span>
+        <span class="tool-card-foot"><span>${escapeHtml(actionLabel)}</span><span aria-hidden="true">${isPreparing ? "…" : unavailable ? "—" : "→"}</span></span>
       </button>`;
   }).join("");
+  syncNavigationToolAvailability();
 }
 
 function analysisRecordLabel(matter) {
@@ -191,6 +259,7 @@ function analysisRecordLabel(matter) {
 
 function renderRecentAnalyses() {
   clearHistoryButton.hidden = recentAnalyses.length === 0;
+  recentSection.classList.toggle("hidden", recentAnalyses.length === 0);
   if (!recentAnalyses.length) {
     recentTable.innerHTML = '<div class="empty-history"><strong>No analyses yet</strong><span>Open a patent record and choose a review task.</span></div>';
     return;
@@ -205,6 +274,127 @@ function renderRecentAnalyses() {
       <span class="result-status complete">Saved</span>
     </button>`;
   }).join("")}`;
+}
+
+function reviewCacheKey(toolKey, payload = {}) {
+  const recordId = loadedMatter?.record_id || "no-record";
+  let inputKey = "record";
+  if (toolKey === "support") {
+    inputKey = JSON.stringify({ queries: payload.queries || [], top_n: payload.top_n || 5 });
+  }
+  return `${recordId}::${toolKey}::${inputKey}`;
+}
+
+function preparedReviewIsFresh(review, now = Date.now()) {
+  const preparedAt = Date.parse(review?.preparedAt);
+  return Number.isFinite(preparedAt) && now - preparedAt < PREPARED_REVIEW_TTL_MS;
+}
+
+async function savePreparedReview(toolKey, result, payload) {
+  const review = {
+    cacheKey: reviewCacheKey(toolKey, payload),
+    recordId: loadedMatter.record_id,
+    toolKey,
+    payload,
+    result,
+    preparedAt: new Date().toISOString()
+  };
+  preparedReviewByTool.set(toolKey, review);
+  await browserState.savePreparedReview(review);
+  renderToolGrid();
+  renderReviewBrief();
+  return review;
+}
+
+async function hydratePreparedReviews() {
+  preparedReviewByTool = new Map();
+  if (!loadedMatter) return;
+  try {
+    const reviews = await browserState.listPreparedReviews(loadedMatter.record_id);
+    const expiredCacheKeys = [];
+    const now = Date.now();
+    reviews.forEach((review) => {
+      const incompatibleFamilyHistory = loadedMatter.is_demo && review.toolKey === "family-history" && review.result?.diff_version !== 2;
+      const incompatibleFamilyClaims = loadedMatter.is_demo && review.toolKey === "family-claims" && review.result?.comparison_version !== 2;
+      const incompatibleAntecedent = loadedMatter.is_demo && review.toolKey === "antecedent" && review.result?.antecedent_version !== 2;
+      if (!preparedReviewIsFresh(review, now) || incompatibleFamilyHistory || incompatibleFamilyClaims || incompatibleAntecedent) {
+        expiredCacheKeys.push(review.cacheKey);
+        return;
+      }
+      preparedReviewByTool.set(review.toolKey, review);
+    });
+    await browserState.deletePreparedReviews(expiredCacheKeys);
+  } catch (error) {
+    console.error("Unable to restore prepared reviews", error);
+  }
+  renderToolGrid();
+  renderReviewBrief();
+}
+
+function briefFact(label, value) {
+  return `<div><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div>`;
+}
+
+function briefFinding(toolKey, label, title, copy, state = "ready") {
+  return `<button class="brief-finding ${escapeHtml(state)}" type="button" data-tool="${escapeHtml(toolKey)}">
+    <span class="brief-finding-mark" aria-hidden="true"></span>
+    <span><small>${escapeHtml(label)}</small><strong>${escapeHtml(title)}</strong><em>${escapeHtml(copy)}</em></span>
+    <span class="brief-finding-arrow" aria-hidden="true">→</span>
+  </button>`;
+}
+
+function renderReviewBrief() {
+  if (!loadedMatter) {
+    reviewBrief.classList.add("hidden");
+    return;
+  }
+
+  reviewBrief.classList.remove("hidden");
+  const patent = loadedMatter.patent_number ? `US ${formatPatentNumber(loadedMatter.patent_number)}` : `US ${formatApplicationNumber(loadedMatter.application_number)}`;
+  const familyMembers = loadedMatter.family_members?.length || 0;
+  const independentClaims = loadedMatter.family_claims?.length || 0;
+  const prosecutionEvents = (loadedMatter.prosecution_history || []).reduce((count, item) => count + (item.events || []).length, 0);
+  document.getElementById("review-brief-title").textContent = loadedMatter.title || patent;
+  document.getElementById("review-brief-meta").textContent = `${patent} · ${loadedMatter.status || "Public record"}`;
+  document.getElementById("review-brief-facts").innerHTML = [
+    briefFact("Application", formatApplicationNumber(loadedMatter.application_number)),
+    briefFact("Family grants", familyMembers || "Review available"),
+    briefFact("Independent claims", independentClaims || "Review available"),
+    briefFact("Public events", prosecutionEvents || loadedMatter.document_count || "Review available")
+  ].join("");
+
+  const antecedent = preparedReviewByTool.get("antecedent")?.result;
+  const family = preparedReviewByTool.get("family-claims")?.result;
+  const coverage = preparedReviewByTool.get("unclaimed")?.result;
+  const findings = [];
+  const highAntecedentIssues = antecedent?.summary?.high || 0;
+  if (highAntecedentIssues) {
+    findings.push(briefFinding("antecedent", "Claim drafting", `${highAntecedentIssues} reference ${highAntecedentIssues === 1 ? "issue needs" : "issues need"} review`, "Open the highlighted claim language.", "attention"));
+  }
+  if (family) {
+    const summary = family.summary || {};
+    findings.push(briefFinding("family-claims", "Family scope", `${summary.comparison_rows || 0} claim pairs changed`, `See ${summary.changed_limitations || 0} modified limitation blocks in context.`, "clear"));
+  } else if (loadedMatter.family_claims?.length) {
+    findings.push(briefFinding("family-claims", "Family scope", preparationActive ? "Aligning independent claims" : "Compare independent claims", "Review scope changes across the parent and continuation.", preparationActive ? "working" : "ready"));
+  }
+  if (coverage?.concepts?.length) {
+    findings.push(briefFinding("unclaimed", "Coverage review", `${coverage.concepts.length} concepts ready`, "Compare each disclosed concept with its closest family-claim language.", "ready"));
+  } else if (loadedMatter.coverage_candidates?.length) {
+    findings.push(briefFinding("unclaimed", "Coverage lead", preparationActive ? "Comparing disclosure and claims" : "Review potential coverage gaps", "The review ranks disclosed concepts against the family claims.", preparationActive ? "working" : "ready"));
+  }
+  if (prosecutionEvents && findings.length < 3) {
+    findings.push(briefFinding("family-history", "Prosecution", `${prosecutionEvents} dated public events`, `${loadedMatter.prosecution_history.length} applications include rejection, amendment, and allowance history.`, "ready"));
+  } else if (!prosecutionEvents && findings.length < 3) {
+    findings.push(briefFinding("support", "Specification", "Search the disclosure", "Enter a limitation to find the strongest source passages.", "ready"));
+  }
+  document.getElementById("review-brief-findings").innerHTML = findings.slice(0, 3).join("");
+
+  const status = document.getElementById("review-brief-status");
+  const preparedCount = demoToolOrder.filter((key) => preparedReviewByTool.has(key)).length;
+  const remaining = Math.max(0, preparationExpected - preparedCount);
+  status.hidden = !preparationActive;
+  status.classList.toggle("is-working", preparationActive);
+  status.querySelector("strong").textContent = `Preparing ${remaining} ${remaining === 1 ? "review" : "reviews"}`;
 }
 
 async function persistCurrentMatter() {
@@ -240,7 +430,9 @@ async function openSavedAnalysis(analysisId) {
   const analysis = recentAnalyses.find((item) => item.id === analysisId);
   if (!analysis || !tools[analysis.toolKey]) return;
   loadedMatter = analysis.matter;
+  preparedReviewByTool = new Map();
   renderLoadedMatter();
+  await hydratePreparedReviews();
   const persistence = persistCurrentMatter();
   openTool(analysis.toolKey);
   renderResult(analysis.toolKey, analysis.result, analysis.payload);
@@ -260,6 +452,21 @@ async function clearAnalysisHistory() {
   }
 }
 
+async function clearBrowserData() {
+  if (!window.confirm("Clear the selected patent, prepared reviews, review inputs, and analysis history from this browser?")) return;
+  try {
+    await browserState.clearAllData();
+    recentAnalyses = [];
+    renderRecentAnalyses();
+    await clearLoadedPatent();
+    showOverview();
+    showToast("Browser review data cleared.");
+  } catch (error) {
+    console.error("Unable to clear browser review data", error);
+    showToast("Browser review data could not be cleared.");
+  }
+}
+
 async function restoreBrowserState() {
   try {
     const [matter, analyses] = await Promise.all([
@@ -273,7 +480,9 @@ async function restoreBrowserState() {
     if (matter) {
       loadedMatter = matter.is_demo ? demoRecord : matter;
       renderLoadedMatter();
+      await hydratePreparedReviews();
       if (matter.is_demo) await browserState.saveCurrentMatter(loadedMatter);
+      void prepareCommonReviews();
     }
     renderRecentAnalyses();
   } catch (error) {
@@ -292,11 +501,16 @@ function setActiveNavigation(toolKey) {
   }
 }
 
+function closeSidebar() {
+  sidebar.classList.remove("is-open");
+  document.getElementById("mobile-menu").setAttribute("aria-expanded", "false");
+}
+
 function showOverview() {
   activeToolKey = null;
   overviewView.classList.remove("hidden");
   toolView.classList.add("hidden");
-  sidebar.classList.remove("is-open");
+  closeSidebar();
   setActiveNavigation(null);
   history.replaceState(null, "", "#overview");
   window.scrollTo({ top: 0, behavior: "auto" });
@@ -309,29 +523,58 @@ function openTool(toolKey) {
   activeToolKey = toolKey;
   overviewView.classList.add("hidden");
   toolView.classList.remove("hidden");
-  sidebar.classList.remove("is-open");
+  closeSidebar();
   setActiveNavigation(toolKey);
-  document.getElementById("breadcrumb-name").textContent = tool.shortTitle;
-  document.getElementById("tool-index").textContent = tool.index;
-  document.getElementById("tool-title").textContent = tool.title;
+  document.getElementById("tool-title").textContent = tool.shortTitle;
   document.getElementById("tool-description").textContent = tool.description;
-  document.getElementById("tool-runtime").textContent = tool.runtime;
-  document.getElementById("form-guidance").textContent = tool.guidance;
-  document.getElementById("context-title").textContent = tool.contextTitle;
-  document.getElementById("context-copy").textContent = tool.contextCopy;
-  document.getElementById("input-assurance-copy").innerHTML = loadedMatter?.is_demo
-    ? "<strong>Official USPTO record.</strong> This saved public record includes the complete grant specification and claims."
-    : "<strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.";
-  const modeBadge = document.getElementById("mode-badge");
-  modeBadge.textContent = toolModeLabel(tool);
-  modeBadge.classList.toggle("prototype", tool.mode === "prototype");
+  document.getElementById("form-guidance").textContent = tool.fields === "support"
+    ? "Enter the limitation or concept you want to find."
+    : "";
+  toolForm.classList.toggle("simple-action", Boolean(loadedMatter && tool.fields !== "support"));
   renderFields(tool);
+  analysisColumn.classList.remove("has-prepared-result", "has-result", "is-editing", "is-preparing");
+  document.getElementById("adjust-input").hidden = true;
   progressPanel.classList.add("hidden");
   resultsPanel.classList.add("hidden");
   resultsContent.innerHTML = "";
   history.replaceState(null, "", `#${toolKey}`);
   window.scrollTo({ top: 0, behavior: "auto" });
   document.getElementById("main-content").focus();
+  showPreparedReview(toolKey);
+}
+
+function showPreparedReview(toolKey) {
+  let prepared = preparedReviewByTool.get(toolKey);
+  if (prepared && !preparedReviewIsFresh(prepared)) {
+    preparedReviewByTool.delete(toolKey);
+    void browserState.deletePreparedReviews([prepared.cacheKey]);
+    prepared = null;
+    if (!preparationActive && loadedMatter) void prepareCommonReviews();
+  }
+  if (prepared) {
+    renderResult(toolKey, prepared.result, prepared.payload, { prepared: true, scroll: false });
+    syncRunButton();
+    return;
+  }
+  if (preparingToolKeys.has(toolKey)) {
+    showToolPreparationState();
+    syncRunButton();
+    return;
+  }
+  if (loadedMatter && tools[toolKey]?.mode === "record") {
+    renderResult(toolKey, { record: true }, {}, { prepared: true, scroll: false });
+    syncRunButton();
+  }
+}
+
+function showToolPreparationState() {
+  analysisColumn.classList.add("is-preparing");
+  progressPanel.classList.add("is-background");
+  progressPanel.classList.remove("hidden");
+  document.getElementById("progress-title").textContent = "Preparing review";
+  document.getElementById("progress-percent").textContent = "";
+  document.getElementById("progress-fill").style.width = "35%";
+  document.getElementById("progress-steps").innerHTML = "";
 }
 
 function field(label, control, hint = "") {
@@ -350,13 +593,28 @@ function patentLoaderMarkup(variant) {
           <div><dt>Patent</dt><dd>${escapeHtml(patent)}</dd></div>
           <div><dt>Status</dt><dd>${escapeHtml(loadedMatter.status || "—")}</dd></div>
         </dl>
-        ${variant === "overview" ? '<button class="change-patent" type="button" data-change-patent>Open a different patent</button>' : ""}
+        ${variant === "overview" ? '<button class="change-patent" type="button" data-change-patent>Change patent</button>' : ""}
       </div>
     </div>`;
   }
 
+  const dataSourceNote = `<p class="patent-data-note">US 9,922,200 includes all eight reviews. Other lookups use Google Patents for published patent text because this demo is not connected to the USPTO API. Prosecution history and examiner data may therefore be limited.</p>`;
+  if (!patentLookupExpanded) {
+    return `<div class="patent-loader-component ${variant} patent-start">
+      ${variant === "inline" ? '<div class="inline-loader-heading"><strong>Choose a patent to continue.</strong></div>' : ""}
+      <div class="patent-start-actions">
+        <button class="use-preloaded-patent" type="button" data-load-demo-record>Use preloaded patent</button>
+        <button class="show-patent-lookup" type="button" data-show-patent-lookup>Look up patent</button>
+      </div>
+      ${dataSourceNote}
+    </div>`;
+  }
+
   return `<div class="patent-loader-component ${variant}" data-patent-record-loader>
-    ${variant === "inline" ? '<div class="inline-loader-heading"><span>No patent loaded</span><strong>Choose a patent once. It will carry through every review.</strong></div>' : ""}
+    <div class="patent-lookup-heading">
+      <strong>Look up a patent</strong>
+      <button type="button" data-hide-patent-lookup>Back</button>
+    </div>
     <label>U.S. patent or application number</label>
     <div class="record-lookup-row">
       <select data-lookup-identifier-type aria-label="Identifier type">
@@ -366,11 +624,8 @@ function patentLoaderMarkup(variant) {
       <input data-lookup-identifier inputmode="numeric" autocomplete="off" aria-label="U.S. patent or application number" placeholder="12,345,678">
       <button type="button" data-patent-lookup-submit>Open</button>
     </div>
-    <p class="lookup-message" data-lookup-message aria-live="polite">Numbers are resolved against the USPTO Open Data Portal.</p>
-    <div class="demo-record-action">
-      <div><strong>Open a real USPTO patent</strong><small>Use a saved official record without a USPTO account.</small></div>
-      <button type="button" data-load-demo-record>Open US 9,922,200</button>
-    </div>
+    <p class="lookup-message" data-lookup-message aria-live="polite"></p>
+    ${dataSourceNote}
   </div>`;
 }
 
@@ -388,14 +643,7 @@ function matterSourceField(section) {
   if (!loadedMatter) {
     return `<div class="inline-record-loader" data-record-loader-host data-variant="inline"></div>`;
   }
-  const isTextSection = section === "Specification" || section === "Claims";
-  const count = section === "Specification" ? loadedMatter.specification_character_count : loadedMatter.claims_character_count;
-  const detail = isTextSection
-    ? (count ? `${count.toLocaleString()} characters ready` : `${section} text was not found in the retrieved document`)
-    : (loadedMatter.display_identifier || loadedMatter.source);
-  const sourceLabel = loadedMatter.is_demo ? "saved USPTO record" : "loaded patent";
-  const sourceDetail = loadedMatter.is_demo ? "Official document text · Used automatically" : "Used automatically for this review";
-  return `<div class="matter-source ${loadedMatter.is_demo ? "demo" : ""}"><span>${escapeHtml(section)} from ${sourceLabel}</span><strong>${escapeHtml(loadedMatter.title || `Application ${loadedMatter.application_number}`)}</strong><small>${escapeHtml(detail)} · ${sourceDetail}</small></div>`;
+  return "";
 }
 
 function claimField() {
@@ -406,7 +654,7 @@ function supportFields() {
   return `
     ${matterSourceField("Specification")}
     <div class="field">
-      <label><span>Limitations or concepts</span><small>Up to 64 per request</small></label>
+      <label><span>Limitations or concepts</span></label>
       <div class="query-list" id="query-list"></div>
       <button class="add-query" id="add-query" type="button">+ Add another limitation</button>
     </div>
@@ -428,8 +676,7 @@ function renderFields(tool) {
     dynamicFields.innerHTML = matterSourceField("Specification");
   }
   if (tool.fields === "examiner") {
-    const value = loadedMatter?.is_demo ? loadedMatter.review_examples.examiner_query : "";
-    dynamicFields.innerHTML = `${matterSourceField("Analytics cohort")}${field("Examiner, art unit, work group, or tech center", `<input id="examiner-query" name="examinerQuery" type="search" aria-label="Examiner, art unit, work group, or tech center" placeholder="Try: Art Unit 2123" value="${escapeHtml(value)}" required>`, "Search results can be narrowed by name or USPTO organizational unit.")}`;
+    dynamicFields.innerHTML = matterSourceField("Examiner on this patent");
   }
   attachFieldBehavior(tool);
   renderPatentLoaders();
@@ -438,8 +685,17 @@ function renderFields(tool) {
 
 function syncRunButton() {
   const runButton = document.getElementById("run-analysis");
-  runButton.disabled = !loadedMatter;
-  runButton.querySelector("span:first-child").textContent = loadedMatter ? "Run analysis" : "Choose a patent above";
+  const isPreparing = preparingToolKeys.has(activeToolKey);
+  runButton.disabled = !loadedMatter || isPreparing;
+  runButton.querySelector("span:first-child").textContent = !loadedMatter
+    ? "Choose a patent above"
+    : isPreparing
+      ? "Preparing analysis"
+    : preparedReviewByTool.has(activeToolKey) || tools[activeToolKey]?.mode === "record"
+      ? tools[activeToolKey]?.mode === "record" && loadedMatter.is_demo
+        ? "View saved example"
+        : "Refresh analysis"
+      : "Run analysis";
 }
 
 function attachFieldBehavior(tool) {
@@ -473,6 +729,9 @@ function collectPayload(tool) {
     throw new Error("This review currently needs the built-in USPTO record.");
   }
   if (tool.fields === "identifier") {
+    if (!loadedMatter?.family_claims?.length) {
+      throw new Error("Family claim data is not available for this patent record.");
+    }
     if (loadedMatter?.is_demo) {
       return { idType: "patent", identifier: loadedMatter.patent_number };
     }
@@ -484,9 +743,11 @@ function collectPayload(tool) {
   if (tool.fields === "claim") {
     if (!loadedMatter) throw new Error("Open a patent record before running this analysis.");
     if (!loadedMatter.claims_character_count) throw new Error("No claims text was found in the retrieved specification.");
+    if (activeToolKey === "antecedent" && loadedMatter.family_claims?.length) {
+      return { claims: loadedMatter.family_claims };
+    }
     if (loadedMatter.is_demo) {
-      const claimText = activeToolKey === "linguistic" ? loadedMatter.principal_claim_text : loadedMatter.claims_text;
-      return { claim_text: claimText };
+      return { claim_text: loadedMatter.principal_claim_text };
     }
     return { record_id: loadedMatter.record_id };
   }
@@ -505,9 +766,8 @@ function collectPayload(tool) {
     if (loadedMatter.is_demo) return { inventionText: loadedMatter.abstract };
     return { recordId: loadedMatter.record_id };
   }
-  const examinerQuery = document.getElementById("examiner-query").value.trim();
-  if (!examinerQuery) throw new Error("Enter an examiner, art unit, work group, or technology center.");
-  return { examinerQuery };
+  if (tool.fields === "examiner") return {};
+  return {};
 }
 
 async function runAnalysis(event) {
@@ -515,6 +775,11 @@ async function runAnalysis(event) {
   const toolKey = activeToolKey;
   const tool = tools[toolKey];
   if (!tool) return;
+  if (preparingToolKeys.has(toolKey)) {
+    showToast("This review is already preparing.");
+    showToolPreparationState();
+    return;
+  }
   let payload;
   try {
     payload = collectPayload(tool);
@@ -525,6 +790,7 @@ async function runAnalysis(event) {
 
   const runButton = document.getElementById("run-analysis");
   runButton.disabled = true;
+  analysisColumn.classList.remove("has-prepared-result", "has-result", "is-editing");
   resultsPanel.classList.add("hidden");
   startProgress(tool);
   try {
@@ -532,6 +798,7 @@ async function runAnalysis(event) {
     await animateProgress(tool, resultPromise);
     const result = await resultPromise;
     renderResult(toolKey, result, payload);
+    await savePreparedReview(toolKey, result, payload);
     await persistCompletedAnalysis(toolKey, result, payload);
   } catch (error) {
     renderError(error);
@@ -541,6 +808,7 @@ async function runAnalysis(event) {
 }
 
 function startProgress(tool) {
+  progressPanel.classList.remove("is-background");
   progressPanel.classList.remove("hidden");
   document.getElementById("progress-title").textContent = tool.steps[0];
   document.getElementById("progress-percent").textContent = "5%";
@@ -570,7 +838,7 @@ async function animateProgress(tool, resultPromise) {
 
 function formatApplicationNumber(value) {
   const digits = String(value || "").replace(/\D/g, "");
-  return digits.length === 8 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : (digits || "—");
+  return digits.length === 8 ? `${digits.slice(0, 2)}/${digits.slice(2, 5)},${digits.slice(5)}` : (digits || "—");
 }
 
 function formatPatentNumber(value) {
@@ -580,50 +848,53 @@ function formatPatentNumber(value) {
 
 function renderLoadedMatter() {
   if (!loadedMatter) return;
+  patentLookupExpanded = false;
   const title = loadedMatter.title || `Application ${formatApplicationNumber(loadedMatter.application_number)}`;
   const application = formatApplicationNumber(loadedMatter.application_number);
-  const patent = formatPatentNumber(loadedMatter.patent_number);
   document.getElementById("matter-name").textContent = title;
   document.getElementById("matter-meta").textContent = loadedMatter.is_demo
-    ? `${loadedMatter.display_identifier} · Saved USPTO record`
+    ? loadedMatter.display_identifier
     : `US ${application} · ${loadedMatter.status || "Public record"}`;
-  document.getElementById("record-status").textContent = "Loaded";
-  document.getElementById("context-application").textContent = application;
-  document.getElementById("context-patent").textContent = patent;
-  document.getElementById("context-status").textContent = loadedMatter.status || "—";
-  document.getElementById("context-source").textContent = loadedMatter.source;
-  document.getElementById("source-assurance-title").textContent = "Official source";
-  document.getElementById("source-assurance-copy").textContent = loadedMatter.is_demo ? "This saved record comes from USPTO Patent Public Search." : "Records are retrieved from the USPTO Open Data Portal.";
+  overviewView.classList.add("has-record");
+  document.getElementById("overview-title").textContent = loadedMatter.patent_number
+    ? `Review US ${formatPatentNumber(loadedMatter.patent_number)}`
+    : `Review US ${formatApplicationNumber(loadedMatter.application_number)}`;
+  document.querySelector(".overview-hero > div:first-child > p").textContent = `${title}. Common claim and family checks are prepared below.`;
   renderToolGrid();
   renderPatentLoaders();
+  renderReviewBrief();
   if (activeToolKey) {
     const tool = tools[activeToolKey];
-    document.getElementById("mode-badge").textContent = toolModeLabel(tool);
-    document.getElementById("input-assurance-copy").innerHTML = loadedMatter.is_demo
-      ? "<strong>Official USPTO record.</strong> This saved public record includes the complete grant specification and claims."
-      : "<strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.";
+    toolForm.classList.toggle("simple-action", tool.fields !== "support");
     renderFields(tool);
   }
 }
 
 async function loadDemoPatent() {
   loadedMatter = demoRecord;
+  preparedReviewByTool = new Map();
   renderLoadedMatter();
   await persistCurrentMatter();
+  await hydratePreparedReviews();
+  if (activeToolKey) showPreparedReview(activeToolKey);
+  void prepareCommonReviews();
   showToast("US 9,922,200 loaded.");
 }
 
 async function clearLoadedPatent() {
+  preparationToken += 1;
+  preparationActive = false;
+  preparationExpected = 0;
+  preparingToolKeys = new Set();
+  preparedReviewByTool = new Map();
   loadedMatter = null;
+  patentLookupExpanded = false;
   document.getElementById("matter-name").textContent = "No record loaded";
   document.getElementById("matter-meta").textContent = "Open a U.S. patent record";
-  document.getElementById("record-status").textContent = "Not loaded";
-  document.getElementById("context-application").textContent = "Not loaded";
-  document.getElementById("context-patent").textContent = "Not loaded";
-  document.getElementById("context-status").textContent = "Not loaded";
-  document.getElementById("context-source").textContent = "USPTO";
-  document.getElementById("source-assurance-title").textContent = "Official source";
-  document.getElementById("source-assurance-copy").textContent = "Records are retrieved from the USPTO Open Data Portal.";
+  overviewView.classList.remove("has-record");
+  document.getElementById("overview-title").textContent = "Start with the record.";
+  document.querySelector(".overview-hero > div:first-child > p").textContent = "Open a U.S. patent or application. The same record stays available in every review.";
+  renderReviewBrief();
   renderToolGrid();
   renderPatentLoaders();
   if (activeToolKey) renderFields(tools[activeToolKey]);
@@ -639,6 +910,7 @@ async function lookupPatent(loader) {
   const identifierType = loader.querySelector("[data-lookup-identifier-type]").value;
   const identifierInput = loader.querySelector("[data-lookup-identifier]");
   const identifier = identifierInput.value.trim();
+  const completeExample = isCompleteExampleIdentifier(identifierType, identifier);
   const submit = loader.querySelector("[data-patent-lookup-submit]");
   const message = loader.querySelector("[data-lookup-message]");
   const validationMessage = PatentAgilityErrors.validatePatentIdentifier(identifierType, identifier);
@@ -650,16 +922,24 @@ async function lookupPatent(loader) {
   }
   submit.disabled = true;
   submit.textContent = "Opening…";
-  message.textContent = "Retrieving the official file and preparing its specification and claims.";
+  message.textContent = completeExample
+    ? "Opening the complete saved patent review."
+    : "Retrieving the public patent record and preparing its specification and claims.";
   message.className = "lookup-message is-working";
   try {
-    loadedMatter = await requestJson("/v1/patents/lookup", {
-      identifier_type: identifierType,
-      identifier
-    });
+    loadedMatter = completeExample
+      ? demoRecord
+      : await requestJson("/v1/patents/lookup", {
+          identifier_type: identifierType,
+          identifier
+        });
+    preparedReviewByTool = new Map();
     renderLoadedMatter();
     await persistCurrentMatter();
-    showToast("USPTO record loaded.");
+    await hydratePreparedReviews();
+    if (activeToolKey) showPreparedReview(activeToolKey);
+    void prepareCommonReviews();
+    showToast(completeExample ? "Complete US 9,922,200 example loaded." : "Public patent record loaded.");
   } catch (error) {
     message.textContent = error.message;
     message.className = "lookup-message is-error";
@@ -674,48 +954,335 @@ function executeTool(toolKey, payload) {
   if (toolKey === "support") return requestJson("/v1/support/search", payload);
   if (toolKey === "antecedent") return requestJson("/v1/claims/antecedent", payload);
   if (toolKey === "linguistic") return requestJson("/v1/claims/diagram", payload);
-  return new Promise((resolve) => setTimeout(() => resolve({ prototype: true }), 850));
+  if (toolKey === "family-history") {
+    return requestJson("/v1/family/claims/compare", { claims: loadedMatter.family_claims })
+      .then((comparison) => prepareFamilyHistoryResult(comparison, loadedMatter));
+  }
+  if (toolKey === "family-claims") {
+    return requestJson("/v1/family/claims/compare", { claims: loadedMatter.family_claims });
+  }
+  if (toolKey === "unclaimed") {
+    return requestJson("/v1/family/coverage", {
+      claims: loadedMatter.family_claims,
+      concepts: loadedMatter.coverage_candidates
+    });
+  }
+  return Promise.resolve({ record: true });
 }
 
-function renderResult(toolKey, result, payload) {
+function amendmentSnapshotKey(record, snapshot) {
+  return `${record.application_number}:${snapshot.date}:${snapshot.claim_number || "summary"}`;
+}
+
+async function prepareFamilyHistoryResult(comparison, matter) {
+  const snapshots = (matter?.prosecution_history || []).flatMap((record) =>
+    (record.snapshots || [])
+      .filter((snapshot) => snapshot.before_claim_text && snapshot.after_claim_text)
+      .map((snapshot) => ({ record, snapshot }))
+  );
+  const amendmentDiffs = await Promise.all(snapshots.map(async ({ record, snapshot }) => {
+    const diff = await requestJson("/v1/claims/diff", {
+      before_claim_text: snapshot.before_claim_text,
+      after_claim_text: snapshot.after_claim_text
+    });
+    return {
+      key: amendmentSnapshotKey(record, snapshot),
+      ...diff
+    };
+  }));
+  return { ...comparison, diff_version: 2, amendment_diffs: amendmentDiffs };
+}
+
+function commonReviewTasks(matter, token) {
+  const tasks = [];
+  const addTask = (toolKeys, run) => tasks.push({ toolKeys, run });
+  const saveIfCurrent = async (toolKey, result, payload) => {
+    if (token !== preparationToken || loadedMatter?.record_id !== matter.record_id) return;
+    await savePreparedReview(toolKey, result, payload);
+    preparingToolKeys.delete(toolKey);
+    renderToolGrid();
+    syncRunButton();
+    if (activeToolKey === toolKey && resultsPanel.classList.contains("hidden")) {
+      showPreparedReview(toolKey);
+    }
+  };
+
+  if (matter.is_demo && matter.specification_text && matter.review_examples?.support_queries?.length && !preparedReviewByTool.has("support")) {
+    addTask(["support"], async () => {
+      const payload = {
+        patent_text: matter.specification_text,
+        queries: matter.review_examples.support_queries,
+        top_n: 3
+      };
+      const result = await requestJson("/v1/support/search", payload);
+      await saveIfCurrent("support", result, payload);
+    });
+  }
+
+  if (matter.claims_character_count) {
+    const claimPayload = matter.is_demo
+      ? { claim_text: matter.principal_claim_text }
+      : { record_id: matter.record_id };
+    const antecedentPayload = matter.family_claims?.length
+      ? { claims: matter.family_claims }
+      : claimPayload;
+    if (!preparedReviewByTool.has("antecedent")) {
+      addTask(["antecedent"], async () => {
+        const result = await requestJson("/v1/claims/antecedent", antecedentPayload);
+        await saveIfCurrent("antecedent", result, antecedentPayload);
+      });
+    }
+    if (!preparedReviewByTool.has("linguistic")) {
+      addTask(["linguistic"], async () => {
+        const result = await requestJson("/v1/claims/diagram", claimPayload);
+        await saveIfCurrent("linguistic", result, claimPayload);
+      });
+    }
+  }
+
+  if (matter.family_claims?.length && (!preparedReviewByTool.has("family-claims") || !preparedReviewByTool.has("family-history"))) {
+    const familyToolKeys = ["family-claims", "family-history"].filter((toolKey) => !preparedReviewByTool.has(toolKey));
+    addTask(familyToolKeys, async () => {
+      const payload = { claims: matter.family_claims };
+      const result = await requestJson("/v1/family/claims/compare", payload);
+      if (!preparedReviewByTool.has("family-claims")) {
+        await saveIfCurrent("family-claims", result, payload);
+      }
+      if (!preparedReviewByTool.has("family-history")) {
+        const familyHistoryResult = await prepareFamilyHistoryResult(result, matter);
+        await saveIfCurrent("family-history", familyHistoryResult, payload);
+      }
+    });
+  }
+
+  if (matter.family_claims?.length && matter.coverage_candidates?.length && !preparedReviewByTool.has("unclaimed")) {
+    addTask(["unclaimed"], async () => {
+      const payload = {
+        claims: matter.family_claims,
+        concepts: matter.coverage_candidates
+      };
+      const result = await requestJson("/v1/family/coverage", payload);
+      await saveIfCurrent("unclaimed", result, payload);
+    });
+  }
+  return tasks;
+}
+
+async function prepareCommonReviews() {
+  if (!loadedMatter) return;
+  const matter = loadedMatter;
+  const token = ++preparationToken;
+  const tasks = commonReviewTasks(matter, token);
+  preparationExpected = tasks.length;
+  if (!tasks.length) {
+    preparationActive = false;
+    preparingToolKeys = new Set();
+    syncRunButton();
+    renderReviewBrief();
+    return;
+  }
+
+  preparationActive = true;
+  preparingToolKeys = new Set(tasks.flatMap((task) => task.toolKeys));
+  renderToolGrid();
+  if (activeToolKey && preparingToolKeys.has(activeToolKey) && !preparedReviewByTool.has(activeToolKey)) {
+    showToolPreparationState();
+  }
+  syncRunButton();
+  renderReviewBrief();
+  let nextTask = 0;
+  const worker = async () => {
+    while (nextTask < tasks.length && token === preparationToken) {
+      const task = tasks[nextTask];
+      nextTask += 1;
+      try {
+        await task.run();
+      } catch (error) {
+        console.warn("A background review could not be prepared", error);
+      }
+      if (token === preparationToken) {
+        task.toolKeys.forEach((toolKey) => preparingToolKeys.delete(toolKey));
+        renderToolGrid();
+        syncRunButton();
+        renderReviewBrief();
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(2, tasks.length) }, worker));
+  if (token !== preparationToken) return;
+  preparationActive = false;
+  preparingToolKeys = new Set();
+  renderToolGrid();
+  renderReviewBrief();
+}
+
+function renderResult(toolKey, result, payload, { prepared = false, scroll = true } = {}) {
+  progressPanel.classList.remove("is-background");
   progressPanel.classList.add("hidden");
   resultsPanel.classList.remove("hidden");
+  analysisColumn.classList.remove("is-preparing");
+  analysisColumn.classList.toggle("has-prepared-result", prepared);
+  analysisColumn.classList.add("has-result");
+  analysisColumn.classList.remove("is-editing");
+  const adjustInput = document.getElementById("adjust-input");
+  const adjustableLabels = { support: "Change limitations" };
+  adjustInput.hidden = !adjustableLabels[toolKey];
+  adjustInput.textContent = adjustableLabels[toolKey] || "Review input";
   if (toolKey === "support") renderSupport(result);
   if (toolKey === "antecedent") renderAntecedent(result);
   if (toolKey === "linguistic") renderDiagrams(result);
   if (toolKey === "examiner") renderExaminer(payload);
-  if (toolKey === "family-history") renderFamilyHistory(payload);
-  if (toolKey === "family-claims") renderFamilyClaims(payload);
-  if (toolKey === "unclaimed") renderUnclaimed(payload);
+  if (toolKey === "family-history") renderFamilyHistory(result, payload);
+  if (toolKey === "family-claims") renderFamilyClaims(result, payload);
+  if (toolKey === "unclaimed") renderUnclaimed(result, payload);
   if (toolKey === "art-unit") renderArtUnit(payload);
-  lastResultSummary = `${document.getElementById("results-title").innerText}\n${document.getElementById("results-summary").innerText}\n\n${resultsContent.innerText}`;
-  resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (scroll) resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function setResultHeading(title, summary) {
   document.getElementById("results-title").textContent = title;
   document.getElementById("results-summary").textContent = summary;
-  lastResultSummary = `${title}. ${summary}`;
 }
 
 function stat(label, value) {
   return `<div class="summary-stat"><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div>`;
 }
 
+function displayDate(value) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return String(value || "");
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+function percentageLineChart(series) {
+  const width = 720;
+  const height = 260;
+  const left = 52;
+  const right = 18;
+  const top = 18;
+  const bottom = 42;
+  const innerWidth = width - left - right;
+  const innerHeight = height - top - bottom;
+  const x = (index) => left + (series.length === 1 ? 0 : (index / (series.length - 1)) * innerWidth);
+  const y = (value) => top + (1 - Math.max(0, Math.min(100, value)) / 100) * innerHeight;
+  const points = series.map((item, index) => `${x(index).toFixed(1)},${y(item.grant_rate).toFixed(1)}`).join(" ");
+  const area = `${left},${top + innerHeight} ${points} ${left + innerWidth},${top + innerHeight}`;
+  const yGrid = [0, 25, 50, 75, 100].map((value) => `<line class="grid" x1="${left}" y1="${y(value)}" x2="${left + innerWidth}" y2="${y(value)}"></line><text x="${left - 10}" y="${y(value) + 4}" text-anchor="end">${value}%</text>`).join("");
+  const labelIndexes = new Set([0, series.length - 1, ...series.map((_item, index) => index).filter((index) => index % 4 === 0)]);
+  const xLabels = series.map((item, index) => labelIndexes.has(index) ? `<text class="axis-label" x="${x(index)}" y="${height - 14}" text-anchor="middle">${item.year}</text>` : "").join("");
+  const circles = series.map((item, index) => `<circle cx="${x(index)}" cy="${y(item.grant_rate)}" r="4"><title>${item.year}: ${item.grant_rate.toFixed(1)}% · ${item.granted}/${item.applications} grants</title></circle>`).join("");
+  return `<svg class="line-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Yearly observed grant rate from ${series[0]?.year} through ${series.at(-1)?.year}">${yGrid}<polygon class="area" points="${area}"></polygon><polyline class="line" points="${points}"></polyline>${circles}${xLabels}</svg>`;
+}
+
+function comparisonTable(profile) {
+  const rows = profile.context_comparison.map((item) => `<tr><th scope="row">${escapeHtml(item.scope)}</th><td>${Number(item.examiners).toLocaleString()}</td><td>${item.grant_ratio.toFixed(1)}%</td><td>${item.average_office_actions_per_grant.toFixed(2)}</td></tr>`).join("");
+  return `<div class="table-card"><div class="table-card-heading"><h3>Context comparison</h3><p>Observed lifetime outcomes across progressively broader cohorts.</p></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Scope</th><th>Examiners</th><th>Grant ratio</th><th>Avg. OA / grant</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+function examinerOutcomeSummary(metrics) {
+  const nonGrantRatio = 100 - metrics.grant_ratio;
+  return `<article class="examiner-outcomes">
+    <div class="examiner-section-heading">
+      <div>
+        <small>Observed outcomes</small>
+        <h3>${metrics.applications.toLocaleString()} evaluated applications</h3>
+      </div>
+      <p>Each application is counted once in the saved cohort.</p>
+    </div>
+    <div class="outcome-bar" aria-label="${metrics.granted.toLocaleString()} granted applications and ${metrics.not_granted.toLocaleString()} non-granted applications">
+      <span class="outcome-granted" style="width: ${metrics.grant_ratio}%"></span>
+      <span class="outcome-not-granted" style="width: ${nonGrantRatio}%"></span>
+    </div>
+    <div class="outcome-labels">
+      <div><span class="outcome-key granted"></span><strong>${metrics.granted.toLocaleString()}</strong><p>Granted · ${metrics.grant_ratio.toFixed(1)}%</p></div>
+      <div><span class="outcome-key not-granted"></span><strong>${metrics.not_granted.toLocaleString()}</strong><p>Not granted · ${nonGrantRatio.toFixed(1)}%</p></div>
+    </div>
+  </article>`;
+}
+
+function examinerCoverage(profile) {
+  return `<article class="examiner-coverage">
+    <div class="examiner-section-heading">
+      <div>
+        <small>Record coverage</small>
+        <h3>What this profile includes</h3>
+      </div>
+    </div>
+    <dl>
+      <div><dt>Observed examiner years</dt><dd>${escapeHtml(profile.observed_years)}</dd></div>
+      <div><dt>Latest office action</dt><dd>${escapeHtml(displayDate(profile.data_recency))}</dd></div>
+      <div><dt>Art units seen</dt><dd>${(profile.art_units_seen || [profile.art_unit]).map(escapeHtml).join(", ")}</dd></div>
+      <div><dt>Work groups seen</dt><dd>${(profile.work_groups_seen || [profile.group]).map(escapeHtml).join("<br>")}</dd></div>
+      <div><dt>Predicted supervisor</dt><dd>${escapeHtml(profile.predicted_supervisor || "Not available")}<small>Prediction in the source profile</small></dd></div>
+    </dl>
+  </article>`;
+}
+
+function section101YearlyChart(profile) {
+  const series = profile.section_101_timeline || [];
+  const policyMarkers = profile.section_101_policy_markers || [];
+  const markerMap = new Map(policyMarkers.map((marker) => [marker.year, marker.label]));
+  const bars = series.map((item) => {
+    const marker = markerMap.get(item.year);
+    const barHeight = Math.min(100, (item.rejection_rate / 20) * 100);
+    const markerMarkup = marker ? '<span class="policy-dot" aria-hidden="true"></span>' : "";
+    return `<div class="section-101-year" aria-label="${item.year}: ${item.rejection_rate.toFixed(1)} percent of observed office actions included a Section 101 rejection${marker ? `; ${marker}` : ""}">
+      <span class="section-101-value">${item.rejection_rate.toFixed(1)}%</span>
+      <div class="section-101-column"><span style="height: ${barHeight}%"></span></div>
+      <strong>${item.year}</strong>
+      ${markerMarkup}
+    </div>`;
+  }).join("");
+  const markers = policyMarkers.map((marker) => `<li><strong>${marker.year}</strong><span>${escapeHtml(marker.label)}</span></li>`).join("");
+  return `<article class="table-card section-101-card">
+    <div class="table-card-heading">
+      <h3>§ 101 rejection trend</h3>
+      <p>Share of this examiner’s observed office actions in each year that included a § 101 rejection.</p>
+    </div>
+    <div class="section-101-scroll">
+      <div class="section-101-bars" role="img" aria-label="Yearly Section 101 rejection rate from ${series[0]?.year} through ${series.at(-1)?.year}">${bars}</div>
+    </div>
+    <ul class="policy-marker-list" aria-label="Patent eligibility policy markers">${markers}</ul>
+  </article>`;
+}
+
+function renderEvidenceHit(hit, label) {
+  return `<article class="evidence-hit">
+    <div class="hit-rank">${escapeHtml(label)}</div>
+    <div>
+      <h3>Passage ${Number(hit.paragraph_id) + 1}, sentence ${Number(hit.sentence_id) + 1}</h3>
+      <p>${highlightSentenceInPassage(hit.paragraph, hit.sentence)}</p>
+    </div>
+  </article>`;
+}
+
 function renderSupport(result) {
   const resultGroups = Array.isArray(result.results) ? result.results : [];
   const hitCount = resultGroups.reduce((total, group) => total + (group.hits || []).length, 0);
-  setResultHeading("Specification evidence", `${hitCount} ranked passages across ${resultGroups.length} limitation${resultGroups.length === 1 ? "" : "s"}. Scores show relative retrieval rank, not a legal support conclusion.`);
-  const groups = resultGroups.map((group, groupIndex) => `
-    <section class="evidence-group">
-      <div class="section-heading compact"><div><div class="eyebrow">Limitation ${String(groupIndex + 1).padStart(2, "0")}</div><h2>${escapeHtml(group.query)}</h2></div></div>
-      <div class="evidence-list">${(group.hits || []).map((hit, index) => {
-        const score = Number(hit.score || 0);
-        const displayScore = score <= 1 ? Math.max(0, Math.min(100, score * 100)) : 100;
-        return `<article class="evidence-hit"><div class="hit-rank">${String(index + 1).padStart(2, "0")}</div><div><h3>Paragraph ${Number(hit.paragraph_id) + 1}, sentence ${Number(hit.sentence_id) + 1}</h3><p>${escapeHtml(hit.sentence)}</p></div><footer>Retrieval score ${score.toFixed(3)}<div class="score-bar"><span style="width:${displayScore}%"></span></div></footer></article>`;
-      }).join("")}</div>
-    </section>`).join("");
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Review method", "Ranked evidence")}${stat("Limitations", resultGroups.length)}${stat("Passages", hitCount)}${stat("Decision", "Attorney review")}</div>${groups || '<div class="error-box"><strong>No passages returned</strong><p>Confirm that the specification contains readable sentences.</p></div>'}`;
+  const alternativeCount = Math.max(0, hitCount - resultGroups.length);
+  setResultHeading("Best specification passages", `The first passage under each limitation is the strongest text match. Read the surrounding disclosure before you rely on it.`);
+  const groups = resultGroups.map((group, groupIndex) => {
+    const hits = group.hits || [];
+    const best = hits[0];
+    const alternatives = hits.slice(1);
+    const alternativeResults = alternatives.map((hit, index) => renderEvidenceHit(hit, `Alternative ${index + 1}`)).join("");
+    return `<section class="evidence-group">
+      <div class="section-heading compact"><div><div class="eyebrow">Limitation ${groupIndex + 1}</div><h2>${escapeHtml(group.query)}</h2></div></div>
+      <div class="evidence-list">
+        ${best ? renderEvidenceHit(best, "Best match") : '<div class="error-box"><strong>No passage returned</strong></div>'}
+        ${alternatives.length ? `<details class="evidence-alternatives"><summary>Show ${alternatives.length} alternative passage${alternatives.length === 1 ? "" : "s"}</summary><div>${alternativeResults}</div></details>` : ""}
+      </div>
+    </section>`;
+  }).join("");
+  resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("Limitations", resultGroups.length)}${stat("Best matches", resultGroups.length)}${stat("Alternatives", alternativeCount)}</div>${groups || '<div class="error-box"><strong>No passages returned</strong><p>Confirm that the specification contains readable sentences.</p></div>'}`;
+}
+
+function highlightSentenceInPassage(paragraph, sentence) {
+  const passage = String(paragraph || sentence || "");
+  const match = String(sentence || "");
+  const matchStart = match ? passage.indexOf(match) : -1;
+  if (matchStart < 0) return escapeHtml(passage);
+  return `${escapeHtml(passage.slice(0, matchStart))}<mark class="support-match">${escapeHtml(match)}</mark>${escapeHtml(passage.slice(matchStart + match.length))}`;
 }
 
 function highlightedClaim(text, issues) {
@@ -732,91 +1299,276 @@ function highlightedClaim(text, issues) {
 }
 
 function renderAntecedent(result) {
-  const issues = result.issues || [];
+  const analyzedClaims = result.claims?.length
+    ? result.claims
+    : [{
+        label: "Loaded patent",
+        document_number: "",
+        claim_number: 1,
+        claim_text: result.claim_text || "",
+        issues: result.issues || [],
+        summary: result.summary || {}
+      }];
+  const highIssues = (result.issues || []).filter((issue) => issue.severity === "high");
+  const informationIssues = (result.issues || []).filter((issue) => issue.severity !== "high");
   const high = result.summary?.high || 0;
-  const info = result.summary?.info || 0;
-  setResultHeading("Antecedent basis review", high ? `${high} likely missing antecedent${high === 1 ? " requires" : "s require"} attorney review. Informational flags identify terms introduced but not reused.` : "No likely missing antecedent basis was identified by the heuristic review.");
-  const cards = issues.map((issue, index) => `<article class="issue-card ${issue.severity === "info" ? "info" : ""}"><div class="issue-card-top"><span>${escapeHtml(issue.severity === "high" ? "Needs review" : "Information")}</span><span>Finding ${String(index + 1).padStart(2, "0")}</span></div><h3>${escapeHtml(issue.title)}</h3><p>Review “${escapeHtml(issue.text)}” against the earlier claim language and confirm that the intended term has a clear introduction.</p></article>`).join("");
-  resultsContent.innerHTML = `<div class="summary-band">${stat("High", high)}${stat("Information", info)}${stat("Mentions tracked", (result.mentions || []).length)}${stat("Review state", high ? "Attention" : "Clear")}</div><div class="issue-layout"><div class="claim-paper">${highlightedClaim(result.claim_text || "", issues)}</div><div class="issue-list">${cards || '<article class="issue-card info"><h3>No flagged references</h3><p>The heuristic found no definite noun phrase without an earlier introduction.</p></article>'}</div></div>`;
+  const claimCount = result.summary?.claim_count || analyzedClaims.length;
+  setResultHeading(
+    high
+      ? `${high} possible reference problem${high === 1 ? "" : "s"} across ${claimCount} independent claims`
+      : `No likely antecedent-basis problem across ${claimCount} independent claims`,
+    high
+      ? "Start with the highlighted definite reference. Confirm whether the earlier claim language introduces the same element."
+      : "No definite reference lacked a likely earlier introduction. Optional drafting observations remain available below."
+  );
+  const flaggedClaims = analyzedClaims
+    .filter((claim) => claim.issues?.some((issue) => issue.severity === "high"))
+    .sort((left, right) => (right.summary?.high || 0) - (left.summary?.high || 0));
+  const claimReviews = flaggedClaims.map((claim) => {
+    const claimHighIssues = claim.issues.filter((issue) => issue.severity === "high");
+    const cards = claimHighIssues.map((issue) => `<article class="issue-card"><div class="issue-card-top"><span>${escapeHtml(issue.issue_id)}</span><span>${escapeHtml(issue.confidence_label || "Review")} confidence</span></div><h3>“${escapeHtml(issue.text)}” needs an earlier introduction</h3><p>${escapeHtml(issue.message)}</p></article>`).join("");
+    const documentLabel = [claim.document_number, `Claim ${claim.claim_number}`].filter(Boolean).join(" · ");
+    return `<section class="antecedent-claim-review">
+      <header><small>${escapeHtml(claim.label || "Independent claim")}</small><h3>${escapeHtml(documentLabel)}</h3></header>
+      <div class="issue-layout">
+        <div><h4>Claim text</h4><div class="claim-paper">${highlightedClaim(claim.claim_text, claimHighIssues)}</div></div>
+        <div class="issue-list"><h4>Term to review</h4>${cards}</div>
+      </div>
+    </section>`;
+  }).join("");
+  const observationGroups = analyzedClaims.map((claim) => {
+    const claimObservations = (claim.issues || []).filter((issue) => issue.severity !== "high");
+    if (!claimObservations.length) return "";
+    const documentLabel = [claim.document_number, `Claim ${claim.claim_number}`].filter(Boolean).join(" · ");
+    return `<section><h4>${escapeHtml(documentLabel)}</h4><ul>${claimObservations.map((issue) => `<li><strong>${escapeHtml(issue.text)}</strong><span>${escapeHtml(issue.message)}</span></li>`).join("")}</ul></section>`;
+  }).join("");
+  const primaryResult = high
+    ? `<div class="antecedent-primary-list">${claimReviews}</div>`
+    : `<article class="clear-result antecedent-clear-result"><strong>No missing introduction found</strong><p>No definite reference lacked a likely earlier introduction.</p></article>`;
+  resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("Independent claims checked", claimCount)}${stat("Needs review", high)}</div>${primaryResult}${informationIssues.length ? `<details class="secondary-findings antecedent-observations"><summary>Show ${informationIssues.length} optional drafting observation${informationIssues.length === 1 ? "" : "s"}</summary><div class="optional-claim-groups">${observationGroups}</div></details>` : ""}`;
 }
 
 function renderDiagrams(result) {
   const segments = result.segments || [];
   const frames = result.frames || [];
   const demoScope = loadedMatter?.is_demo;
-  setResultHeading("Claim structure", demoScope ? `${segments.length} segments extracted from claim 1 of US 9,922,200. Inspect the action, object, and detail relationships against the official claim text.` : `${segments.length} linguistic segment${segments.length === 1 ? "" : "s"} extracted from the submitted claim. Inspect the action, object, and detail relationships before revising the draft.`);
+  setResultHeading(`Claim 1 separates into ${segments.length} limitation blocks`, demoScope ? "Follow each action to its object and supporting detail, then confirm the structure against claim 1 of US 9,922,200." : "Follow each action to its object and supporting detail, then confirm the structure against the submitted claim.");
   const rows = segments.map((segment, index) => {
     const frame = frames[index] || {};
     const leaves = frame.leaves || [];
     const alternatives = frame.or_alternatives || [];
-    return `<article class="structure-row">
-      <div class="structure-segment"><span>${String(index + 1).padStart(2, "0")} · ${escapeHtml(segment.kind || "limitation")}</span><p>${escapeHtml(segment.text)}</p></div>
-      <div class="structure-flow" aria-hidden="true">→</div>
-      <div class="frame-nodes">
-        <div class="frame-node action"><small>Action</small><strong>${escapeHtml(frame.anchor_verb || "Not isolated")}</strong></div>
-        <div class="frame-node object"><small>Object</small><strong>${escapeHtml(frame.object_np || "Contextual")}</strong></div>
-        ${leaves.map((leaf) => `<div class="frame-node detail"><small>${escapeHtml(leaf.label || "Detail")}</small><strong>${escapeHtml(leaf.text)}</strong></div>`).join("")}
-        ${alternatives.map((alternative) => `<div class="frame-node alternative"><small>Alternative</small><strong>${escapeHtml(alternative)}</strong></div>`).join("")}
+    const action = frame.anchor_verb || "Action not isolated";
+    const object = frame.object_np || "Contextual object";
+    return `<details class="structure-row" ${index === 0 ? "open" : ""}>
+      <summary class="structure-summary">
+        <span>${String(index + 1).padStart(2, "0")}</span>
+        <div><small>${escapeHtml(segment.kind || "limitation")}</small><strong>${escapeHtml(action)} <i aria-hidden="true">→</i> ${escapeHtml(object)}</strong></div>
+        <em>${leaves.length + alternatives.length} supporting detail${leaves.length + alternatives.length === 1 ? "" : "s"}</em>
+      </summary>
+      <div class="structure-detail">
+        <div class="structure-segment"><span>Claim language</span><p>${escapeHtml(segment.text)}</p></div>
+        <div class="frame-nodes">
+          <div class="frame-node action"><small>Action</small><strong>${escapeHtml(action)}</strong></div>
+          <div class="frame-node object"><small>Object</small><strong>${escapeHtml(object)}</strong></div>
+          ${leaves.map((leaf) => `<div class="frame-node detail"><small>${escapeHtml(leaf.label || "Detail")}</small><strong>${escapeHtml(leaf.text)}</strong></div>`).join("")}
+          ${alternatives.map((alternative) => `<div class="frame-node alternative"><small>Alternative</small><strong>${escapeHtml(alternative)}</strong></div>`).join("")}
+        </div>
+      </div>
+    </details>`;
+  }).join("");
+  resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("Limitation blocks", segments.length)}${stat("Source", demoScope ? "Official claim 1" : "Submitted claim")}</div><div class="structure-map">${rows || '<div class="error-box"><strong>No structure generated</strong><p>Try preserving claim punctuation and transitional phrases.</p></div>'}</div>`;
+}
+
+function renderExaminer() {
+  const profile = loadedMatter.examiner_profile;
+  if (!profile) {
+    setResultHeading("Examiner example not available", "This patent does not include a saved examiner analytics example.");
+    resultsContent.innerHTML = '<div class="error-box"><strong>No saved examiner profile</strong><p>Open the built-in patent to review the complete examiner example.</p></div>';
+    return;
+  }
+  const metrics = profile.metrics;
+  const completeTimeline = profile.grant_timeline.slice(0, -2);
+  const excludedYears = profile.grant_timeline.slice(-2).map((item) => item.year).join("–");
+  const rejectionRows = profile.rejection_timeline.map((item) => `<tr><th scope="row">${item.office_action_number}</th><td>${item.office_actions.toLocaleString()}</td><td>${item.section_101.toFixed(1)}%</td><td>${item.section_102.toFixed(1)}%</td><td>${item.section_103.toFixed(1)}%</td><td>${item.section_112.toFixed(1)}%</td></tr>`).join("");
+  setResultHeading(`${profile.name}: ${metrics.grant_ratio.toFixed(1)}% observed grant ratio`, `${metrics.applications.toLocaleString()} applications are included in the saved cohort. Use the peer comparison and rejection history as context, not as a result forecast.`);
+  const validation = profile.grant_validation || {};
+  resultsContent.innerHTML = `<div class="summary-band compact-facts">
+      ${stat("Grant ratio", `${metrics.grant_ratio.toFixed(1)}%`)}
+      ${stat("Avg. OA / grant", metrics.average_office_actions_per_grant.toFixed(2))}
+      ${stat("Applications", metrics.applications.toLocaleString())}
+      ${stat("Art unit", profile.art_unit)}
+    </div>
+    <div class="examiner-overview-grid">
+      ${examinerOutcomeSummary(metrics)}
+      ${examinerCoverage(profile)}
+    </div>
+    <div class="chart-grid">
+      <article class="chart-card">
+        <h3>Observed grant timeline</h3>
+        <p>Only years with mature outcomes are plotted.</p>
+        ${percentageLineChart(completeTimeline)}
+        <p class="chart-source">Complete outcome years ${completeTimeline[0]?.year}–${completeTimeline.at(-1)?.year}. ${excludedYears} are excluded because applications remain pending.</p>
+      </article>
+      <div class="metric-stack">
+        <div><small>Compared with art unit</small><strong>+${(metrics.grant_ratio - profile.context_comparison[1].grant_ratio).toFixed(1)} pts</strong><p>${profile.context_comparison[1].grant_ratio.toFixed(1)}% observed art-unit grant ratio</p></div>
+        <div><small>Most common first-action rejection</small><strong>§ 103</strong><p>${profile.rejection_timeline[0].section_103.toFixed(1)}% of observed first office actions</p></div>
+        <div><small>Data through</small><strong>${escapeHtml(displayDate(profile.data_recency))}</strong><p>Recent incomplete outcome years are omitted from the chart.</p></div>
+      </div>
+    </div>
+    ${comparisonTable(profile)}
+    ${section101YearlyChart(profile)}
+    <div class="table-card">
+      <div class="table-card-heading"><h3>Rejection pattern by office-action number</h3><p>Share of observed office actions that included each statutory rejection.</p></div>
+      <div class="table-scroll"><table class="data-table"><thead><tr><th>OA #</th><th>Office actions</th><th>§ 101</th><th>§ 102</th><th>§ 103</th><th>§ 112</th></tr></thead><tbody>${rejectionRows}</tbody></table></div>
+    </div>
+    <article class="comparison-summary source-note">
+      <h3>About this saved profile</h3>
+      <p>Saved from PatentAgility’s public examiner profile on ${escapeHtml(displayDate(profile.snapshot_date))}. The source data includes office actions through ${escapeHtml(displayDate(profile.data_recency))}. ${Number(validation.family_validated_grants || metrics.granted).toLocaleString()} grant outcomes were matched to public patent-family records; ${Number(validation.office_action_only_signals || 0).toLocaleString()} additional office-action grant signal remains separate for review.</p>
+      <p>These figures are estimates from public USPTO-related data and derived joins. They describe past records and do not predict an application result. <a href="${escapeHtml(profile.source_url)}" target="_blank" rel="noreferrer">Open the saved source profile</a>.</p>
+    </article>`;
+}
+
+function renderFamilyHistory(result, payload) {
+  const sources = loadedMatter.source_documents || [];
+  const members = loadedMatter.family_members || [];
+  const prosecution = loadedMatter.prosecution_history || [];
+  const warnings = loadedMatter.family_data_warnings || [];
+  const summary = result.summary || {};
+  const diffByKey = new Map((result.amendment_diffs || []).map((diff) => [diff.key, diff]));
+  const amendmentCount = prosecution.reduce((total, record) => total + record.snapshots.length, 0);
+  const officeActionCount = prosecution.reduce((total, record) => total + record.events.filter((event) => event.type === "office_action").length, 0);
+  const tracks = prosecution.map((record) => {
+    const grantSource = sources.find((source) => source.document_number.includes(record.patent_number));
+    const events = record.events.map((event) => {
+      const snapshot = record.snapshots.find((item) => item.date === event.date);
+      const tag = snapshot ? "button" : "div";
+      const target = snapshot ? ` data-snapshot-target="${snapshotElementId(record, snapshot)}"` : "";
+      return `<${tag} class="prosecution-event ${escapeHtml(event.type)}"${target}><span></span><small>${escapeHtml(event.date)}</small><strong>${escapeHtml(event.label)}</strong>${snapshot ? "<em>Open claim changes</em>" : ""}</${tag}>`;
+    }).join("");
+    return `<article class="prosecution-track"><header><div><small>${escapeHtml(record.label)}</small><h3>US ${escapeHtml(formatPatentNumber(record.patent_number))}</h3><p>Application ${escapeHtml(formatApplicationNumber(record.application_number))} · filed ${escapeHtml(record.filed)}</p></div><div class="track-actions"><strong>${record.events.length} events</strong>${grantSource ? `<a href="${escapeHtml(grantSource.url)}" target="_blank" rel="noreferrer">Official patent</a>` : ""}</div></header><div class="prosecution-events">${events}</div><div class="snapshot-list">${record.snapshots.map((snapshot) => renderAmendmentSnapshot(record, snapshot, diffByKey.get(amendmentSnapshotKey(record, snapshot)))).join("")}</div></article>`;
+  }).join("");
+  setResultHeading(`${members.length} related U.S. grants with ${amendmentCount} recorded amendments`, "Select an amendment event to open the saved claim changes. Confirm each change against the official file wrapper. The patent links below do not include the amendment documents.");
+  resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("U.S. grants", members.length)}${stat("Amendments", amendmentCount)}${stat("Office actions", officeActionCount)}${stat("Independent claims", summary.claim_count || 0)}</div><section class="prosecution-review"><div class="section-heading compact"><div><h2>Amendments and examination events</h2></div></div>${tracks}</section><details class="secondary-section"><summary>View the U.S. family relationship</summary><div class="family-path">${members.map((member, index) => `<article><small>${escapeHtml(member.relationship)}</small><h3>${escapeHtml(member.document_number)}</h3><p>Application ${escapeHtml(formatApplicationNumber(member.application_number))}</p><p>Filed ${escapeHtml(member.filed)} · Granted ${escapeHtml(member.granted)}</p>${index === 0 ? '<span aria-hidden="true">continues as →</span>' : ""}</article>`).join("")}</div></details>${warnings.map((warning) => `<div class="data-warning"><strong>Source-data warning</strong><p>${escapeHtml(warning)}</p></div>`).join("")}<article class="comparison-summary source-note"><h3>Official patent documents</h3><p>${sources.map((source) => `<a href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(source.label)} · ${escapeHtml(source.document_number)}</a>`).join(" · ")}</p></article>`;
+}
+
+function snapshotElementId(record, snapshot) {
+  return `snapshot-${record.application_number}-${snapshot.date}`.replace(/[^a-z0-9-]/gi, "-");
+}
+
+function renderAmendmentSnapshot(record, snapshot, diff) {
+  const hasRedline = Boolean(diff?.segments?.length);
+  const summary = `<ul>${snapshot.changes.map((change) => `<li>${escapeHtml(change)}</li>`).join("")}</ul>`;
+  const badge = hasRedline ? '<strong class="redline-badge">Claim redline</strong>' : "";
+  const redline = hasRedline ? renderClaimRedline(snapshot, diff) : "";
+  return `<details id="${snapshotElementId(record, snapshot)}"><summary><span>${escapeHtml(snapshot.date)}</span>${escapeHtml(snapshot.title)}${badge}</summary>${summary}${redline}</details>`;
+}
+
+function renderClaimRedline(snapshot, diff) {
+  const segments = diff.segments.map((segment) => {
+    const className = segment.operation === "insert" ? "claim-insert" : segment.operation === "delete" ? "claim-delete" : "claim-equal";
+    return `<span class="${className}">${escapeHtml(segment.text)}</span>`;
+  }).join("");
+  const summary = diff.summary || {};
+  return `<section class="claim-redline-card" aria-label="Claim ${escapeHtml(snapshot.claim_number)} amendment redline"><header><div><small>Claim ${escapeHtml(snapshot.claim_number)}</small><h4>Amended language</h4></div><div class="redline-legend" aria-label="Redline legend"><span class="added">Added</span><span class="removed">Removed</span></div></header><p class="claim-redline-text">${segments}</p><footer><div><strong>${summary.inserted_tokens || 0}</strong> words added <span aria-hidden="true">·</span> <strong>${summary.deleted_tokens || 0}</strong> words removed</div><p>${escapeHtml(snapshot.diff_source || "Public amendment record")}. ${escapeHtml(snapshot.diff_note || "")}</p></footer></section>`;
+}
+
+function renderDifferenceText(diff, beforeText, afterText) {
+  if (!diff?.segments?.length) {
+    return `<span class="claim-delete">${escapeHtml(beforeText)}</span> <span class="claim-insert">${escapeHtml(afterText)}</span>`;
+  }
+  return diff.segments.map((segment) => {
+    const className = segment.operation === "insert" ? "claim-insert" : segment.operation === "delete" ? "claim-delete" : "claim-equal";
+    return `<span class="${className}">${escapeHtml(segment.text)}</span>`;
+  }).join("");
+}
+
+function claimPairConclusion(row) {
+  const changed = row.summary?.changed_limitations || 0;
+  const added = row.summary?.added_limitations || 0;
+  const removed = row.summary?.removed_limitations || 0;
+  const parts = [];
+  if (changed) parts.push(`${changed} modified`);
+  if (added) parts.push(`${added} added`);
+  if (removed) parts.push(`${removed} removed`);
+  return parts.length ? `${parts.join(", ")} limitation ${parts.length === 1 && changed + added + removed === 1 ? "block" : "blocks"}` : "No material limitation-block change";
+}
+
+function renderFamilyClaims(result, payload) {
+  const summary = result.summary || {};
+  const documents = result.documents || [];
+  const alignments = result.alignments || [];
+  const rows = alignments.map((row) => {
+    const pair = [row.baseline_claim, row.comparison_claim];
+    const changed = (row.shared || []).filter((item) => item.changed).map((item, index) => `<article class="limitation-change modified"><header><span>Modified block ${index + 1}</span><small>Claim ${item.baseline_claim_number} → claim ${item.comparison_claim_number}</small></header><p>${renderDifferenceText(item.diff, item.left_text, item.right_text)}</p></article>`).join("");
+    const added = (row.added || []).map((item, index) => `<article class="limitation-change added"><header><span>Added block ${index + 1}</span><small>${escapeHtml(documents[1]?.document_number || "Later grant")} · claim ${item.claim_number}</small></header><p><span class="claim-insert">${escapeHtml(item.text)}</span></p></article>`).join("");
+    const removed = (row.removed || []).map((item, index) => `<article class="limitation-change removed"><header><span>Removed block ${index + 1}</span><small>${escapeHtml(documents[0]?.document_number || "Earlier grant")} · claim ${item.claim_number}</small></header><p><span class="claim-delete">${escapeHtml(item.text)}</span></p></article>`).join("");
+    const changes = changed + added + removed || '<p class="no-change">No added, removed, or materially modified limitation block was identified.</p>';
+    const fullClaims = pair.map((claim, index) => claim ? `<article><small>${escapeHtml(documents[index]?.document_number || claim.document_number)}</small><h4>Claim ${claim.claim_number}</h4><ol class="limitation-list">${claim.limitations.map((limitation, limitationIndex) => `<li><span>${String(limitationIndex + 1).padStart(2, "0")}</span><p>${escapeHtml(limitation)}</p></li>`).join("")}</ol></article>` : '<article class="missing-claim">No independent claim in this position.</article>').join("");
+    return `<article class="claim-alignment"><header><div><small>Independent claim pair ${row.position}</small><h3>${claimPairConclusion(row)}</h3></div><p>${pair.filter(Boolean).map((claim, index) => `${escapeHtml(documents[index]?.document_number || claim.document_number)} claim ${claim.claim_number}`).join(" compared with ")}</p></header><details class="claim-changes"><summary>Review changed limitation blocks</summary><div class="limitation-changes">${changes}</div></details><details class="full-claims"><summary>Read the complete claims</summary><div class="full-claim-grid">${fullClaims}</div></details></article>`;
+  }).join("");
+  const changeCount = (summary.changed_limitations || 0) + (summary.added_limitations || 0) + (summary.removed_limitations || 0);
+  setResultHeading(`${changeCount} limitation changes across ${summary.comparison_rows || 0} claim pairs`, "Added language is underlined. Removed language is struck through. Open the complete claims only when you need the surrounding limitations.");
+  resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("Claim pairs", summary.comparison_rows || 0)}${stat("Modified", summary.changed_limitations || 0)}${stat("Added", summary.added_limitations || 0)}${stat("Removed", summary.removed_limitations || 0)}</div><div class="comparison-legend"><span class="legend-add">Added</span><span class="legend-change">Modified block</span><span class="legend-remove">Removed</span></div><div class="claim-alignments">${rows}</div>`;
+}
+
+function renderUnclaimed(result, payload) {
+  const items = result.concepts || [];
+  setResultHeading(items.length ? `${items.length} disclosed concepts compared with the U.S. family` : "No disclosed concept was available", items.length ? "Review each concept beside its closest cited claim language. The results do not determine whether the concept is claimed." : "No disclosed concept was available for comparison.");
+  const concepts = items.map((item, index) => {
+    const closestMatch = item.closest_match
+      ? `<strong>${escapeHtml(item.closest_match.document_number)}</strong><p>“${escapeHtml(item.closest_match.passage)}”</p>`
+      : "<p>No family-claim match was returned.</p>";
+    return `<article class="coverage-item">
+      <span class="coverage-state">Concept ${index + 1}</span>
+      <div>
+        <h3>${escapeHtml(item.title)}</h3>
+        <div class="coverage-evidence-grid">
+          <section><small>Specification evidence</small><p>${escapeHtml(item.evidence)}</p></section>
+          <section><small>Closest family claim</small>${closestMatch}</section>
+        </div>
       </div>
     </article>`;
   }).join("");
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Segments", segments.length)}${stat("Review scope", demoScope ? "Official claim 1" : "Claim text")}${stat("Output", "Structure map")}${stat("Decision", "Attorney review")}</div><div class="structure-map">${rows || '<div class="error-box"><strong>No structure generated</strong><p>Try preserving claim punctuation and transitional phrases.</p></div>'}</div>`;
-}
-
-function renderExaminer(payload) {
-  const members = loadedMatter.family_members || [];
-  const matchingMembers = members.filter((member) => member.examiner.toLowerCase().includes(payload.examinerQuery.toLowerCase()));
-  const records = matchingMembers.length ? matchingMembers : members;
-  setResultHeading("Examiner record", `Official front-page examiner data for the saved U.S. patent family. No cohort rate is shown because the saved patent documents do not contain one.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Query", payload.examinerQuery)}${stat("Family grants", members.length)}${stat("Matching grants", matchingMembers.length)}${stat("Source", "USPTO grants")}</div><div class="coverage-list">${records.map((member) => `<article class="coverage-item"><span class="coverage-state covered">Grant</span><div><h3>${escapeHtml(member.examiner)}</h3><p>${escapeHtml(member.document_number)} · Application ${escapeHtml(formatApplicationNumber(member.application_number))}</p><p>${escapeHtml(member.relationship)} · Granted ${escapeHtml(member.granted)}</p></div><div class="coverage-score"><small>Record</small><strong>Official</strong></div></article>`).join("")}</div><article class="comparison-summary"><h3>Cohort data is not in the patent document</h3><p>Grant rates, office-action counts, and pendency require a separate prosecution-record dataset. This view does not invent those values.</p></article>`;
-}
-
-function renderFamilyHistory(payload) {
-  const events = loadedMatter.family_events || [];
-  const sources = loadedMatter.source_documents || [];
-  setResultHeading("U.S. patent family timeline", `Official filing, publication, and grant dates for the family seeded by US ${formatPatentNumber(payload.identifier)}.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members", loadedMatter.family_members.length)}${stat("Events shown", events.length)}${stat("First filing", events[0]?.date || "—")}${stat("Latest grant", events.at(-1)?.date || "—")}</div><article class="timeline-card"><h3>Public document history</h3><div class="timeline"><div class="timeline-events">${events.map((event, index) => `<div class="timeline-event ${index === events.length - 1 ? "allowance" : ""}"><small>${escapeHtml(event.date)}</small><div class="timeline-dot"></div><strong>${escapeHtml(event.label)}</strong><p>${escapeHtml(event.detail)}</p></div>`).join("")}</div></div></article><article class="comparison-summary"><h3>Official documents</h3><p>${sources.map((source) => `<a href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(source.label)} · ${escapeHtml(source.document_number)}</a>`).join(" · ")}</p><p>The saved documents prove this family timeline. Office actions and applicant responses need separate file-wrapper records and are not shown here.</p></article>`;
-}
-
-function renderFamilyClaims(payload) {
-  const claims = loadedMatter.family_claims || [];
-  setResultHeading("Granted family claim comparison", `${claims.length} official independent claims from the parent and continuation grants seeded by US ${formatPatentNumber(payload.identifier)}.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Family members shown", claims.length)}${stat("Claims aligned", claims.length)}${stat("Claim number", "1")}${stat("Source", "USPTO grants")}</div><div class="claim-comparison"><div class="claim-columns">${claims.map((item) => `<article class="claim-column"><header><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.document_number)} · Claim ${item.claim_number}</small></header><p>${escapeHtml(item.claim_text)}</p></article>`).join("")}</div></div><article class="comparison-summary"><h3>Review focus</h3><p>The parent claim receives encrypted content, stores it on the selected processor, and instructs decryption in a secure enclave. The continuation claim focuses on providing processors and processor-specific public keys. Read the complete claims before reaching a scope conclusion.</p></article>`;
-}
-
-function renderUnclaimed(payload) {
-  const items = loadedMatter.coverage_candidates || [];
-  setResultHeading("Specification concept coverage", `Evidence-backed research candidates from the official specification of US ${formatPatentNumber(payload.identifier)}. These are review prompts, not conclusions about claim scope.`);
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Concepts shown", items.length)}${stat("Family grants checked", loadedMatter.family_claims.length)}${stat("Status", "Needs review")}${stat("Source", "Official specification")}</div><div class="coverage-list">${items.map((item) => `<article class="coverage-item"><span class="coverage-state weak">Review</span><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.evidence)}</p><p>${escapeHtml(item.claim_check)}</p></div><div class="coverage-score"><small>Next step</small><strong>Compare</strong></div></article>`).join("")}</div>`;
+  resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("Concepts reviewed", items.length)}${stat("Family claims", result.claim_count || 0)}</div><div class="coverage-list">${concepts}</div>`;
 }
 
 function renderArtUnit() {
   const classifications = loadedMatter.classification_records || [];
-  setResultHeading("Official classification context", "The saved grant provides CPC classification evidence. The public patent document does not state an art unit, so this view does not invent a routing prediction.");
-  resultsContent.innerHTML = `<div class="summary-band">${stat("Classifications", classifications.length)}${stat("Scheme", "CPC")}${stat("Art unit", "Not stated")}${stat("Source", "USPTO grant")}</div><div class="prediction-list">${classifications.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>${escapeHtml(item.code)}</h3><p>${escapeHtml(item.description)}</p></div><div class="prediction-evidence"><strong>${escapeHtml(item.scheme)} record</strong></div></article>`).join("")}</div><article class="comparison-summary"><h3>Routing limit</h3><p>A validated art-unit prediction needs training data that links invention text to actual USPTO routing outcomes. The saved grant alone cannot prove such a result.</p></article>`;
+  const profile = loadedMatter.examiner_profile;
+  const prediction = loadedMatter.art_unit_prediction_example;
+  if (!profile) {
+    setResultHeading("Official classification context", "The loaded grant provides classification evidence but no saved examiner-routing profile.");
+    resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("Classifications", classifications.length)}${stat("Scheme", "CPC")}</div><div class="prediction-list">${classifications.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>${escapeHtml(item.code)}</h3><p>${escapeHtml(item.description)}</p></div><div class="prediction-evidence"><strong>${escapeHtml(item.scheme)} record</strong></div></article>`).join("")}</div>`;
+    return;
+  }
+  if (!prediction) {
+    setResultHeading(`The issued patent was routed to Art Unit ${profile.art_unit}`, `Examiner ${profile.name} handled the saved record. No prediction is available for comparison.`);
+    resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("Observed art unit", profile.art_unit)}${stat("Classifications", classifications.length)}</div>`;
+    return;
+  }
+  setResultHeading(`Art Unit ${prediction.predictions[0].art_unit} ranks first; the issued patent was routed to ${profile.art_unit}`, "Compare the ranked candidates with the official CPC classifications. The ranking does not predict the USPTO's assignment.");
+  const predictions = prediction.predictions.map((item, index) => `<article class="prediction-row"><span class="prediction-rank">${String(index + 1).padStart(2, "0")}</span><div><h3>Art Unit ${escapeHtml(item.art_unit)}</h3><p>${escapeHtml(item.group)}</p><small>Technology Center ${escapeHtml(item.tech_center)}</small></div><div class="prediction-evidence"><strong>${Number(item.probability).toFixed(1)}%</strong><span>model score</span></div></article>`).join("");
+  const classificationRows = classifications.map((item) => `<tr><th scope="row">${escapeHtml(item.code)}</th><td>${escapeHtml(item.scheme)}</td><td>${escapeHtml(item.description)}</td></tr>`).join("");
+  resultsContent.innerHTML = `<div class="summary-band compact-facts">${stat("Top candidate", `AU ${prediction.predictions[0].art_unit}`)}${stat("Ranking score", `${prediction.predictions[0].probability.toFixed(1)}%`)}${stat("Classes reviewed", prediction.class_count)}${stat("Observed unit", profile.art_unit)}</div><div class="routing-comparison"><article class="routing-card"><small>Ranked from invention text</small><h3>Art Unit ${escapeHtml(prediction.predictions[0].art_unit)}</h3><p>${escapeHtml(prediction.predictions[0].group)}</p></article><article class="routing-card observed"><small>Observed on the issued patent</small><h3>Art Unit ${escapeHtml(profile.art_unit)}</h3><p>${escapeHtml(profile.group)}</p><p>Examiner ${escapeHtml(profile.name)}</p></article></div><details class="secondary-section"><summary>View all ranked candidates</summary><div class="prediction-list">${predictions}</div></details><div class="table-card"><div class="table-card-heading"><h3>Official CPC classifications</h3><p>Use the grant classifications to review whether the ranked routing is plausible.</p></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Code</th><th>Scheme</th><th>Description</th></tr></thead><tbody>${classificationRows}</tbody></table></div></div>`;
 }
 
 function renderError(error) {
   progressPanel.classList.add("hidden");
   resultsPanel.classList.remove("hidden");
+  analysisColumn.classList.add("has-result");
+  analysisColumn.classList.remove("is-editing", "is-preparing");
+  const adjustInput = document.getElementById("adjust-input");
+  adjustInput.hidden = false;
+  adjustInput.textContent = "Adjust input";
   const overloaded = error.status === 429;
   setResultHeading(overloaded ? "The review is still busy" : "Analysis could not complete", overloaded ? "The service could not start this review within two minutes." : "No reviewable result was produced.");
-  resultsContent.innerHTML = `<div class="error-box"><strong>${overloaded ? "Please try again shortly" : "Please try the review again"}</strong><p>${overloaded ? "Your input is still available, so you can run the review again without re-entering it." : "If the problem continues, preserve your input and contact the workspace administrator."}</p></div>`;
+  resultsContent.innerHTML = `<div class="error-box"><strong>${overloaded ? "Please try again shortly" : "Please try the review again"}</strong><p>${overloaded ? "Your input is still available, so you can run the review again without re-entering it." : "If the problem continues, preserve your input and contact your administrator."}</p></div>`;
   resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function showExplanation() {
-  const tool = tools[activeToolKey];
-  if (!tool) return;
-  document.getElementById("dialog-title").textContent = `How ${tool.shortTitle.toLowerCase()} works`;
-  const exampleNote = tool.mode === "prototype" ? `<p><strong>${loadedMatter?.is_demo ? "Saved USPTO record" : "Preview"}:</strong> this review is limited to the evidence available in the loaded record.</p>` : "";
-  document.getElementById("dialog-content").innerHTML = `<p>${escapeHtml(tool.explanation)}</p><ol>${tool.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>${exampleNote}`;
-  document.getElementById("explain-dialog").showModal();
-}
-
 function showDataHandling() {
-  document.getElementById("dialog-title").textContent = "How review information is handled";
-  document.getElementById("dialog-content").innerHTML = `<p>The selected patent, review inputs, and completed results are saved in this browser so work can be resumed after a refresh.</p><ol><li>The current patent remains selected until another is opened. Completed analyses remain in IndexedDB until review history is cleared.</li><li>The built-in record contains text saved from official USPTO patent documents.</li><li>Review inputs are checked before analysis begins.</li><li>Results preserve the passages needed for verification.</li><li>The attorney confirms every material conclusion against the authoritative record.</li></ol>`;
+  document.getElementById("dialog-title").textContent = "Data handling";
+  document.getElementById("dialog-content").innerHTML = `<p>The selected patent and completed reviews stay in this browser so you can resume after a refresh. Use “Clear browser data” to remove them.</p><p>The built-in example uses saved USPTO documents. Confirm material findings against the official record.</p>`;
   document.getElementById("explain-dialog").showModal();
 }
 
@@ -839,10 +1591,30 @@ document.addEventListener("click", (event) => {
   if (lookupButton) lookupPatent(lookupButton.closest("[data-patent-record-loader]"));
   const demoButton = event.target.closest("[data-load-demo-record]");
   if (demoButton) loadDemoPatent();
+  const showLookupButton = event.target.closest("[data-show-patent-lookup]");
+  if (showLookupButton) {
+    const variant = showLookupButton.closest("[data-record-loader-host]")?.dataset.variant || "overview";
+    patentLookupExpanded = true;
+    renderPatentLoaders();
+    document.querySelector(`[data-record-loader-host][data-variant="${variant}"] [data-lookup-identifier]`)?.focus();
+  }
+  const hideLookupButton = event.target.closest("[data-hide-patent-lookup]");
+  if (hideLookupButton) {
+    patentLookupExpanded = false;
+    renderPatentLoaders();
+  }
   const changeButton = event.target.closest("[data-change-patent]");
   if (changeButton) {
     clearLoadedPatent();
-    document.querySelector('[data-record-loader-host][data-variant="overview"] [data-lookup-identifier]')?.focus();
+    document.querySelector('[data-record-loader-host][data-variant="overview"] [data-load-demo-record]')?.focus();
+  }
+  const snapshotButton = event.target.closest("[data-snapshot-target]");
+  if (snapshotButton) {
+    const snapshot = document.getElementById(snapshotButton.dataset.snapshotTarget);
+    if (snapshot) {
+      snapshot.open = true;
+      snapshot.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
   const savedAnalysisButton = event.target.closest("[data-analysis-id]");
   if (savedAnalysisButton) openSavedAnalysis(savedAnalysisButton.dataset.analysisId);
@@ -852,27 +1624,22 @@ document.addEventListener("keydown", (event) => {
   event.preventDefault();
   lookupPatent(event.target.closest("[data-patent-record-loader]"));
 });
-document.getElementById("back-overview").addEventListener("click", showOverview);
 document.querySelector(".brand").addEventListener("click", (event) => { event.preventDefault(); showOverview(); });
-document.getElementById("how-button").addEventListener("click", showExplanation);
 document.getElementById("data-handling").addEventListener("click", showDataHandling);
-const openRecordOverview = () => {
-  showOverview();
-  document.querySelector('[data-record-loader-host][data-variant="overview"] [data-lookup-identifier]')?.focus();
-};
-document.getElementById("new-review").addEventListener("click", openRecordOverview);
-document.getElementById("matter-button").addEventListener("click", openRecordOverview);
-document.querySelector(".avatar").addEventListener("click", () => showToast("Account settings are not available in this local preview."));
+document.getElementById("clear-browser-data").addEventListener("click", clearBrowserData);
+document.getElementById("adjust-input").addEventListener("click", () => {
+  const editing = analysisColumn.classList.toggle("is-editing");
+  const labels = activeToolKey === "support"
+    ? ["Hide limitations", "Change limitations"]
+    : ["Hide search", "Change search"];
+  document.getElementById("adjust-input").textContent = editing ? labels[0] : labels[1];
+  if (editing) toolForm.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 clearHistoryButton.addEventListener("click", clearAnalysisHistory);
 document.getElementById("mobile-menu").addEventListener("click", () => {
   const expanded = sidebar.classList.toggle("is-open");
   document.getElementById("mobile-menu").setAttribute("aria-expanded", String(expanded));
 });
-document.getElementById("copy-results").addEventListener("click", async () => {
-  await navigator.clipboard.writeText(lastResultSummary);
-  showToast("Result summary copied.");
-});
-document.getElementById("print-results").addEventListener("click", () => window.print());
 toolForm.addEventListener("submit", runAnalysis);
 
 async function initializeApp() {

@@ -24,6 +24,12 @@ from core.batch_queue import (
 )
 from core.claim_segmentation import get_nlp as get_claim_nlp
 from core.claim_segmentation import segment_claim
+from core.claim_diff import diff_claim_text
+from core.family_analysis import (
+    build_coverage_review,
+    compare_family_claims,
+    split_claim_limitations,
+)
 from core.patent_records import (
     PatentDataNotConfigured,
     PatentDataUnavailable,
@@ -49,10 +55,12 @@ class ServiceSettings:
     max_query_characters: int = 4_096
     max_results: int = 50
     model_profile: str = "balanced"
+    device: str | None = None
     spacy_model: str = "en_core_web_sm"
     embedding_batch_size: int = 256
     reranker_batch_size: int = 32
     index_cache_size: int = 4
+    shutdown_timeout_seconds: float = 180
     uspto_api_key: str | None = None
 
     @classmethod
@@ -82,6 +90,7 @@ class ServiceSettings:
             ),
             max_results=int(os.environ.get("PATENTAGILITY_MAX_RESULTS", "50")),
             model_profile=os.environ.get("PATENTAGILITY_MODEL_PROFILE", "balanced"),
+            device=os.environ.get("PATENTAGILITY_DEVICE") or None,
             spacy_model=os.environ.get("PATENTAGILITY_SPACY_MODEL", "en_core_web_sm"),
             embedding_batch_size=int(
                 os.environ.get("PATENTAGILITY_EMBEDDING_BATCH_SIZE", "256")
@@ -90,6 +99,9 @@ class ServiceSettings:
                 os.environ.get("PATENTAGILITY_RERANKER_BATCH_SIZE", "32")
             ),
             index_cache_size=int(os.environ.get("PATENTAGILITY_INDEX_CACHE_SIZE", "4")),
+            shutdown_timeout_seconds=float(
+                os.environ.get("PATENTAGILITY_SHUTDOWN_TIMEOUT_SECONDS", "180")
+            ),
             uspto_api_key=os.environ.get("USPTO_API_KEY"),
         )
 
@@ -110,6 +122,7 @@ def create_app(
     )
 
     owns_processor = processor is None
+    shutdown_started = False
     analyzer = None
     if processor is None:
         try:
@@ -121,6 +134,7 @@ def create_app(
             ) from exc
         analyzer = SupportAnalyzer(
             profile=profile,
+            device=settings.device,
             spacy_model=settings.spacy_model,
             embedding_batch_size=settings.embedding_batch_size,
             reranker_batch_size=settings.reranker_batch_size,
@@ -135,8 +149,27 @@ def create_app(
             max_batch_cost=settings.max_batch_characters,
         )
 
+    def begin_drain() -> None:
+        if not owns_processor:
+            return
+        processor.begin_drain()
+        _log("service_draining", process_id=os.getpid())
+
+    def shutdown() -> None:
+        nonlocal shutdown_started
+        if not owns_processor:
+            return
+        if shutdown_started:
+            return
+        shutdown_started = True
+        processor.close(drain=True, timeout=settings.shutdown_timeout_seconds)
+        _log("service_stopped", process_id=os.getpid())
+
+    app.extensions["patentagility_begin_drain"] = begin_drain
+    app.extensions["patentagility_shutdown"] = shutdown
+
     if owns_processor:
-        atexit.register(processor.close)
+        atexit.register(shutdown)
 
     @app.errorhandler(413)
     def request_too_large(_error):
@@ -164,6 +197,15 @@ def create_app(
     def metrics():
         snapshot = processor.snapshot()
         snapshot["model_profile"] = settings.model_profile
+        snapshot["model_device"] = (
+            analyzer.device if analyzer is not None else "external"
+        )
+        snapshot["process_id"] = os.getpid()
+        snapshot["configured_web_workers"] = int(
+            os.environ.get("PATENTAGILITY_WEB_WORKERS", "1")
+        )
+        snapshot["model_replicas_in_process"] = int(analyzer is not None)
+        snapshot["queue_scope"] = "process"
         if analyzer is not None:
             snapshot.update(analyzer.cache_snapshot())
         return jsonify(snapshot)
@@ -288,8 +330,9 @@ def create_app(
     def antecedent_basis():
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         try:
-            claim_text = _parse_claim_text(
+            claims = _parse_antecedent_claims(
                 request.get_json(silent=True),
+                settings,
                 patent_loader,
             )
         except ValueError as exc:
@@ -299,39 +342,89 @@ def create_app(
                 request_id=request_id,
             )
 
-        analysis = analyze_intro_ref(
-            claim_text,
-            nlp=get_claim_nlp(settings.spacy_model),
-        )
-        issues = [
-            {
-                "code": "missing_antecedent",
-                "severity": "high",
-                "title": "Missing antecedent basis",
-                **_mention_payload(mention),
-            }
-            for mention in analysis["used_without_intro"]
-        ]
-        issues.extend(
-            {
-                "code": "introduced_not_reused",
-                "severity": "info",
-                "title": "Introduced but not later referenced",
-                **_mention_payload(mention),
-            }
-            for mention in analysis["introduced_never_referenced"]
-        )
+        nlp = get_claim_nlp(settings.spacy_model)
+        analyzed_claims = []
+        issues = []
+        mentions = []
+        for claim in claims:
+            analysis = analyze_intro_ref(claim["claim_text"], nlp=nlp)
+            claim_issues = [
+                {
+                    "code": "missing_antecedent",
+                    "severity": "high",
+                    "title": "Missing earlier introduction",
+                    **_mention_payload(mention),
+                }
+                for mention in analysis["used_without_intro"]
+            ]
+            claim_issues.extend(
+                {
+                    "code": "introduced_not_reused",
+                    "severity": "info",
+                    "title": "Introduced but not later referenced",
+                    **_mention_payload(mention),
+                }
+                for mention in analysis["introduced_never_referenced"]
+            )
+            for issue in claim_issues:
+                issue["issue_id"] = f"I{len(issues) + 1:03d}"
+                issue["label"] = claim["label"]
+                issue["document_number"] = claim["document_number"]
+                issue["claim_number"] = claim["claim_number"]
+                if issue["severity"] == "high":
+                    issue["confidence"] = 0.82
+                    issue["confidence_label"] = "Medium"
+                    issue["message"] = (
+                        f"'{issue['text']}' does not have a clear earlier "
+                        f"introduction in claim {claim['claim_number']}."
+                    )
+                else:
+                    issue["confidence"] = 0.68
+                    issue["confidence_label"] = "Medium"
+                    issue["message"] = (
+                        f"'{issue['text']}' is introduced once in claim "
+                        f"{claim['claim_number']} and is not referred to again."
+                    )
+                issues.append(issue)
+
+            claim_mentions = [
+                {
+                    **_mention_payload(mention),
+                    "document_number": claim["document_number"],
+                    "claim_number": claim["claim_number"],
+                }
+                for mention in analysis["mentions"]
+            ]
+            mentions.extend(claim_mentions)
+            analyzed_claims.append(
+                {
+                    **claim,
+                    "mentions": claim_mentions,
+                    "issues": claim_issues,
+                    "summary": {
+                        "high": sum(
+                            issue["severity"] == "high" for issue in claim_issues
+                        ),
+                        "info": sum(
+                            issue["severity"] == "info" for issue in claim_issues
+                        ),
+                        "total": len(claim_issues),
+                    },
+                }
+            )
+
         summary = {
             "high": sum(issue["severity"] == "high" for issue in issues),
             "info": sum(issue["severity"] == "info" for issue in issues),
             "total": len(issues),
+            "claim_count": len(analyzed_claims),
         }
         return _response(
             {
-                "claim_text": claim_text,
-                "mentions": [
-                    _mention_payload(mention) for mention in analysis["mentions"]
-                ],
+                "antecedent_version": 2,
+                "claim_text": analyzed_claims[0]["claim_text"],
+                "claims": analyzed_claims,
+                "mentions": mentions,
                 "issues": issues,
                 "summary": summary,
             },
@@ -369,6 +462,112 @@ def create_app(
             request_id=request_id,
         )
 
+    @app.post("/v1/claims/diff")
+    def claim_diff():
+        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        try:
+            before_text, after_text = _parse_claim_diff(request.get_json(silent=True))
+        except ValueError as exc:
+            return _response(
+                {"error": "invalid_request", "message": str(exc)},
+                status=400,
+                request_id=request_id,
+            )
+
+        return _response(
+            diff_claim_text(before_text, after_text),
+            status=200,
+            request_id=request_id,
+        )
+
+    @app.post("/v1/family/claims/compare")
+    def family_claim_comparison():
+        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        try:
+            claims = _parse_family_claims(request.get_json(silent=True), settings)
+            result = compare_family_claims(claims)
+        except ValueError as exc:
+            return _response(
+                {"error": "invalid_request", "message": str(exc)},
+                status=400,
+                request_id=request_id,
+            )
+        return _response(result, status=200, request_id=request_id)
+
+    @app.post("/v1/family/coverage")
+    def family_coverage():
+        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        try:
+            payload = request.get_json(silent=True)
+            claims = _parse_family_claims(payload, settings)
+            concepts = _parse_coverage_concepts(payload, settings)
+            claim_paragraphs = []
+            paragraph_claim_indexes = []
+            for claim_index, claim in enumerate(claims):
+                limitations = split_claim_limitations(claim["claim_text"])
+                claim_paragraphs.extend(limitations)
+                paragraph_claim_indexes.extend([claim_index] * len(limitations))
+            work = SupportRequest(
+                patent_text="\n\n".join(claim_paragraphs),
+                queries=tuple(concept["title"] for concept in concepts),
+                top_n=min(settings.max_results, max(8, len(claims) * 4)),
+                request_id=request_id,
+            )
+        except ValueError as exc:
+            return _response(
+                {"error": "invalid_request", "message": str(exc)},
+                status=400,
+                request_id=request_id,
+            )
+
+        try:
+            result = processor.submit(work, timeout=settings.request_timeout_seconds)
+        except QueueAtCapacity:
+            response = _response(
+                {"error": "overloaded", "message": "inference queue is full"},
+                status=429,
+                request_id=request_id,
+            )
+            response.headers["Retry-After"] = str(settings.retry_after_seconds)
+            return response
+        except WorkTimeout:
+            return _response(
+                {
+                    "error": "deadline_exceeded",
+                    "message": "inference did not finish before the request deadline",
+                },
+                status=504,
+                request_id=request_id,
+            )
+        except ProcessorClosed:
+            return _response(
+                {"error": "unavailable", "message": "inference service is draining"},
+                status=503,
+                request_id=request_id,
+            )
+        except RuntimeError:
+            LOGGER.exception(
+                json.dumps(
+                    {"event": "family_coverage_failed", "request_id": request_id}
+                )
+            )
+            return _response(
+                {"error": "inference_failed", "message": "inference failed"},
+                status=500,
+                request_id=request_id,
+            )
+
+        return _response(
+            build_coverage_review(
+                claims,
+                concepts,
+                result,
+                paragraph_claim_indexes=paragraph_claim_indexes,
+            ),
+            status=200,
+            request_id=request_id,
+        )
+
     return app
 
 
@@ -382,8 +581,11 @@ def _parse_request(
         raise ValueError("request body must be a JSON object")
 
     patent_text = payload.get("patent_text")
+    document_cache_key = None
     if patent_text is None and payload.get("record_id"):
-        patent_text = patent_loader.get_text(payload["record_id"], "specification")
+        record_id = payload["record_id"]
+        patent_text = patent_loader.get_text(record_id, "specification")
+        document_cache_key = f"public-uspto:{record_id}"
     if not isinstance(patent_text, str) or not patent_text.strip():
         raise ValueError("patent_text must be a non-empty string")
     if len(patent_text) > settings.max_patent_characters:
@@ -415,6 +617,7 @@ def _parse_request(
         queries=tuple(item.strip() for item in queries),
         top_n=top_n,
         request_id=request_id,
+        document_cache_key=document_cache_key,
     )
 
 
@@ -457,6 +660,104 @@ def _parse_claim_text(payload: Any, patent_loader: Any) -> str:
     if len(claim_text) > 100_000:
         raise ValueError("claim_text exceeds the 100,000 character limit")
     return claim_text
+
+
+def _parse_claim_diff(payload: Any) -> tuple[str, str]:
+    if not isinstance(payload, dict):
+        raise ValueError("request body must be a JSON object")
+
+    claim_texts = []
+    for field in ("before_claim_text", "after_claim_text"):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{field} must be a non-empty string")
+        value = value.strip()
+        if len(value) > 100_000:
+            raise ValueError(f"{field} exceeds the 100,000 character limit")
+        claim_texts.append(value)
+    return claim_texts[0], claim_texts[1]
+
+
+def _parse_family_claims(
+    payload: Any, settings: ServiceSettings
+) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError("request body must be a JSON object")
+    claims = payload.get("claims")
+    if not isinstance(claims, list) or len(claims) < 2:
+        raise ValueError("at least two family claims are required")
+    if len(claims) > 32:
+        raise ValueError("too many family claims")
+
+    parsed = []
+    total_characters = 0
+    for claim in claims:
+        if not isinstance(claim, dict):
+            raise ValueError("each family claim must be an object")
+        label = claim.get("label")
+        document_number = claim.get("document_number")
+        claim_text = claim.get("claim_text")
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (label, document_number, claim_text)
+        ):
+            raise ValueError(
+                "each family claim needs a label, document number, and text"
+            )
+        total_characters += len(claim_text)
+        parsed.append(
+            {
+                "label": label.strip(),
+                "document_number": document_number.strip(),
+                "claim_number": claim.get("claim_number", 1),
+                "claim_text": claim_text.strip(),
+            }
+        )
+    if total_characters > settings.max_patent_characters:
+        raise ValueError("family claim text exceeds the configured size limit")
+    return parsed
+
+
+def _parse_antecedent_claims(
+    payload: Any,
+    settings: ServiceSettings,
+    patent_loader: Any,
+) -> list[dict[str, Any]]:
+    if isinstance(payload, dict) and "claims" in payload:
+        return _parse_family_claims(payload, settings)
+    return [
+        {
+            "label": "Loaded patent",
+            "document_number": "",
+            "claim_number": 1,
+            "claim_text": _parse_claim_text(payload, patent_loader),
+        }
+    ]
+
+
+def _parse_coverage_concepts(
+    payload: Any, settings: ServiceSettings
+) -> list[dict[str, str]]:
+    concepts = payload.get("concepts") if isinstance(payload, dict) else None
+    if not isinstance(concepts, list) or not concepts:
+        raise ValueError("at least one specification concept is required")
+    if len(concepts) > settings.max_queries:
+        raise ValueError("too many specification concepts")
+
+    parsed = []
+    for concept in concepts:
+        if not isinstance(concept, dict):
+            raise ValueError("each specification concept must be an object")
+        title = concept.get("title")
+        evidence = concept.get("evidence")
+        if not all(
+            isinstance(value, str) and value.strip() for value in (title, evidence)
+        ):
+            raise ValueError("each concept needs a title and evidence")
+        if len(title) > settings.max_query_characters:
+            raise ValueError("a concept title exceeds the configured size limit")
+        parsed.append({"title": title.strip(), "evidence": evidence.strip()})
+    return parsed
 
 
 def _mention_payload(mention: Any) -> dict[str, Any]:

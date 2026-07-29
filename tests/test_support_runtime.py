@@ -76,6 +76,7 @@ def test_analyzer_reuses_a_bounded_document_index_cache():
         ("cpu",),
         top_n=1,
         request_id="cached",
+        document_cache_key="public-uspto:application:12345678",
     )
 
     analyzer.analyze_batch([request])

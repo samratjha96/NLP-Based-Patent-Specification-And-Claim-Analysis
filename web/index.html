@@ -3,35 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A patent analysis workspace for claim drafting, specification support, family review, and examiner research.">
+  <meta name="description" content="A patent review application for claim drafting, specification support, family review, and examiner research.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="same-origin">
   <title>PatentAgility | Patent Review</title>
-  <link rel="stylesheet" href="/app/app.css">
+  <link rel="stylesheet" href="/app/app.css?v=20260729-2">
   <script src="/app/demo_record.js" defer></script>
   <script src="/app/request_errors.js" defer></script>
   <script src="/app/request_client.js" defer></script>
   <script src="/app/browser_state.js" defer></script>
-  <script src="/app/app.js" defer></script>
+  <script src="/app/app.js?v=20260729-2" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to workspace</a>
+  <a class="skip-link" href="#main-content">Skip to review</a>
 
   <header class="topbar">
     <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Open tool navigation" aria-expanded="false">Menu</button>
     <a class="brand" href="#overview" aria-label="PatentAgility home">
       <span class="brand-mark" aria-hidden="true">PA</span>
-      <span><strong>PatentAgility</strong><small>Patent analysis</small></span>
+      <span><strong>PatentAgility</strong></span>
     </a>
     <div class="matter-switcher" aria-label="Loaded patent record">
-      <span class="matter-label">Patent</span>
-      <button type="button" id="matter-button" aria-haspopup="listbox" aria-expanded="false">
+      <div class="matter-current">
         <span><strong id="matter-name">No record loaded</strong><small id="matter-meta">Open a U.S. patent record</small></span>
-        <span aria-hidden="true">⌄</span>
-      </button>
-    </div>
-    <div class="topbar-actions">
-      <div class="privacy-status"><span aria-hidden="true"></span> Private review</div>
-      <button class="quiet-button" id="new-review" type="button">Open patent</button>
-      <button class="avatar" type="button" aria-label="Account menu">SJ</button>
+      </div>
     </div>
   </header>
 
@@ -44,28 +39,26 @@
         </button>
 
         <div class="nav-group">
-          <div class="nav-heading">Patent review</div>
-          <button type="button" data-tool="family-history"><span class="nav-glyph">01</span><span>Family history<small>U.S. document timeline</small></span></button>
-          <button type="button" data-tool="family-claims"><span class="nav-glyph">02</span><span>Compare claims<small>Granted family scope</small></span></button>
-          <button type="button" data-tool="unclaimed"><span class="nav-glyph">03</span><span>Unclaimed subject matter<small>Coverage gaps</small></span></button>
+          <button type="button" data-tool="family-history"><span class="nav-glyph">01</span><span>Claim Amendment History<small>Across U.S. family</small></span></button>
+          <button type="button" data-tool="family-claims"><span class="nav-glyph">02</span><span>Compare U.S. Family Claims<small>Granted family scope</small></span></button>
+          <button type="button" data-tool="unclaimed"><span class="nav-glyph">03</span><span>Find Unclaimed Subject Matter<small>Across U.S. family</small></span></button>
         </div>
 
         <div class="nav-group">
-          <div class="nav-heading">Drafting review</div>
-          <button type="button" data-tool="support"><span class="nav-glyph">04</span><span>Specification support<small>Evidence passage search</small></span></button>
-          <button type="button" data-tool="antecedent"><span class="nav-glyph">05</span><span>Antecedent basis<small>Referential consistency</small></span></button>
-          <button type="button" data-tool="linguistic"><span class="nav-glyph">06</span><span>Claim structure<small>Linguistic diagram</small></span></button>
-          <button type="button" data-tool="art-unit"><span class="nav-glyph">07</span><span>Classification review<small>Official routing evidence</small></span></button>
+          <button type="button" data-tool="support"><span class="nav-glyph">04</span><span>Spec Support<small>Evidence passage search</small></span></button>
+          <button type="button" data-tool="antecedent"><span class="nav-glyph">05</span><span>Antecedent Basis<small>Referential consistency</small></span></button>
+          <button type="button" data-tool="linguistic"><span class="nav-glyph">06</span><span>Linguistic Claim Analysis<small>Claim structure</small></span></button>
+          <button type="button" data-tool="art-unit"><span class="nav-glyph">07</span><span>Art Unit Predictor<small>Ranked routing candidates</small></span></button>
         </div>
 
         <div class="nav-group">
-          <div class="nav-heading">Examiner research</div>
-          <button type="button" data-tool="examiner"><span class="nav-glyph">08</span><span>Examiner analytics<small>Prosecution patterns</small></span></button>
+          <button type="button" data-tool="examiner"><span class="nav-glyph">08</span><span>Examiner Analytics<small>Examiner on this patent</small></span></button>
         </div>
       </nav>
 
       <div class="sidebar-foot">
         <button type="button" id="data-handling">Data handling</button>
+        <button type="button" id="clear-browser-data">Clear browser data</button>
       </div>
     </aside>
 
@@ -75,25 +68,32 @@
           <div>
             <div class="eyebrow">Patent review</div>
             <h1 id="overview-title">Start with the record.</h1>
-            <p>Enter a U.S. patent or application number once. PatentAgility retrieves the public file, prepares the specification and claims, and makes them available across the review tools.</p>
+            <p>Open a U.S. patent or application. The same record stays available in every review.</p>
           </div>
           <div class="matter-card record-loader">
-            <div class="matter-card-top"><span>Open public record</span><span class="status-pill" id="record-status">Not loaded</span></div>
             <div data-record-loader-host data-variant="overview"></div>
           </div>
         </div>
 
-        <div class="assurance-strip" aria-label="Data handling assurances">
-          <div><span class="assurance-icon">U</span><p><strong id="source-assurance-title">Official source</strong><small id="source-assurance-copy">Records are retrieved from the USPTO Open Data Portal.</small></p></div>
-          <div><span class="assurance-icon">1</span><p><strong>Load once</strong><small>The loaded patent is used automatically across review tools.</small></p></div>
-          <div><span class="assurance-icon">E</span><p><strong>Evidence first</strong><small>Every result preserves its source passage.</small></p></div>
-          <div><span class="assurance-icon">H</span><p><strong>Human decision</strong><small>Flags are review prompts, not legal conclusions.</small></p></div>
-        </div>
+        <section class="review-brief hidden" id="review-brief" aria-labelledby="review-brief-title">
+          <div class="review-brief-head">
+            <div>
+              <div class="eyebrow">Patent review</div>
+              <h2 id="review-brief-title">Current patent</h2>
+              <p id="review-brief-meta"></p>
+            </div>
+            <div class="brief-status" id="review-brief-status" role="status" hidden>
+              <span aria-hidden="true"></span>
+              <strong>Preparing checks</strong>
+            </div>
+          </div>
+          <div class="brief-facts" id="review-brief-facts"></div>
+          <div class="brief-findings" id="review-brief-findings"></div>
+        </section>
 
         <section class="tool-section" aria-labelledby="tool-heading">
           <div class="section-heading">
-            <div><div class="eyebrow">Eight focused workflows</div><h2 id="tool-heading">Choose the review task</h2></div>
-            <p>Each workflow asks only for the information needed to answer one patent-practice question.</p>
+            <div><div class="eyebrow">Review tools</div><h2 id="tool-heading">What do you need to review?</h2></div>
           </div>
           <div class="tool-grid" id="tool-grid"></div>
         </section>
@@ -108,33 +108,24 @@
           </div>
         </section>
 
-        <footer class="workspace-disclaimer">
-          <strong>Experimental review aid.</strong>
-          <span>PatentAgility output may be incomplete or wrong because source records, document text, and automated analysis can be imperfect. It is not legal advice and should not be the sole source of authoritative fact.</span>
-        </footer>
       </section>
 
       <section class="tool-view hidden" id="tool-view" aria-labelledby="tool-title">
-        <div class="tool-breadcrumb"><button type="button" id="back-overview">Overview</button><span aria-hidden="true">/</span><span id="breadcrumb-name">Tool</span></div>
         <div class="tool-header">
-          <div class="tool-index" id="tool-index">04</div>
           <div>
-            <div class="tool-meta"><span class="mode-badge" id="mode-badge">Available</span><span id="tool-runtime">Specification evidence search</span></div>
-            <h1 id="tool-title">Specification support</h1>
+            <h1 id="tool-title">Spec Support</h1>
             <p id="tool-description"></p>
           </div>
-          <button class="how-button" id="how-button" type="button">How this works</button>
         </div>
 
         <div class="tool-layout">
           <div class="analysis-column">
             <form class="analysis-form" id="tool-form" novalidate>
-              <div class="form-heading"><span>01</span><div><h2>Review input</h2><p id="form-guidance"></p></div></div>
+              <div class="form-heading"><h2>Search the specification</h2><p id="form-guidance"></p></div>
               <div id="dynamic-fields"></div>
               <div class="form-actions">
                 <button class="primary-button" id="run-analysis" type="submit"><span>Run analysis</span><span aria-hidden="true">→</span></button>
               </div>
-              <div class="input-assurance"><span aria-hidden="true">◇</span><span id="input-assurance-copy"><strong>Public record source.</strong> Confirm all material passages and bibliographic data against the official file before relying on them.</span></div>
             </form>
 
             <section class="progress-panel hidden" id="progress-panel" aria-live="polite">
@@ -145,43 +136,13 @@
 
             <section class="results-panel hidden" id="results-panel" aria-live="polite">
               <div class="results-heading">
-                <div><div class="eyebrow">Review output</div><h2 id="results-title">Analysis results</h2><p id="results-summary"></p></div>
-                <div class="result-actions"><button type="button" id="copy-results">Copy summary</button><button type="button" id="print-results">Print</button></div>
+                <div><h2 id="results-title">Analysis results</h2><p id="results-summary"></p></div>
+                <div class="result-actions"><button type="button" id="adjust-input" hidden>Adjust input</button></div>
               </div>
               <div id="results-content"></div>
             </section>
           </div>
-
-          <aside class="context-column" aria-label="Analysis context">
-            <section class="context-card">
-              <div class="context-label">Review standard</div>
-              <h2 id="context-title">Evidence, not conclusions</h2>
-              <p id="context-copy">Treat ranked passages as a research aid. Confirm the cited specification language and prosecution record before relying on a result.</p>
-            </section>
-            <section class="context-card evidence-card">
-              <div class="context-label">Patent record</div>
-              <dl>
-                <div><dt>Application</dt><dd id="context-application">Not loaded</dd></div>
-                <div><dt>Patent</dt><dd id="context-patent">Not loaded</dd></div>
-                <div><dt>Status</dt><dd id="context-status">Not loaded</dd></div>
-                <div><dt>Source</dt><dd id="context-source">USPTO</dd></div>
-              </dl>
-            </section>
-            <section class="context-card safeguards-card">
-              <div class="context-label">Review safeguards</div>
-              <h2>Built for verified work</h2>
-              <ul class="safeguard-list">
-                <li>Source passages remain visible</li>
-                <li>Representative data is identified</li>
-                <li>Attorney verification is required</li>
-              </ul>
-            </section>
-          </aside>
         </div>
-        <footer class="workspace-disclaimer compact-disclaimer">
-          <strong>Attorney verification required.</strong>
-          <span>Confirm every cited passage, prosecution event, and generated summary against the authoritative record before relying on it.</span>
-        </footer>
       </section>
     </main>
   </div>
@@ -189,10 +150,8 @@
   <dialog class="explain-dialog" id="explain-dialog">
     <form method="dialog">
       <button class="dialog-close" aria-label="Close explanation">×</button>
-      <div class="eyebrow">Method note</div>
       <h2 id="dialog-title">How this analysis works</h2>
       <div id="dialog-content"></div>
-      <div class="dialog-foot"><span>Focused review</span><span>Attorney judgment</span><span>Source-linked output</span></div>
     </form>
   </dialog>
 

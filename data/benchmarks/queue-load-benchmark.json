@@ -1,0 +1,1600 @@
+{
+  "created_at": "2026-07-22T00:50:20.481194+00:00",
+  "service_url": "http://127.0.0.1:8766",
+  "record": {
+    "record_id": "example:us-9922200-b2",
+    "display_identifier": "US 9,922,200 B2",
+    "title": "Securely storing content within public clouds",
+    "specification_characters": 46561
+  },
+  "service_configuration_observed": {
+    "model_profile": "balanced",
+    "queue_capacity": 32
+  },
+  "phases": [
+    {
+      "name": "sequential_baseline",
+      "offered_requests": 12,
+      "concurrency": 1,
+      "max_attempts": 1,
+      "wall_seconds": 0.48775158304488286,
+      "successful_requests_per_second": 24.602687960719056,
+      "status_counts": {
+        "200": 12
+      },
+      "retry_attempts": 0,
+      "latency_seconds": {
+        "minimum": 0.034911957976873964,
+        "median": 0.03902454147464596,
+        "p95": 0.05046550004044548,
+        "p99": 0.05046550004044548,
+        "maximum": 0.05046550004044548
+      },
+      "peak_observed": {
+        "queue_depth": 0,
+        "inflight": 1
+      },
+      "metrics_delta": {
+        "accepted": 12,
+        "rejected": 0,
+        "completed": 12,
+        "failed": 0,
+        "timed_out": 0,
+        "cancelled": 0,
+        "batches": 12,
+        "batch_items": 12,
+        "batch_cost": 559395,
+        "processing_seconds": 0.18879037693841383,
+        "queue_wait_seconds": 0.2799469560268335,
+        "index_cache_hits": 12,
+        "index_cache_misses": 0,
+        "average_batch_size": 1.0,
+        "average_queue_wait_seconds": 0.023328913002236124
+      },
+      "results": [
+        {
+          "status": 200,
+          "latency_seconds": 0.038461958989501,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.037908083002548665,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.03722787502920255,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.03959229198517278,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.037460749968886375,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.042587957985233516,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.046487083949614316,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.05046550004044548,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.034911957976873964,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.03876495797885582,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.039284124970436096,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.041357917012646794,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "name": "normal_burst",
+      "offered_requests": 24,
+      "concurrency": 24,
+      "max_attempts": 1,
+      "wall_seconds": 0.10214604099746794,
+      "successful_requests_per_second": 234.95771119112612,
+      "status_counts": {
+        "200": 24
+      },
+      "retry_attempts": 0,
+      "latency_seconds": {
+        "minimum": 0.0390488330158405,
+        "median": 0.07069841650081798,
+        "p95": 0.09915016603190452,
+        "p99": 0.10031120799249038,
+        "maximum": 0.10031120799249038
+      },
+      "peak_observed": {
+        "queue_depth": 16,
+        "inflight": 8
+      },
+      "metrics_delta": {
+        "accepted": 24,
+        "rejected": 0,
+        "completed": 24,
+        "failed": 0,
+        "timed_out": 0,
+        "cancelled": 0,
+        "batches": 3,
+        "batch_items": 24,
+        "batch_cost": 1118790,
+        "processing_seconds": 0.09240979206515476,
+        "queue_wait_seconds": 0.7036843739915639,
+        "index_cache_hits": 3,
+        "index_cache_misses": 0,
+        "average_batch_size": 8.0,
+        "average_queue_wait_seconds": 0.029320182249648497
+      },
+      "results": [
+        {
+          "status": 200,
+          "latency_seconds": 0.09563275001710281,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.0390488330158405,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07037595799192786,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.09695937496144325,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.0718566250288859,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10031120799249038,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07016179198399186,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.04043329099658877,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.04038429202046245,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07156950002536178,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.04043900000397116,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.06955462496262044,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.04080141696613282,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07015408301958814,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.09759637498063967,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07136775000253692,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.09781329100951552,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.0982392500154674,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.04005004098871723,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.09800479200202972,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.039412208017893136,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.09915016603190452,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.0710208750097081,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.04107145802117884,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "name": "overload_without_retry",
+      "offered_requests": 96,
+      "concurrency": 96,
+      "max_attempts": 1,
+      "wall_seconds": 0.2013652499881573,
+      "successful_requests_per_second": 198.64400636332476,
+      "status_counts": {
+        "200": 40,
+        "429": 56
+      },
+      "retry_attempts": 0,
+      "latency_seconds": {
+        "minimum": 0.027519958035554737,
+        "median": 0.04249406250892207,
+        "p95": 0.19083570904331282,
+        "p99": 0.1955535000306554,
+        "maximum": 0.1955535000306554
+      },
+      "peak_observed": {
+        "queue_depth": 32,
+        "inflight": 8
+      },
+      "metrics_delta": {
+        "accepted": 40,
+        "rejected": 56,
+        "completed": 40,
+        "failed": 0,
+        "timed_out": 0,
+        "cancelled": 0,
+        "batches": 5,
+        "batch_items": 40,
+        "batch_cost": 1864662,
+        "processing_seconds": 0.17526695801643655,
+        "queue_wait_seconds": 3.1991674200980924,
+        "index_cache_hits": 5,
+        "index_cache_misses": 0,
+        "average_batch_size": 8.0,
+        "average_queue_wait_seconds": 0.07997918550245231
+      },
+      "results": [
+        {
+          "status": 200,
+          "latency_seconds": 0.11064104200340807,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.032951417029835284,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1955535000306554,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.028529457980766892,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.04266616702079773,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.16927679197397083,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.08102262497413903,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03692929196404293,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1020649999845773,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.131617458013352,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.036865458998363465,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.09950708301039413,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07930108299478889,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.0475190409924835,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.0381325000198558,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10553220799192786,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.039099291956517845,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.0341527079581283,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.16527362499618903,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.0789442079840228,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07105745800072327,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03530241595581174,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07877095899311826,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.031539499992504716,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.042894957994576544,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03136691701365635,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07971554202958941,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.0325749579933472,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13842162501532584,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.19421841599978507,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.035543124948162585,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.15600204095244408,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.040666499990038574,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07880641601514071,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.047662333003245294,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03921875002561137,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10430016700411215,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.0327130839577876,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.04723329097032547,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03728212497662753,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.036106916959397495,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.04341920797014609,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10725466697476804,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1049059159704484,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.038905124994926155,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.15954383299686015,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.0358672080328688,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.04195308400085196,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03786995797418058,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.19231866695918143,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.0416631669504568,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03969870798755437,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03608537500258535,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.04307204100769013,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03783745801774785,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03367391700157896,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.15910933300619945,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.04232195799704641,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07283529202686623,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.19215229200199246,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.16590741701656953,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.031696583959273994,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.18821679102256894,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.033055667008738965,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10342254204442725,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.15868416702141985,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.040756542002782226,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03975304099731147,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03742816700832918,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1361523749656044,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03270508302375674,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.12978908303193748,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03415037499507889,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.033309708000160754,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.04297650000080466,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13559237500885502,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.027519958035554737,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03851291595492512,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1905436249799095,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03466829098761082,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.19083570904331282,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03533154202159494,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.033902374969329685,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.039099875022657216,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1869680000236258,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03688779199728742,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03624812501948327,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1270094159990549,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.033773250004742295,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13086012500571087,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1350670420215465,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1580316250328906,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03390541602857411,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.03353387501556426,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.035788375011179596,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        },
+        {
+          "status": 429,
+          "latency_seconds": 0.039117957989219576,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": "{\"error\":\"overloaded\",\"message\":\"inference queue is full\"}\n"
+        }
+      ]
+    },
+    {
+      "name": "overload_with_retry",
+      "offered_requests": 64,
+      "concurrency": 64,
+      "max_attempts": 6,
+      "wall_seconds": 2.3041590829961933,
+      "successful_requests_per_second": 27.775859953548935,
+      "status_counts": {
+        "200": 64
+      },
+      "retry_attempts": 24,
+      "latency_seconds": {
+        "minimum": 0.053074041032232344,
+        "median": 0.1447592079930473,
+        "p95": 2.2945884579676203,
+        "p99": 2.298656083003152,
+        "maximum": 2.298656083003152
+      },
+      "peak_observed": {
+        "queue_depth": 32,
+        "inflight": 8
+      },
+      "metrics_delta": {
+        "accepted": 64,
+        "rejected": 24,
+        "completed": 64,
+        "failed": 0,
+        "timed_out": 0,
+        "cancelled": 0,
+        "batches": 10,
+        "batch_items": 64,
+        "batch_cost": 2983440,
+        "processing_seconds": 0.2945690409396775,
+        "queue_wait_seconds": 3.234472335141618,
+        "index_cache_hits": 10,
+        "index_cache_misses": 0,
+        "average_batch_size": 6.4,
+        "average_queue_wait_seconds": 0.05053863023658778
+      },
+      "results": [
+        {
+          "status": 200,
+          "latency_seconds": 0.11248787498334423,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.060921458003576845,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.2955491250031628,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.05957566597498953,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.173924917005934,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.0823509999900125,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.11230445798719302,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.05660062498645857,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.06051725003635511,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.194194082985632,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.229996417008806,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.1927777089877054,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.199067000008654,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13068837503669783,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1343225419986993,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.053074041032232344,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13576524995733052,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13704000000143424,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.08215183299034834,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.11119966697879136,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.2945884579676203,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.12987695803167298,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.0592462089844048,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.298656083003152,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10752387496177107,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13021254097111523,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1524784159846604,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.11131341598229483,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.168028582993429,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1562265839893371,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.1981254579732195,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.1048069579992443,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.08445470803417265,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.2368091249954887,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10688954195939004,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.15920795797137544,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.08078466600272804,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.08390770899131894,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10987283400027081,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.170296707947273,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.15900545800104737,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.15337441599695012,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.057862750021740794,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.0545319999800995,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.1909608330461197,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.1747458330355585,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.2936025420203805,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13185583404265344,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.1930009580100887,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.10870658396743238,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1584077079896815,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.15544495795620605,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.13458574999822304,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.1534876250079833,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.08007708302466199,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.08261100004892796,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.296305208001286,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 0.07787983398884535,
+          "attempts": 1,
+          "retry_after_seconds": null,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.22971420903923,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.173796624992974,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.1713887079968117,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.192017874971498,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.293192084005568,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        },
+        {
+          "status": 200,
+          "latency_seconds": 2.1948399170069024,
+          "attempts": 2,
+          "retry_after_seconds": 2.0,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "batched_to_sequential_throughput_ratio": 9.550082965172846,
+    "normal_burst_average_batch_size": 8.0,
+    "overload_rejections": 56,
+    "overload_peak_queue_depth": 32,
+    "retry_run_successes": 64,
+    "retry_run_extra_attempts": 24,
+    "retry_after_seconds_observed": [
+      2.0
+    ]
+  },
+  "final_metrics": {
+    "accepted": 557,
+    "accepting": true,
+    "average_batch_cost": 216533.1092436975,
+    "average_batch_size": 4.680672268907563,
+    "average_queue_wait_seconds": 0.059028269651264814,
+    "batch_cost": 25767440,
+    "batch_items": 557,
+    "batches": 119,
+    "cancelled": 0,
+    "completed": 557,
+    "failed": 0,
+    "index_cache_entries": 2,
+    "index_cache_hits": 117,
+    "index_cache_misses": 2,
+    "inflight": 0,
+    "model_profile": "balanced",
+    "processing_seconds": 9.098156745079905,
+    "queue_capacity": 32,
+    "queue_depth": 0,
+    "queue_wait_seconds": 32.8787461957545,
+    "rejected": 320,
+    "timed_out": 0,
+    "worker_alive": true
+  },
+  "limits": [
+    "This is a single-process benchmark on one local machine.",
+    "The sequential baseline is this service with one client. It is not a measurement of the deployed PatentAgility service.",
+    "The benchmark uses a warm, repeated patent record to measure request batching and queue control.",
+    "The metrics endpoint is sampled every 10 ms, so brief peaks can occur between samples.",
+    "HTTP 429 results prove bounded admission. They do not increase compute capacity."
+  ]
+}

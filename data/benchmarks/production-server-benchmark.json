@@ -1,0 +1,179 @@
+{
+  "created_at": "2026-07-22T02:14:41.268453+00:00",
+  "target": "one physical server",
+  "model_profile": "throughput",
+  "device": "cpu",
+  "corpus": [
+    {
+      "identifier": "US 9,922,200 B2",
+      "source_url": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/9922200",
+      "characters": 46561
+    },
+    {
+      "identifier": "US 10,831,913 B2",
+      "source_url": "https://patents.google.com/patent/US10831913B2/en",
+      "characters": 45485
+    },
+    {
+      "identifier": "US 10,000,000 B2",
+      "source_url": "https://patents.google.com/patent/US10000000B2/en",
+      "characters": 21712
+    }
+  ],
+  "scenarios": [
+    {
+      "web_workers": 1,
+      "model_replicas": 1,
+      "http_threads_per_worker": 64,
+      "startup_seconds": 10.0665516659501,
+      "observed_worker_process_ids": [
+        21421
+      ],
+      "idle_process_tree_memory": {
+        "process_ids": [
+          20864,
+          21421,
+          30930
+        ],
+        "rss_bytes_by_process": {
+          "20864": 34570240,
+          "21421": 530841600,
+          "30930": 21266432
+        },
+        "total_rss_bytes": 586678272
+      },
+      "load": {
+        "requested_duration_seconds": 60.0,
+        "wall_seconds": 60.03721804096131,
+        "concurrency": 16,
+        "logical_requests": 15272,
+        "attempts": 15272,
+        "retries": 0,
+        "status_counts": {
+          "200": 15272
+        },
+        "successful_requests_per_second": 254.37554400972485,
+        "latency_seconds": {
+          "median": 0.03893710399279371,
+          "p95": 0.05093291599769145,
+          "p99": 0.07533825002610683,
+          "maximum": 21.170882042031735
+        },
+        "cold_first_success_seconds_by_patent": {
+          "US 9,922,200 B2": 21.149652332998812,
+          "US 10,831,913 B2": 21.149848707951605,
+          "US 10,000,000 B2": 21.15072679100558
+        },
+        "peak_process_tree_rss_bytes": 1445068800
+      },
+      "post_load_process_tree_memory": {
+        "process_ids": [
+          20864,
+          21421,
+          30930
+        ],
+        "rss_bytes_by_process": {
+          "20864": 23298048,
+          "21421": 389562368,
+          "30930": 11599872
+        },
+        "total_rss_bytes": 424460288
+      },
+      "drain_probe": {
+        "offered_requests": 24,
+        "status_counts": {
+          "200": 24
+        },
+        "accepted_before_signal": 24,
+        "pending_at_signal": 24,
+        "shutdown_seconds": 0.7604868339840323,
+        "master_exit_code": 0,
+        "all_accepted_requests_completed": true
+      }
+    },
+    {
+      "web_workers": 2,
+      "model_replicas": 2,
+      "http_threads_per_worker": 64,
+      "startup_seconds": 9.644621459010523,
+      "observed_worker_process_ids": [
+        92740,
+        92896
+      ],
+      "idle_process_tree_memory": {
+        "process_ids": [
+          3478,
+          3479,
+          92732,
+          92740,
+          92896
+        ],
+        "rss_bytes_by_process": {
+          "3478": 21331968,
+          "3479": 21315584,
+          "92732": 34258944,
+          "92740": 532578304,
+          "92896": 536412160
+        },
+        "total_rss_bytes": 1145896960
+      },
+      "load": {
+        "requested_duration_seconds": 60.0,
+        "wall_seconds": 60.04428770800587,
+        "concurrency": 16,
+        "logical_requests": 12462,
+        "attempts": 12462,
+        "retries": 0,
+        "status_counts": {
+          "200": 12462
+        },
+        "successful_requests_per_second": 207.54680379593225,
+        "latency_seconds": {
+          "median": 0.031226104008965194,
+          "p95": 0.049603458028286695,
+          "p99": 0.05297195800812915,
+          "maximum": 35.2178880830179
+        },
+        "cold_first_success_seconds_by_patent": {
+          "US 9,922,200 B2": 35.125104832986835,
+          "US 10,831,913 B2": 35.12583187496057,
+          "US 10,000,000 B2": 35.12946333299624
+        },
+        "peak_process_tree_rss_bytes": 3137716224
+      },
+      "post_load_process_tree_memory": {
+        "process_ids": [
+          3478,
+          3479,
+          92732,
+          92740,
+          92896
+        ],
+        "rss_bytes_by_process": {
+          "3478": 11894784,
+          "3479": 12533760,
+          "92732": 33538048,
+          "92740": 420904960,
+          "92896": 423100416
+        },
+        "total_rss_bytes": 901971968
+      },
+      "drain_probe": {
+        "offered_requests": 0,
+        "shutdown_seconds": 0.6721885419683531,
+        "master_exit_code": 0,
+        "note": "The in-flight drain probe runs on the recommended one-worker configuration."
+      }
+    }
+  ],
+  "comparison": {
+    "two_to_one_worker_memory_ratio": 2.1249855251476433,
+    "two_to_one_worker_throughput_ratio": 0.8159070660817836
+  },
+  "limits": [
+    "Each Gunicorn worker has one model replica, one cache, and one queue.",
+    "Process RSS double-counts shared memory pages and is a conservative host-capacity measure.",
+    "The corpus has three public patent descriptions and starts with an empty in-process cache.",
+    "The run measures one local server and does not represent a multi-host deployment."
+  ]
+}

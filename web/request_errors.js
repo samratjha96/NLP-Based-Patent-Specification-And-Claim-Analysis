@@ -15,12 +15,12 @@
   }
 
   function networkErrorMessage() {
-    return "PatentAgility cannot reach the local service. Confirm the application is running, then try again.";
+    return "PatentAgility could not connect. Check your connection and try again.";
   }
 
   function apiErrorMessage(status, data) {
     if (data && data.error === "patent_data_unconfigured") {
-      return "Patent lookup is not configured yet. A USPTO Open Data Portal API key is required.";
+      return "Public patent lookup is not available right now. Try again later.";
     }
     if (data && data.error === "patent_data_unavailable") {
       return "USPTO could not find or retrieve that record. Check the number and try again.";

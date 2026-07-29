@@ -249,6 +249,89 @@ def test_support_search_uses_the_loaded_record_without_resending_the_specificati
     assert response.status_code == 200
     submitted, _timeout = processor.submitted[0]
     assert submitted.patent_text == "A processor is coupled to a memory."
+    assert submitted.document_cache_key == "public-uspto:application:18456219"
+
+
+def test_family_claim_comparison_returns_computed_differences(settings):
+    app = create_app(settings=settings, processor=StubProcessor(result={}))
+
+    response = app.test_client().post(
+        "/v1/family/claims/compare",
+        json={
+            "claims": [
+                {
+                    "label": "Parent",
+                    "document_number": "US 1 B2",
+                    "claim_number": 1,
+                    "claim_text": "1. A method: storing data; decrypting data.",
+                },
+                {
+                    "label": "Continuation",
+                    "document_number": "US 2 B2",
+                    "claim_number": 1,
+                    "claim_text": "1. A method: providing a key; storing data.",
+                },
+            ]
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["summary"]["claim_count"] == 2
+    assert response.get_json()["added"]
+    assert response.get_json()["removed"]
+
+
+def test_family_coverage_uses_the_bounded_inference_queue(settings):
+    processor = StubProcessor(
+        result={
+            "profile": "balanced",
+            "results": [
+                {
+                    "query": "Migration between processors",
+                    "hits": [
+                        {
+                            "paragraph_id": 0,
+                            "sentence": "A method comprising storing content.",
+                            "score": 0.24,
+                        }
+                    ],
+                }
+            ],
+        }
+    )
+    app = create_app(settings=settings, processor=processor)
+
+    response = app.test_client().post(
+        "/v1/family/coverage",
+        json={
+            "claims": [
+                {
+                    "label": "Parent",
+                    "document_number": "US 1 B2",
+                    "claim_text": "A method comprising storing content.",
+                },
+                {
+                    "label": "Continuation",
+                    "document_number": "US 2 B2",
+                    "claim_text": "A method comprising providing a processor key.",
+                },
+            ],
+            "concepts": [
+                {
+                    "title": "Migration between processors",
+                    "evidence": "Paragraph 40 describes migration for maintenance.",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    submitted, timeout = processor.submitted[0]
+    assert submitted.queries == ("Migration between processors",)
+    assert "storing content" in submitted.patent_text
+    assert "providing a processor key" in submitted.patent_text
+    assert timeout == settings.request_timeout_seconds
+    assert response.get_json()["concepts"][0]["best_score"] == 0.24
 
 
 @pytest.mark.parametrize(

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
@@ -54,6 +53,7 @@ class SupportRequest:
     queries: tuple[str, ...]
     top_n: int
     request_id: str
+    document_cache_key: str | None = None
 
     def __post_init__(self) -> None:
         if not self.patent_text:
@@ -66,6 +66,7 @@ class SupportRequest:
 
 @dataclass
 class _DocumentIndex:
+    paragraphs: list[str]
     sentences: list[str]
     meta: list[tuple[int, int]]
     bm25: BM25Okapi
@@ -163,25 +164,33 @@ class SupportAnalyzer:
         self, requests: Sequence[SupportRequest]
     ) -> dict[str, _DocumentIndex]:
         indexes: dict[str, _DocumentIndex] = {}
-        split_documents: dict[str, tuple[list[str], list[tuple[int, int]]]] = {}
+        split_documents: dict[
+            str, tuple[list[str], list[str], list[tuple[int, int]]]
+        ] = {}
+        cache_keys = {
+            request.patent_text: request.document_cache_key
+            for request in requests
+            if request.document_cache_key is not None
+        }
         for request in requests:
             if request.patent_text in indexes or request.patent_text in split_documents:
                 continue
-            cache_key = self._cache_key(request.patent_text)
-            cached = self._index_cache.get(cache_key)
-            if cached is not None:
-                self._index_cache.move_to_end(cache_key)
-                self._index_cache_hits += 1
-                indexes[request.patent_text] = cached
-                continue
-            self._index_cache_misses += 1
+            cache_key = cache_keys.get(request.patent_text)
+            if cache_key is not None:
+                cached = self._index_cache.get(cache_key)
+                if cached is not None:
+                    self._index_cache.move_to_end(cache_key)
+                    self._index_cache_hits += 1
+                    indexes[request.patent_text] = cached
+                    continue
+                self._index_cache_misses += 1
             split_documents[request.patent_text] = self._split_document(
                 request.patent_text
             )
 
         all_sentences = [
             sentence
-            for sentences, _meta in split_documents.values()
+            for _paragraphs, sentences, _meta in split_documents.values()
             for sentence in sentences
         ]
         embeddings = self._encode(all_sentences) if all_sentences else None
@@ -189,9 +198,10 @@ class SupportAnalyzer:
         offset = 0
         if split_documents:
             assert embeddings is not None
-        for patent_text, (sentences, meta) in split_documents.items():
+        for patent_text, (paragraphs, sentences, meta) in split_documents.items():
             next_offset = offset + len(sentences)
             document = _DocumentIndex(
+                paragraphs=paragraphs,
                 sentences=sentences,
                 meta=meta,
                 bm25=BM25Okapi(
@@ -200,7 +210,9 @@ class SupportAnalyzer:
                 embeddings=embeddings[offset:next_offset],
             )
             indexes[patent_text] = document
-            self._cache_document(self._cache_key(patent_text), document)
+            cache_key = cache_keys.get(patent_text)
+            if cache_key is not None:
+                self._cache_document(cache_key, document)
             offset = next_offset
         return indexes
 
@@ -211,10 +223,6 @@ class SupportAnalyzer:
         self._index_cache.move_to_end(key)
         while len(self._index_cache) > self.index_cache_size:
             self._index_cache.popitem(last=False)
-
-    @staticmethod
-    def _cache_key(patent_text: str) -> str:
-        return hashlib.sha256(patent_text.encode("utf-8")).hexdigest()
 
     def _embed_unique_queries(
         self, requests: Sequence[SupportRequest]
@@ -227,12 +235,11 @@ class SupportAnalyzer:
 
     def _split_document(
         self, patent_text: str
-    ) -> tuple[list[str], list[tuple[int, int]]]:
+    ) -> tuple[list[str], list[str], list[tuple[int, int]]]:
+        paragraphs = support_search.split_paragraphs(patent_text)
         sentences: list[str] = []
         meta: list[tuple[int, int]] = []
-        for paragraph_id, paragraph in enumerate(
-            support_search.split_paragraphs(patent_text)
-        ):
+        for paragraph_id, paragraph in enumerate(paragraphs):
             for sentence_id, sentence in enumerate(
                 support_search.split_sentences_with_nlp(paragraph, self.nlp)
             ):
@@ -240,7 +247,7 @@ class SupportAnalyzer:
                 meta.append((paragraph_id, sentence_id))
         if not sentences:
             raise ValueError("no sentences extracted from patent_text")
-        return sentences, meta
+        return paragraphs, sentences, meta
 
     def _encode(self, texts: list[str]) -> np.ndarray:
         return np.asarray(
@@ -327,6 +334,7 @@ class SupportAnalyzer:
                     "sentence_id": sentence_id,
                     "sentence_global_idx": candidate_id,
                     "sentence": plan.document.sentences[candidate_id],
+                    "paragraph": plan.document.paragraphs[paragraph_id],
                     "score": float(plan.scores[int(score_index)]),
                 }
             )

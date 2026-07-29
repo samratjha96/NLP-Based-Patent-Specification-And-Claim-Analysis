@@ -1,0 +1,15 @@
+{
+  "name": "patentagility-cloudflare-demo",
+  "private": true,
+  "scripts": {
+    "cf:deploy": "wrangler deploy",
+    "cf:dry-run": "wrangler deploy --dry-run",
+    "cf:status": "wrangler containers list"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "0.3.7"
+  },
+  "devDependencies": {
+    "wrangler": "4.114.0"
+  }
+}

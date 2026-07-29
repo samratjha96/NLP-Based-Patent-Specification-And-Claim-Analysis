@@ -1,0 +1,17 @@
+.cache
+.claude
+.git
+.pytest_cache
+.ruff_cache
+.venv
+__pycache__
+*.py[cod]
+
+benchmarks
+data/benchmark
+data/benchmarks
+outputs
+tests
+
+README.md
+requirements-dev.txt

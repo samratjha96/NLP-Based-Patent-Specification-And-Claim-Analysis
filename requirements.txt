@@ -2,6 +2,7 @@ flask
 gunicorn
 graphviz
 requests
+beautifulsoup4
 pdf2image
 pypdf
 pytesseract

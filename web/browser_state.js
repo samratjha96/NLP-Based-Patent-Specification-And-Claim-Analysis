@@ -1,8 +1,9 @@
 (() => {
   const DATABASE_NAME = "patentagility-review";
-  const DATABASE_VERSION = 1;
+  const DATABASE_VERSION = 2;
   const WORKSPACE_STORE = "workspace";
   const ANALYSIS_STORE = "analyses";
+  const PREPARED_REVIEW_STORE = "preparedReviews";
   let databasePromise;
 
   function requestResult(request) {
@@ -32,6 +33,10 @@
           if (!database.objectStoreNames.contains(ANALYSIS_STORE)) {
             const analyses = database.createObjectStore(ANALYSIS_STORE, { keyPath: "id" });
             analyses.createIndex("createdAt", "createdAt");
+          }
+          if (!database.objectStoreNames.contains(PREPARED_REVIEW_STORE)) {
+            const reviews = database.createObjectStore(PREPARED_REVIEW_STORE, { keyPath: "cacheKey" });
+            reviews.createIndex("recordId", "recordId");
           }
         };
         request.onsuccess = () => resolve(request.result);
@@ -92,6 +97,44 @@
     return transactionComplete(transaction);
   }
 
+  async function savePreparedReview(review) {
+    const database = await openDatabase();
+    const transaction = database.transaction(PREPARED_REVIEW_STORE, "readwrite");
+    transaction.objectStore(PREPARED_REVIEW_STORE).put(review);
+    return transactionComplete(transaction);
+  }
+
+  async function getPreparedReview(cacheKey) {
+    const database = await openDatabase();
+    return (await requestResult(database.transaction(PREPARED_REVIEW_STORE).objectStore(PREPARED_REVIEW_STORE).get(cacheKey))) || null;
+  }
+
+  async function listPreparedReviews(recordId) {
+    const database = await openDatabase();
+    return requestResult(database.transaction(PREPARED_REVIEW_STORE).objectStore(PREPARED_REVIEW_STORE).index("recordId").getAll(recordId));
+  }
+
+  async function deletePreparedReviews(cacheKeys) {
+    if (!cacheKeys.length) return;
+    const database = await openDatabase();
+    const transaction = database.transaction(PREPARED_REVIEW_STORE, "readwrite");
+    const store = transaction.objectStore(PREPARED_REVIEW_STORE);
+    cacheKeys.forEach((cacheKey) => store.delete(cacheKey));
+    return transactionComplete(transaction);
+  }
+
+  async function clearAllData() {
+    const database = await openDatabase();
+    const transaction = database.transaction(
+      [WORKSPACE_STORE, ANALYSIS_STORE, PREPARED_REVIEW_STORE],
+      "readwrite"
+    );
+    transaction.objectStore(WORKSPACE_STORE).clear();
+    transaction.objectStore(ANALYSIS_STORE).clear();
+    transaction.objectStore(PREPARED_REVIEW_STORE).clear();
+    return transactionComplete(transaction);
+  }
+
   window.PatentAgilityState = Object.freeze({
     databaseName: DATABASE_NAME,
     getCurrentMatter,
@@ -99,6 +142,11 @@
     clearCurrentMatter,
     saveAnalysis,
     listAnalyses,
-    clearAnalyses
+    clearAnalyses,
+    savePreparedReview,
+    getPreparedReview,
+    listPreparedReviews,
+    deletePreparedReviews,
+    clearAllData
   });
 })();

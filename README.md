@@ -63,60 +63,116 @@ context, and attorney-review boundary visible together.
 Start the smaller throughput profile for a local product demo:
 
 ```bash
-export USPTO_API_KEY="your-open-data-portal-key"
 PATENTAGILITY_SPACY_MODEL=en_core_web_sm \
 PATENTAGILITY_MODEL_PROFILE=throughput \
 uv run python service.py
 ```
 
-Then open `http://127.0.0.1:8000/`. The web workspace does not retain
-substantive claim or specification text in browser storage. Enter a U.S.
-patent or application number on the overview to retrieve its public
-file-wrapper record, download the earliest specification, extract its text,
-and make the specification and claims available to the live review tools.
+Then open `http://127.0.0.1:8000/`. Enter a U.S. patent or application number
+on the overview. Without a key, the service retrieves structured public patent
+text from Google Patents. This path supports a U.S. grant number or an
+application number and does not run OCR. With `USPTO_API_KEY`, the service uses
+the USPTO Open Data Portal and downloads the earliest file-wrapper
+specification. Both paths make the specification and claims available to the
+review tools. The browser stores the selected record and completed results in
+IndexedDB. The live lookup response does not include the full specification or
+claim text.
 
-The USPTO Open Data Portal requires an account and API key. Without
-`USPTO_API_KEY`, the workspace remains available but patent lookup returns a
-clear configuration error rather than sample or fabricated record data. The
-retrieval layer keeps a small in-memory record cache so repeated analyses of
-one patent record do not download or extract the same specification again.
+The retrieval layer keeps a small in-memory cache of public records so repeated
+analyses do not download or extract the same public specification again. Raw
+text submitted by a user is not eligible for this cache.
 
 For a credential-free product walkthrough, choose **Open US 9,922,200** on the
 overview. The app includes text from the official parent and continuation grant
-documents. It also includes official document links. The three implemented
-analysis tools process the saved specification and claims through the local
-service. The other views use saved USPTO facts and state when the source record
-does not support a result.
+documents. It also includes official document links, dated wrapper events,
+three amendment snapshots, six independent claims, and a verified top-five
+art-unit result from the authenticated deployed product. The support, coverage,
+antecedent, linguistic, and family-comparison workflows process the saved
+record through the local service. The examiner view uses a saved public
+PatentAgility cohort for the examiner named on the patent.
 
 The reconstruction covers the eight workflows shown by the deployed product.
-The public repository can execute three of them end to end; five require the
-author's private data or models and are deliberately labeled as prototype
-views rather than presented as live analysis:
+It computes claim differences and concept coverage for the saved real family.
+It reports dated amendment facts without inventing applicant intent. The saved
+art-unit result demonstrates the deployed output contract; it is not a local
+replacement for the author's trained 588-class routing model.
+
+After a patent opens, the browser prepares the common claim and family checks
+with no more than two requests at one time. It stores each prepared result in
+IndexedDB. A tool opens the stored result before its refresh form. A page reload
+does not repeat completed work. Semantic coverage work still goes through the
+bounded inference queue.
 
 | Workflow | Local status | Backing implementation |
 |---|---|---|
 | Specification support | Live | Bounded batched retrieval service |
 | Antecedent basis | Live | `core/antecedent_basis.py` |
 | Linguistic claim analysis | Live | Structured output from `core/claim_segmentation.py`; no system Graphviz binary required |
-| Examiner analytics | Saved record view | Shows official grant examiner names; cohort analytics need a prosecution database |
-| U.S. family history | Saved record view | Shows official filing, publication, and grant dates for the parent and continuation |
-| Compare U.S. family claims | Saved record view | Compares official independent claims from two family grants |
-| Unclaimed subject matter | Saved record view | Shows evidence-backed research prompts without making a claim-scope conclusion |
-| Classification review | Saved record view | Shows official CPC codes; art-unit prediction needs a validated routing model |
+| Examiner analytics | Saved public cohort | Shows observed grant rates, office-action counts, statutory rejection rates, yearly outcomes, and peer comparisons for Samson B Lemma |
+| U.S. family overview | Verified saved wrapper history | Maps both valid grants, four office actions, three amendment snapshots, and two notices of allowance |
+| Compare U.S. family claims | Live | Aligns six independent claims in three pairs and identifies added, removed, and modified limitation blocks |
+| Unclaimed subject matter | Live | Ranks disclosed concepts against all six independent family claims through the bounded semantic-analysis queue |
+| Art Unit Predictor | Verified saved prediction | Shows five ranked candidates from 588 classes beside the observed art unit and official CPC codes |
 
-The deployed PHP site submits normalized form data to `POST /start/`, polls
-`GET /results/<job-id>/` as JSON, and then opens the completed server-rendered
-result. This local reconstruction keeps the same task and progress model but
-calls the same-origin Flask analysis endpoints directly because Flask owns both
-the browser application and bounded inference lifecycle.
+The deployed PHP site submits normalized multipart form data to `POST /start/`.
+The response contains a job ID, an event-stream URL, and a result URL. The
+browser follows the event stream and opens the completed server-rendered result.
+This reconstruction keeps the same task and progress model. Local development
+serves the browser and analysis API from Flask. The Cloudflare deployment serves
+the browser files at the edge and forwards only analysis API requests to the
+same Flask service in the container.
+
+## Cloudflare demo deployment
+
+The Worker in `cloudflare/worker.js` is the public routing boundary. The
+`web/` directory is deployed as Workers Static Assets, so loading the page,
+JavaScript, CSS, `robots.txt`, or the favicon does not start the model
+container. Unknown routes return `404` at the edge, and non-`POST` requests to
+analysis routes return `405`.
+
+Only these routes may start the container:
+
+- `POST /v1/patents/lookup`
+- `POST /v1/support/search`
+- `POST /v1/claims/antecedent`
+- `POST /v1/claims/diagram`
+- `POST /v1/claims/diff`
+- `POST /v1/family/claims/compare`
+- `POST /v1/family/coverage`
+
+The edge rate limiter is an abuse fuse, configured for eight admissions per
+10 seconds. Cloudflare's counters are permissive and eventually consistent, so
+the in-process 32-slot queue remains the exact admission boundary. Both layers
+return `429` with `Retry-After`; the browser retries without requiring another
+click. The single container sleeps after 15 minutes without an analysis
+request.
+
+Keep `ANALYSIS_ROUTES` in `cloudflare/worker.js`, the Flask routes in
+`service.py`, and their callers in `web/app.js` synchronized. Public
+`/health/*` and `/metrics` requests are intentionally rejected by the Worker;
+the Docker health check reaches Flask over localhost.
+
+Validate deployment configuration without publishing:
+
+```bash
+npx wrangler types
+npx wrangler deploy --dry-run
+```
+
+Deploy with:
+
+```bash
+npx wrangler deploy
+```
 
 ## Batched inference service
 
 `service.py` keeps the local models resident in one process and places support
 searches behind a bounded queue. The worker combines requests arriving within
-a short window into one embedding/reranking batch, deduplicates repeated patent
-texts and queries, and keeps a bounded LRU cache of recently built patent
-indexes.
+a short window into one embedding/reranking batch and deduplicates repeated
+patent texts and queries. Its bounded LRU index cache accepts only records that
+the server loaded from the public USPTO source. Raw submitted text and search
+queries are released after the request completes.
 
 For local development:
 
@@ -124,22 +180,43 @@ For local development:
 PATENTAGILITY_MODEL_PROFILE=balanced uv run python service.py
 ```
 
-For a Linux deployment, use one Gunicorn process so model weights are not
-duplicated, and enough HTTP threads to let overload requests receive an
-immediate response:
+For one server, start the tested Gunicorn configuration:
 
 ```bash
-PATENTAGILITY_MODEL_PROFILE=balanced \
-  uv run gunicorn --workers 1 --threads 64 --timeout 150 \
-  'service:create_app()'
+PATENTAGILITY_PORT=8000 scripts/start_production.sh
 ```
 
-Scale with additional service instances only when the host has enough memory
-for another complete model copy. The queue is intentionally in-process and
-non-durable: retryable overload returns `429` with `Retry-After`, while work
-that misses its deadline returns `504`. The included browser client follows
-`Retry-After`, adds a small random delay to avoid synchronized retries, and
-keeps trying for up to two minutes before asking the user to resubmit.
+The production script defaults to one Gunicorn worker, 64 HTTP threads, one
+`throughput` model replica, and the CPU device. Each Gunicorn worker owns one
+model, one patent-index cache, and one bounded queue. A second worker does not
+share these objects. Gunicorn rejects a multi-worker configuration unless
+`PATENTAGILITY_ALLOW_MULTI_MODEL_WORKERS=1` is also set.
+
+On `SIGTERM`, the worker stops queue admission, finishes accepted work, and
+then exits. Gunicorn allows 180 seconds for this drain. The queue is
+intentionally in-process and non-durable. Retryable overload returns `429`
+with `Retry-After`, while work that misses its deadline returns `504`. The
+browser follows `Retry-After` without a user action.
+
+The 60-second cold-cache run used three public patent specifications and 16
+clients on this machine. One CPU model worker completed 15,272 requests at
+254.38 requests per second. Its median latency was 38.9 ms after a 21.2-second
+cold first response. Peak process-tree RSS was 1.45 GB. Two model workers
+completed 12,462 requests at 207.55 requests per second and peaked at 3.14 GB.
+CPU contention made two workers 18.4% slower and about 2.12 times larger after
+the run. One worker is the tested recommendation for this server.
+
+The drain probe sent `SIGTERM` with 24 accepted requests still pending. All 24
+completed, and Gunicorn exited with status 0 in 0.76 seconds. Reproduce the
+load run with:
+
+```bash
+uv run python scripts/benchmark_production.py \
+  --duration-seconds 60 --concurrency 16 --worker-counts 1 2
+```
+
+The measured report is in
+[`data/benchmarks/production-server-benchmark.json`](data/benchmarks/production-server-benchmark.json).
 
 Submit all claim limitations for one patent together so its specification is
 embedded once:
@@ -180,9 +257,13 @@ from the live claim-to-specification workflow.
 | `PATENTAGILITY_MAX_BATCH_CHARACTERS` | `4000000` | Total input characters allowed in one batch |
 | `PATENTAGILITY_BATCH_WINDOW_MS` | `20` | Maximum delay used to collect a batch |
 | `PATENTAGILITY_REQUEST_TIMEOUT_SECONDS` | `120` | Caller deadline; pending work is cancelled |
-| `PATENTAGILITY_INDEX_CACHE_SIZE` | `4` | Recently embedded patent specifications retained |
+| `PATENTAGILITY_INDEX_CACHE_SIZE` | `4` | Public USPTO patent indexes retained in memory; set to `0` to disable |
+| `PATENTAGILITY_DEVICE` | Automatic | Model device; the production script defaults to `cpu` |
 | `PATENTAGILITY_EMBEDDING_BATCH_SIZE` | `256` | SentenceTransformer device batch size |
 | `PATENTAGILITY_RERANKER_BATCH_SIZE` | `32` | Cross-encoder device batch size |
 | `PATENTAGILITY_MAX_PATENT_CHARACTERS` | `2000000` | Per-request patent-text limit |
 | `PATENTAGILITY_MAX_QUERIES` | `64` | Query limit per request |
-| `USPTO_API_KEY` | None | Required credential for official patent and application lookup |
+| `PATENTAGILITY_SHUTDOWN_TIMEOUT_SECONDS` | `180` | Maximum queue-drain time after shutdown starts |
+| `PATENTAGILITY_WEB_WORKERS` | `1` | Gunicorn processes and model replicas |
+| `PATENTAGILITY_WEB_THREADS` | `64` | HTTP threads in each Gunicorn worker |
+| `USPTO_API_KEY` | None | Optional credential for USPTO file-wrapper lookup; public grant lookup works without it |

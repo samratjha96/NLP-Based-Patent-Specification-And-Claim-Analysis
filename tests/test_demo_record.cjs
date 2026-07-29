@@ -31,6 +31,14 @@ test("the built-in USPTO patent can drive every workflow without USPTO access", 
   assert.equal(record.review_examples.support_queries.length, 3);
   assert.equal(record.review_examples.examiner_query, "Samson Lemma");
   assert.equal(record.assistant_examiner, "Narciso Victoria");
+  assert.equal(record.examiner_profile.name, "Samson B Lemma");
+  assert.equal(record.examiner_profile.art_unit, "2498");
+  assert.equal(record.examiner_profile.metrics.applications, 883);
+  assert.equal(record.examiner_profile.grant_timeline.at(-1).year, 2026);
+  assert.equal(record.examiner_profile.rejection_timeline[0].office_actions, 874);
+  assert.match(record.examiner_profile.source_url, /patentagility\.kelldann\.com/);
+  const examinerProfile = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "us-9922200-examiner-profile.json"), "utf8"));
+  assert.deepEqual(JSON.parse(JSON.stringify(record.examiner_profile)), examinerProfile);
   assert.equal(record.demo_results, undefined);
   assert.deepEqual(Array.from(record.family_members, (member) => member.patent_number), ["9922200", "10831913"]);
   assert.equal(record.family_events.length, 6);
@@ -47,5 +55,8 @@ test("the example views use saved USPTO facts instead of synthetic metrics", () 
   assert.match(source, /loadedMatter\.family_events/);
   assert.match(source, /loadedMatter\.family_claims/);
   assert.match(source, /loadedMatter\.source_documents/);
+  assert.match(source, /v1\/family\/claims\/compare/);
+  assert.match(source, /v1\/family\/coverage/);
+  assert.match(source, /loadedMatter\.examiner_profile/);
   assert.match(source, /matter\.is_demo \? demoRecord : matter/);
 });

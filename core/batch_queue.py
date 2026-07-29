@@ -122,6 +122,7 @@ class BatchProcessor(Generic[InputT, ResultT]):
         self._carryover_depth = 0
         self._accepting = True
         self._started = False
+        self._stop_requested = False
         self._state_lock = threading.Lock()
         self._metrics_lock = threading.Lock()
         self._thread = threading.Thread(target=self._run, name=name, daemon=True)
@@ -184,12 +185,18 @@ class BatchProcessor(Generic[InputT, ResultT]):
             self._increment("timed_out")
             raise
 
-    def close(self, *, drain: bool = True, timeout: float | None = None) -> None:
+    def begin_drain(self) -> None:
+        """Reject new work while accepted work finishes."""
         with self._state_lock:
-            if not self._accepting:
-                return
+            self._accepting = False
+
+    def close(self, *, drain: bool = True, timeout: float | None = None) -> None:
+        deadline = time.monotonic() + timeout if timeout is not None else None
+        with self._state_lock:
             self._accepting = False
             started = self._started
+            signal_stop = not self._stop_requested
+            self._stop_requested = True
 
         if not drain:
             self._cancel_pending()
@@ -198,8 +205,18 @@ class BatchProcessor(Generic[InputT, ResultT]):
             self._cancel_pending()
             return
 
-        self._queue.put(_STOP)
-        self._thread.join(timeout)
+        if signal_stop:
+            remaining = (
+                None if deadline is None else max(0.0, deadline - time.monotonic())
+            )
+            try:
+                self._queue.put(_STOP, timeout=remaining)
+            except queue.Full as exc:
+                raise TimeoutError(
+                    "inference queue did not start draining before the deadline"
+                ) from exc
+        remaining = None if deadline is None else max(0.0, deadline - time.monotonic())
+        self._thread.join(remaining)
         if self._thread.is_alive():
             raise TimeoutError("inference worker did not stop before the deadline")
 
